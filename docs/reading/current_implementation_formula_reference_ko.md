@@ -12,6 +12,7 @@
 
 - `src/driving_preference_field/progression_surface.py`
 - `src/driving_preference_field/channels.py`
+- `src/driving_preference_field/field_runtime.py`
 
 현재 progression은 smooth skeleton anchor를 control point로 쓰는 Gaussian-blended coordinate field다.
 
@@ -137,6 +138,7 @@ final progression score:
 - 같은 progression slice에서는 center-high transverse profile을 만든다
 - stronger longitudinal에서는 farther-ahead ordering을 만든다
 - branch guide도 같은 anchor pool로 읽어서 gap을 비우지 않는다
+- downstream consumer는 이 수식을 직접 복제하기보다 cached runtime query layer를 소비한다
 
 ## 2. Interior / Boundary
 

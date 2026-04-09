@@ -22,9 +22,11 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     _wait_for_result(qtbot, window)
 
     assert window._comparison_result is not None
+    assert window._profile_result is not None
     assert window._baseline_view.scene() is not None
     assert window._candidate_view.scene() is not None
-    assert window._left_tabs.count() == 3
+    assert window._left_tabs.count() == 4
+    assert window._left_tabs.tabText(2) == "Profile"
     assert window._parameter_tabs.count() == 2
     assert window._parameter_tabs.tabText(0) == "Baseline"
     assert window._parameter_tabs.tabText(1) == "Candidate"
@@ -64,6 +66,11 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._baseline_view.horizontalScrollBarPolicy() == Qt.ScrollBarPolicy.ScrollBarAlwaysOff
     assert window._baseline_view.verticalScrollBarPolicy() == Qt.ScrollBarPolicy.ScrollBarAlwaysOff
     assert window._single_pane._title_label.isHidden() is True
+    assert window._case_dock.minimumWidth() < 300
+    assert window._left_stack_dock.minimumWidth() < 300
+    summary = json.loads(window._summary_panel._text.toPlainText())
+    assert summary["profile"]["available"] is True
+    assert summary["profile"]["selected_channel"] == "progression_tilted"
 
     window.close()
 
@@ -321,6 +328,10 @@ def test_preset_copy_and_export_workflow(qtbot, tmp_path, monkeypatch) -> None:
     assert (export_path / "candidate" / "base_total.png").exists()
     session_path = export_path / "comparison_session.json"
     assert session_path.exists()
+    assert (export_path / "profile" / "profile_baseline.png").exists()
+    assert (export_path / "profile" / "profile_candidate.png").exists()
+    assert (export_path / "profile" / "profile_diff.png").exists()
+    assert (export_path / "profile" / "profile_data.json").exists()
     assert any(path.name.startswith("diff_") for path in export_path.iterdir())
     session = json.loads(session_path.read_text(encoding="utf-8"))
     assert session["note"] == "candidate prefers stronger longitudinal field"
@@ -330,6 +341,8 @@ def test_preset_copy_and_export_workflow(qtbot, tmp_path, monkeypatch) -> None:
     assert session["candidate_preset"]["metadata"]["unsaved"] is True
     assert session["selected_channel"] == window._selected_channel
     assert "raster" in session["diff_summary"]
+    assert session["profile_summary"]["selected_channel"] == window._selected_channel
+    assert session["profile_summary"]["file_manifest"]["profile_data.json"].endswith("profile_data.json")
     assert session["effective_ego_pose"]["x"] == window._working_context.ego_pose.x
     assert session["effective_local_window"]["y_min"] == window._working_context.local_window.y_min
     baseline_progression = session["baseline_preset"]["field_config"]["progression"]

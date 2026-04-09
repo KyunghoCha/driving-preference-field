@@ -108,6 +108,15 @@ runtime evaluator는 최소한 다음 context를 받는다.
 - fast trajectory query
 - debug grid query
 
+Phase 4 late-stage public runtime interface는 다음으로 기록한다.
+
+- `build_field_runtime(snapshot, context, config=None)`
+- `FieldRuntime.query_state(state)`
+- `FieldRuntime.query_trajectory(trajectory)`
+- `FieldRuntime.query_debug_grid(x_coords, y_coords)`
+
+downstream consumer는 current formula를 복제하지 않고 이 runtime layer를 소비하는 것을 원칙으로 한다.
+
 ### 2. State Evaluation
 
 state evaluator는 다음 개념 출력을 제공해야 한다.

@@ -15,7 +15,7 @@
 
 ## 현재 위치
 
-현재 프로젝트는 **Phase 4 Parameter Lab 정렬 단계**로 본다.
+현재 프로젝트는 **Phase 4 late stage: morphology stabilization + runtime contract fixation**로 본다.
 
 - Phase 0: 완료
 - Phase 1: 완료
@@ -130,6 +130,17 @@
 - 문서 canonical 정리 완료
 - code / preset / GUI naming 정렬 완료
 - 같은 canonical field 내부에서 longitudinal / transverse 실험을 진행하는 단계
+- cached runtime query layer와 debug component view 추가 완료
+- late Phase 4 acceptance를 문서와 테스트로 고정하는 단계
+
+late Phase 4 acceptance:
+
+- overlap 영역 ordering stability가 유지된다
+- visible endpoint가 semantic start/end처럼 보이지 않는다
+- `straight_corridor`, `left_bend`, `split_branch`, `merge_like_patch`, `u_turn`에서 hole / abrupt ranking flip / fake end-cap이 없다
+- cached runtime query layer와 evaluator semantics가 일치한다
+- Parameter Lab export만으로 morphology 비교가 재현 가능하다
+- 3D preview는 optional / post-Phase 4 polish로만 남긴다
 
 ### Phase 5. Source Adapter
 
@@ -190,9 +201,9 @@
 
 ### 다음 액션
 
-1. longitudinal / transverse family와 shape를 morphology 기준으로 비교 실험
-2. progression field 시각 형태가 의도와 얼마나 맞는지 확인하고 조정
-3. cleanup 이후 반복 가능한 실험 절차를 계속 검증
+1. natural contour와 artifact를 케이스별 acceptance로 더 명확히 구분
+2. runtime query contract를 downstream-ready로 유지하면서 drift 없이 검증
+3. line cut / profile inspection을 포함한 morphology 해석 절차를 계속 반복
 4. Phase 5 Source Adapter는 후속으로 유지
 
 ## 사용 원칙

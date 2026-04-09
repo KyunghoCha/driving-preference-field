@@ -17,6 +17,7 @@ class ComparisonSession:
     baseline_state_summary: dict[str, Any]
     candidate_state_summary: dict[str, Any]
     diff_summary: dict[str, Any]
+    profile_summary: dict[str, Any]
     baseline_render_summary: dict[str, Any]
     candidate_render_summary: dict[str, Any]
     note: str

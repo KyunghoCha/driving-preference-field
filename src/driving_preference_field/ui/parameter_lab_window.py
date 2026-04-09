@@ -32,6 +32,12 @@ from driving_preference_field.config import (
     progression_family_label,
 )
 from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample
+from driving_preference_field.profile_inspection import (
+    ComparisonProfileResult,
+    build_comparison_profile,
+    export_profile_bundle,
+    summarize_profile_result,
+)
 from driving_preference_field.presets import (
     DEFAULT_PRESET_DIR,
     can_overwrite_preset,
@@ -50,6 +56,7 @@ from driving_preference_field.ui.widgets.color_scale_widget import ColorScaleWid
 from driving_preference_field.ui.widgets.layer_panel import LayerPanelWidget
 from driving_preference_field.ui.widgets.preset_panel import PresetPanelWidget
 from driving_preference_field.ui.widgets.progression_parameter_panel import ProgressionParameterPanelWidget
+from driving_preference_field.ui.widgets.profile_panel import ProfilePanelWidget
 from driving_preference_field.ui.widgets.summary_panel import SummaryPanelWidget
 from driving_preference_field.ui.widgets.text_viewer_dialog import TextViewerDialog
 from driving_preference_field.visualization_scale import (
@@ -205,6 +212,7 @@ class ParameterLabWindow(QMainWindow):
         self._default_context = loaded_context
         self._working_context = loaded_context
         self._comparison_result: RasterComparisonResult | None = None
+        self._profile_result: ComparisonProfileResult | None = None
         self._reset_views_pending = True
 
         self._async = AsyncRasterEvaluator(debounce_ms=100)
@@ -217,6 +225,7 @@ class ParameterLabWindow(QMainWindow):
         self._candidate_panel = ProgressionParameterPanelWidget(title="Candidate Progression")
         self._preset_panel = PresetPanelWidget()
         self._summary_panel = SummaryPanelWidget()
+        self._profile_panel = ProfilePanelWidget()
 
         self._baseline_view = RasterCanvasView()
         self._candidate_view = RasterCanvasView()
@@ -257,6 +266,7 @@ class ParameterLabWindow(QMainWindow):
         self._wire_signals()
         self._baseline_panel.set_config(self._baseline_config)
         self._candidate_panel.set_config(self._candidate_config)
+        self._profile_panel.set_context(self._working_context)
         self._case_panel.set_context_values(
             default_context=self._default_context,
             working_context=self._working_context,
@@ -315,9 +325,18 @@ class ParameterLabWindow(QMainWindow):
             self._current_candidate_preset(),
             export_root / "candidate_preset.yaml",
         )
+        profile_payload = {"available": False, "selected_channel": self._selected_channel}
+        profile_result = self._current_profile_result()
+        if profile_result is not None:
+            profile_payload = export_profile_bundle(
+                profile_result,
+                selected_channel=self._selected_channel,
+                out_dir=export_root / "profile",
+            )
         session = self._build_comparison_session(
             baseline_render_summary=baseline_artifacts.summary,
             candidate_render_summary=candidate_artifacts.summary,
+            profile_summary=profile_payload,
             exported_at=timestamp,
         )
         (export_root / "comparison_session.json").write_text(
@@ -333,6 +352,7 @@ class ParameterLabWindow(QMainWindow):
         self._left_tabs = QTabWidget()
         self._left_tabs.addTab(self._preset_panel, "Presets")
         self._left_tabs.addTab(self._summary_panel, "Summary")
+        self._left_tabs.addTab(self._profile_panel, "Profile")
         self._left_tabs.addTab(self._layer_panel, "Layers")
         self._left_tabs.setDocumentMode(True)
         self._left_stack_dock = self._add_dock("Workspace", self._left_tabs, Qt.DockWidgetArea.LeftDockWidgetArea)
@@ -343,8 +363,8 @@ class ParameterLabWindow(QMainWindow):
         self._parameter_tabs.setDocumentMode(True)
         self._parameter_dock = self._add_dock("Parameters", self._parameter_tabs, Qt.DockWidgetArea.RightDockWidgetArea)
 
-        self._case_dock.setMinimumWidth(300)
-        self._left_stack_dock.setMinimumWidth(300)
+        self._case_dock.setMinimumWidth(0)
+        self._left_stack_dock.setMinimumWidth(0)
         self._parameter_dock.setMinimumWidth(320)
         self.splitDockWidget(self._case_dock, self._left_stack_dock, Qt.Orientation.Vertical)
         self.resizeDocks([self._case_dock, self._left_stack_dock], [330, 400], Qt.Orientation.Vertical)
@@ -421,6 +441,7 @@ class ParameterLabWindow(QMainWindow):
         self._scale_selector.currentIndexChanged.connect(self._on_scale_mode_changed)
         self._compare_layout_button.clicked.connect(self._toggle_compare_layout)
         self._single_selector.currentTextChanged.connect(self._on_single_side_changed)
+        self._profile_panel.profileSpecChanged.connect(self._on_profile_spec_changed)
         self._tabs.currentChanged.connect(lambda *_: self._refresh_scale_info_label())
         self._summary_panel.noteChanged.connect(self._on_note_changed)
         for view in (self._baseline_view, self._candidate_view, self._diff_view, self._single_view):
@@ -510,6 +531,8 @@ class ParameterLabWindow(QMainWindow):
         self._snapshot, loaded_context = load_toy_snapshot(self._current_case_path)
         self._default_context = loaded_context
         self._working_context = loaded_context
+        self._profile_panel.set_context(self._working_context)
+        self._profile_result = None
         self._reset_views_pending = True
         self._qualitative_note = ""
         self._summary_panel.set_note("")
@@ -543,6 +566,8 @@ class ParameterLabWindow(QMainWindow):
         self._snapshot, loaded_context = load_toy_snapshot(self._current_case_path)
         self._default_context = loaded_context
         self._working_context = loaded_context
+        self._profile_panel.set_context(self._working_context)
+        self._profile_result = None
         self._reset_views_pending = True
         self._qualitative_note = ""
         self._summary_panel.set_note("")
@@ -560,11 +585,15 @@ class ParameterLabWindow(QMainWindow):
             mode=self._default_context.mode,
             phase=self._default_context.phase,
         )
+        self._profile_panel.set_context(self._working_context)
+        self._profile_result = None
         self._reset_views_pending = True
         self._schedule_evaluation()
 
     def _on_case_controls_reset(self) -> None:
         self._working_context = self._default_context
+        self._profile_panel.set_context(self._working_context)
+        self._profile_result = None
         self._reset_views_pending = True
         self._schedule_evaluation()
 
@@ -631,6 +660,7 @@ class ParameterLabWindow(QMainWindow):
     def _on_channel_changed(self) -> None:
         self._selected_channel = str(self._channel_selector.currentData())
         self._refresh_views()
+        self._refresh_profile_panel()
         self._refresh_summary()
 
     def _on_scale_mode_changed(self) -> None:
@@ -666,6 +696,7 @@ class ParameterLabWindow(QMainWindow):
     def _on_comparison_ready(self, _generation: int, result: RasterComparisonResult) -> None:
         self._comparison_result = result
         self._refresh_views()
+        self._refresh_profile_panel()
         if self._reset_views_pending:
             self._reset_views()
             self._reset_views_pending = False
@@ -676,6 +707,10 @@ class ParameterLabWindow(QMainWindow):
 
     def _on_busy_changed(self, busy: bool) -> None:
         self._status_label.setText("computing" if busy else "idle")
+
+    def _on_profile_spec_changed(self, _axis: str, _coordinate: float) -> None:
+        self._refresh_profile_panel()
+        self._refresh_summary()
 
     def _update_hover(self, x: float, y: float) -> None:
         self._hover_label.setText(f"(x, y)=({x:.3f}, {y:.3f})")
@@ -779,6 +814,19 @@ class ParameterLabWindow(QMainWindow):
         self._refresh_scale_info_label()
         self._status_label.setText(f"idle | channel={label}")
 
+    def _refresh_profile_panel(self) -> None:
+        if self._comparison_result is None:
+            self._profile_result = None
+            self._profile_panel.set_profile_result(None, selected_channel=self._selected_channel)
+            return
+        self._profile_result = build_comparison_profile(
+            self._comparison_result.baseline_raster,
+            self._comparison_result.candidate_raster,
+            spec=self._profile_panel.profile_spec(),
+            selected_channel=self._selected_channel,
+        )
+        self._profile_panel.set_profile_result(self._profile_result, selected_channel=self._selected_channel)
+
     def _refresh_summary(self) -> None:
         if self._comparison_result is None:
             return
@@ -809,6 +857,7 @@ class ParameterLabWindow(QMainWindow):
             "baseline_selected_channel_value": self._state_channel_value(baseline_state, self._selected_channel),
             "candidate_selected_channel_value": self._state_channel_value(candidate_state, self._selected_channel),
             "difference": self._diff_summary_payload(baseline_state, candidate_state),
+            "profile": self._profile_summary_payload(),
             "visualization": self._visualization_payload(),
             "qualitative_note": self._qualitative_note,
         }
@@ -820,6 +869,26 @@ class ParameterLabWindow(QMainWindow):
             self._comparison_result.candidate_raster.channels[self._selected_channel]
             - self._comparison_result.baseline_raster.channels[self._selected_channel]
         )
+
+    def _current_profile_result(self) -> ComparisonProfileResult | None:
+        if self._comparison_result is None:
+            return None
+        if self._profile_result is None:
+            self._refresh_profile_panel()
+        return self._profile_result
+
+    def _profile_summary_payload(self) -> dict[str, object]:
+        result = self._current_profile_result()
+        if result is None:
+            return {
+                "available": False,
+                "selected_channel": self._selected_channel,
+            }
+        summary = summarize_profile_result(result, selected_channel=self._selected_channel)
+        return {
+            "available": True,
+            **summary,
+        }
 
     def _effective_context_payload(self) -> dict[str, object]:
         return {
@@ -917,6 +986,7 @@ class ParameterLabWindow(QMainWindow):
         *,
         baseline_render_summary: dict[str, object],
         candidate_render_summary: dict[str, object],
+        profile_summary: dict[str, object],
         exported_at: str,
     ) -> ComparisonSession:
         assert self._comparison_result is not None
@@ -936,6 +1006,7 @@ class ParameterLabWindow(QMainWindow):
                 "raster": summarize_diff_array(self._selected_diff_array()),
                 "visualization": self._visualization_payload(),
             },
+            profile_summary=profile_summary,
             baseline_render_summary=baseline_render_summary,
             candidate_render_summary=candidate_render_summary,
             note=self._qualitative_note,

@@ -24,6 +24,8 @@
 - current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정렬 진행 중
 - cached field runtime query layer 추가
 - progression debug component view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment) 추가
+- Parameter Lab profile inspection 탭과 profile export 추가
+- late Phase 4 acceptance를 문서와 테스트로 고정하는 단계
 
 전체 phase 진행은 다음 문서에서 관리한다.
 
@@ -39,16 +41,19 @@
 - current implementation exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다
 - visible guide endpoint는 virtual continuation으로 처리한다
 - support / alignment는 weak secondary modulation으로만 유지한다
+- 자연 contour와 인공 artifact를 구분해 다룬다
+- bend/U-turn의 대각선 contour와 global 등고선은 허용하고, overlap ordering flip / branch hole / fake end-cap만 제거 대상으로 본다
 - support / confidence / continuity / alignment는 보조 성분이다
 - canonical score는 higher is better다
 - obstacle/rule/dynamic은 separate layer다
 - full raster는 visualization/debugging용이다
 - canonical input은 source가 아니라 semantic contract로 정의한다
+- downstream consumer는 formula copy가 아니라 `field_runtime` cached query layer를 소비하는 것을 기준으로 한다
 
 ## 다음 단계
 
-1. 같은 case + 같은 preset pair + 같은 effective context에서 export 재현성을 반복 확인한다
+1. `straight_corridor`, `left_bend`, `split_branch`, `merge_like_patch`, `u_turn`에서 late Phase 4 acceptance를 더 단단히 유지한다
 2. overlap 영역 ordering stability와 endpoint continuation behavior를 반복 확인한다
 3. longitudinal frame / family / shape와 transverse family / shape를 실제 morphology 기준으로 조정한다
-4. interior / continuity / exception 파라미터를 어떤 순서로 노출할지 정한다
+4. line cut / profile export를 활용해 contour 원인을 계속 해석한다
 5. source adapter 범위는 후속 단계로 유지한다

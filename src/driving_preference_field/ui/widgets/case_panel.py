@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QDoubleSpinBox,
     QFormLayout,
     QPushButton,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -38,6 +39,8 @@ class CasePanelWidget(QWidget):
         self._applied_ego_pose: StateSample | None = None
         self._applied_local_window: QueryWindow | None = None
         self._combo = QComboBox()
+        self._combo.setMinimumWidth(0)
+        self._combo.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self._combo.currentIndexChanged.connect(self._emit_case)
 
         self._controls: dict[str, QDoubleSpinBox] = {}
@@ -66,6 +69,8 @@ class CasePanelWidget(QWidget):
             spin.setDecimals(4)
             spin.setRange(minimum, maximum)
             spin.setSingleStep(0.1)
+            spin.setMinimumWidth(0)
+            spin.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
             spin.valueChanged.connect(self._on_control_changed)
             self._controls[key] = spin
             form.addRow(CONTROL_LABELS[key], spin)

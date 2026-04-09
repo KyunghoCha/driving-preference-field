@@ -40,6 +40,7 @@
 6. 짧은 정성 메모를 기록한다
 7. `comparison_session.json`을 함께 남긴다
 8. 필요하면 session-level ego/window control도 함께 기록한다
+9. 필요하면 line cut / profile inspection 결과도 함께 남긴다
 
 ## 실험축
 
@@ -115,6 +116,11 @@ Phase 3까지 만든 toy case를 기본 실험 집합으로 둔다.
 - diff view
 - parameter snapshot
 - `comparison_session.json`
+- profile inspection bundle
+  - `profile_baseline.png`
+  - `profile_candidate.png`
+  - `profile_diff.png`
+  - `profile_data.json`
 - 채널별 PNG
   - `progression_tilted`
   - `interior_boundary`
@@ -127,6 +133,7 @@ Phase 3까지 만든 toy case를 기본 실험 집합으로 둔다.
 - `render_summary.json`
 - 짧은 비교 메모
   - 어떤 morphology 변화가 보였는가
+  - 자연 contour인지, 구현 artifact인지
   - weak-support 장면에서 과확신이 생겼는가
   - branch/merge 장면에서 continuity가 사라지지 않았는가
 
@@ -142,6 +149,8 @@ Phase 3까지 만든 toy case를 기본 실험 집합으로 둔다.
 - open patch에서 progression이 과도하게 확신하지 않는가
 - blocked patch에서 safety layer가 base를 완전히 덮어쓰지 않으면서도 hard/soft 구분이 유지되는가
 - longitudinal과 transverse를 각각 바꿨을 때 morphology 변화가 분리되어 보이는가
+- line cut/profile inspection에서 `s_hat`, `n_hat`, longitudinal/transverse component가 contour 원인을 설명하는가
+- visible endpoint 근처에서 fake end-cap이나 ranking flip이 생기지 않는가
 
 ## 현재 단계 결론
 

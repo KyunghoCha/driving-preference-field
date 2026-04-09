@@ -26,6 +26,7 @@ canonical 핵심은 다음과 같다.
 - 코드 / preset / GUI가 단일 canonical progression field 기준으로 정렬 완료
 - current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정리 진행 중
 - cached runtime query layer와 progression debug component view 추가
+- Parameter Lab line cut / profile inspection과 profile export 추가
 - GitHub Actions CI와 git tracking 기준 정리 완료
 
 ## 아키텍처
@@ -219,6 +220,7 @@ trajectory ordering:
 - 각 뷰 옆의 color scale bar 표시
 - Help와 summary를 통한 current implementation guide 제공
 - `s_hat`, `n_hat`, `longitudinal_component`, `transverse_component`, `support_mod`, `alignment_mod` debug view 제공
+- line cut / profile inspection과 baseline/candidate/diff profile export 제공
 - 기본 selected channel은 `progression_tilted`
 
 다만 현재 GUI는 canonical 전체를 아직 다 노출하지는 않는다.
@@ -231,6 +233,11 @@ trajectory ordering:
   - `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`
 - same-s slice에서는 center-high transverse profile을, strong longitudinal에서는 farther-ahead ordering을 먼저 확인하는 것이 맞다
 - downstream runtime consumer는 `src/driving_preference_field/field_runtime.py`의 cached query layer를 기준으로 삼는다
+- Phase 4 late-stage public runtime interface:
+  - `build_field_runtime(snapshot, context, config=None)`
+  - `FieldRuntime.query_state(state)`
+  - `FieldRuntime.query_trajectory(trajectory)`
+  - `FieldRuntime.query_debug_grid(x_coords, y_coords)`
 - branch 사이도 winner 없이 fabric-like surface로 이어지고, raster는 이 함수를 샘플링한 visualization이다
 - exact current formula는 canonical truth가 아니라 morphology 실험 대상이다
 

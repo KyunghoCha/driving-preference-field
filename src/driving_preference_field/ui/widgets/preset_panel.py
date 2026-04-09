@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
     QListWidget,
     QPushButton,
+    QSizePolicy,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -29,6 +30,9 @@ class PresetPanelWidget(QWidget):
             "baseline": QListWidget(),
             "candidate": QListWidget(),
         }
+        for list_widget in self._lists.values():
+            list_widget.setMinimumWidth(0)
+            list_widget.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         self._tabs = QTabWidget()
         self._tabs.setDocumentMode(True)
         self._tabs.addTab(self._lists["baseline"], "Baseline")
@@ -57,6 +61,17 @@ class PresetPanelWidget(QWidget):
         self._save_candidate.clicked.connect(lambda: self._emit_save("candidate"))
         self._copy_b_to_c.clicked.connect(lambda: self.copyRequested.emit("baseline", "candidate"))
         self._copy_c_to_b.clicked.connect(lambda: self.copyRequested.emit("candidate", "baseline"))
+
+        for button in (
+            self._save_baseline,
+            self._save_candidate,
+            self._load_baseline,
+            self._load_candidate,
+            self._copy_b_to_c,
+            self._copy_c_to_b,
+        ):
+            button.setMinimumWidth(0)
+            button.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
 
     def set_presets(
         self,
