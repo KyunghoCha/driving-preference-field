@@ -15,15 +15,19 @@ def test_status_docs_lock_late_phase4_acceptance() -> None:
 
     assert "late Phase 4 acceptance" in roadmap
     assert "semantic-first" in roadmap
+    assert "Phase 4 완료, Phase 5 준비 상태" in roadmap
     assert "overlap 영역 ordering stability" in roadmap
     assert "visible endpoint가 semantic start/end처럼 보이지 않는다" in roadmap
     assert "`straight_corridor`, `left_bend`, `split_branch`, `merge_like_patch`, `u_turn`" in roadmap
     assert "Parameter Lab export만으로 morphology 비교가 재현 가능하다" in roadmap
+    assert "위 acceptance를 현재 문서 / 구현 / 테스트 기준으로 충족한 상태로 본다" in roadmap
 
     assert "late Phase 4 acceptance lock" in project_status
+    assert "Phase 4 완료, Phase 5 준비 상태" in project_status
     assert "FieldRuntime" in project_status
     assert "fake end-cap" in project_status
     assert "Gazebo / RViz / MPPI hookup" in project_status
+    assert "위 종료 조건은 충족한 상태로 본다" in project_status
 
     assert "late Phase 4 semantic acceptance" in experiment_plan
     assert "overlap 영역 ordering flip" in experiment_plan

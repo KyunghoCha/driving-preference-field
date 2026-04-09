@@ -25,7 +25,8 @@
 - cached field runtime query layer 추가
 - progression debug component view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment) 추가
 - Parameter Lab profile inspection 탭과 profile export 추가
-- late Phase 4 acceptance를 문서와 테스트로 고정하는 단계
+- late Phase 4 acceptance를 문서와 테스트로 고정 완료
+- 현재 phase 판단은 `Phase 4 완료, Phase 5 준비 상태`
 
 전체 phase 진행은 다음 문서에서 관리한다.
 
@@ -52,11 +53,10 @@
 
 ## 다음 단계
 
-1. `straight_corridor`, `left_bend`, `split_branch`, `merge_like_patch`, `u_turn`에서 late Phase 4 acceptance를 더 단단히 유지한다
-2. overlap 영역 ordering stability와 endpoint continuation behavior를 반복 확인한다
-3. longitudinal frame / family / shape와 transverse family / shape를 실제 morphology 기준으로 조정한다
-4. line cut / profile export를 활용해 contour 원인을 계속 해석한다
-5. source adapter 범위는 후속 단계로 유지한다
+1. 이 repo에서는 Phase 4 결과를 안정 상태로 유지한다
+2. morphology 미세조정은 downstream 실험 결과가 생길 때만 되돌아와 수행한다
+3. runtime contract와 문서 SSOT의 drift만 계속 관리한다
+4. source adapter 범위는 후속 단계로 유지한다
 
 ## late Phase 4 acceptance lock
 
@@ -67,6 +67,10 @@
 - `straight_corridor`, `left_bend`, `split_branch`, `merge_like_patch`, `u_turn`에서 hole / fake end-cap / abrupt ranking flip이 없다
 - `FieldRuntime` public contract와 evaluator semantics가 계속 일치한다
 - Parameter Lab export만으로 morphology 비교가 재현 가능하다
+
+현재 판단:
+
+- 위 종료 조건은 충족한 상태로 본다
 
 이번 라운드에서 명시적으로 하지 않는 일:
 

@@ -15,13 +15,13 @@
 
 ## 현재 위치
 
-현재 프로젝트는 **Phase 4 late stage: morphology stabilization + runtime contract fixation**로 본다.
+현재 프로젝트는 **Phase 4 완료, Phase 5 준비 상태**로 본다.
 
 - Phase 0: 완료
 - Phase 1: 완료
 - Phase 2: 완료
 - Phase 3: 완료
-- Phase 4: 진행 중
+- Phase 4: 완료
 - Phase 5: 후속 단계
 
 ## Phase 구조
@@ -127,11 +127,7 @@
 
 현재 상태:
 
-- 문서 canonical 정리 완료
-- code / preset / GUI naming 정렬 완료
-- 같은 canonical field 내부에서 longitudinal / transverse 실험을 진행하는 단계
-- cached runtime query layer와 debug component view 추가 완료
-- late Phase 4 acceptance를 문서와 테스트로 고정하는 단계
+- 완료
 
 late Phase 4 acceptance:
 
@@ -142,6 +138,10 @@ late Phase 4 acceptance:
 - cached runtime query layer와 evaluator semantics가 일치한다
 - Parameter Lab export만으로 morphology 비교가 재현 가능하다
 - 3D preview는 optional / post-Phase 4 polish로만 남긴다
+
+판단:
+
+- 위 acceptance를 현재 문서 / 구현 / 테스트 기준으로 충족한 상태로 본다
 
 ### Phase 5. Source Adapter
 
@@ -191,21 +191,15 @@ late Phase 4 acceptance:
 
 ### 현재 진행
 
-- Parameter Lab compare GUI 유지
-- config-driven evaluator 경로 유지
-- preset 저장 / 불러오기 / 복사 유지
-- export comparison 경로 유지
-- case-level ego/window control 유지
-- fixed scale / normalized exploratory mode 유지
-- canonical parameter axes와 현재 GUI 노출 범위의 1차 정렬 완료
-- 같은 canonical field 내부 파라미터 실험 진행
+- Phase 4 결과를 SSOT 상태로 유지
+- downstream consumer가 사용할 runtime contract drift 방지
+- morphology lab 기준선 유지
 
 ### 다음 액션
 
-1. natural contour와 artifact를 케이스별 acceptance로 더 명확히 구분
-2. runtime query contract를 downstream-ready로 유지하면서 drift 없이 검증
-3. line cut / profile inspection을 포함한 morphology 해석 절차를 계속 반복
-4. Phase 5 Source Adapter는 후속으로 유지
+1. 이 repo에서는 Phase 4 결과를 안정 상태로 유지하고 drift만 관리
+2. morphology 미세조정은 downstream 실험 결과가 생길 때만 되돌아와 수행
+3. Phase 5 Source Adapter는 후속 단계로 유지
 
 ## 사용 원칙
 
