@@ -45,6 +45,8 @@
 - 같은 longitudinal slice에서는 center-high transverse profile을 읽는다
 - strong longitudinal 설정에서는 더 먼 progression gain이 가까운 중심 선호를 이길 수 있다
 - smooth skeleton anchor는 점수 carrier가 아니라 local space coordinates를 부드럽게 추정하는 control point로 읽는다
+- visible guide endpoint는 semantic endpoint가 아니라 local patch continuation이 있는 것으로 읽는다
+- support / alignment modulation은 주형을 만들지 못하게 약한 secondary로만 남긴다
 
 ### 2. Interior / Boundary-Derived Preference
 

@@ -15,6 +15,9 @@
 
 현재 progression은 smooth skeleton anchor를 control point로 쓰는 Gaussian-blended coordinate field다.
 
+- visible guide endpoint는 semantic start/end가 아니라 virtual continuation으로 처리한다
+- support/alignment는 주형을 만들지 않는 weak secondary modulation이다
+
 anchor별 local coordinate:
 
 ```math
@@ -52,7 +55,9 @@ blended coordinate:
 longitudinal frame:
 
 ```math
-u_{\text{local\_absolute}} = \mathrm{clip}\left(\frac{\hat{s}}{s_{\max}}, 0, 1\right)
+u_{\text{local\_absolute}} = \mathrm{clip}\left(
+\frac{\hat{s} - s_{\min}^{ext}}{s_{\max}^{ext} - s_{\min}^{ext}}, 0, 1
+\right)
 ```
 
 ```math
@@ -110,12 +115,12 @@ T(r) = e^{-\beta r}
 secondary modulation:
 
 ```math
-\text{alignment\_mod} = 0.85 + 0.15 \max(0,\ \langle h,\ \hat{t} \rangle)
+\text{alignment\_mod} = 0.95 + 0.05 \max(0,\ \langle h,\ \hat{t} \rangle)
 ```
 
 ```math
-\text{support\_mod} = 0.85 + 0.15 \ \mathrm{clip}\left(
-\frac{\sum_i r_i}{\text{support\_ceiling}},\ 0,\ 1
+\text{support\_mod} = 0.95 + 0.05 \ \mathrm{clip}\left(
+\frac{\sum_i \bar{w}_i \min(c_i,\ c_{\max})}{c_{\max}},\ 0,\ 1
 \right)
 ```
 

@@ -41,6 +41,10 @@ def test_render_case_writes_expected_files_and_summary(tmp_path: Path) -> None:
 
     expected = {
         "progression_tilted.png",
+        "progression_s_hat.png",
+        "progression_n_hat.png",
+        "progression_longitudinal_component.png",
+        "progression_transverse_component.png",
         "interior_boundary.png",
         "continuity_branch.png",
         "base_total.png",

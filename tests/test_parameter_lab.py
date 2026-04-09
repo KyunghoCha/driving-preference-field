@@ -48,6 +48,8 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert "longitudinal_family" in window._baseline_panel._controls
     assert "transverse_family" in window._baseline_panel._controls
     assert "transverse_scale" in window._baseline_panel._controls
+    assert window._channel_selector.findData("progression_s_hat") != -1
+    assert window._channel_selector.findData("progression_transverse_component") != -1
     window._tabs.setCurrentIndex(1)
     assert window._compare_splitter.orientation() == Qt.Orientation.Vertical
     assert window._compare_layout_button.isVisible() is True

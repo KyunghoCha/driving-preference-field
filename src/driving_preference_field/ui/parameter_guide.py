@@ -22,7 +22,9 @@ PARAMETER_GUIDE_INTRO = (
     "차이는 `base_preference_total`보다 `progression_tilted` 채널에서 먼저 확인하는 것이 맞다.\n"
     "현재 progression 파라미터는 longitudinal frame/term, transverse profile, support ceiling을 다룬다.\n"
     "current implementation은 smooth skeleton anchor들을 공간 좌표 추정용 control point로 쓰고, Gaussian elliptical blend로 whole-fabric continuous function over local space를 만든다.\n"
+    "보이는 guide 끝은 semantic start/end가 아니라 virtual continuation이 붙은 local patch로 읽는다.\n"
     "현재 exact formula는 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.\n"
+    "support / alignment는 shape를 주도하지 않는 약한 secondary modulation이다.\n"
     "같은 진행 slice에서는 중심이 가장 높고, longitudinal tilt가 충분히 강하면 더 먼 좋은 영역이 가까운 중심보다 더 높은 ordering을 만들 수 있다.\n"
     "branch 사이도 nearest-winner 없이 fabric-like surface로 이어지며, raster는 이 함수를 샘플링한 시각화일 뿐이다."
 )

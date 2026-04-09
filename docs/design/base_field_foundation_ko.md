@@ -100,10 +100,12 @@ canonical은 exact 결합식을 고정하지 않는다.
 canonical은 exact 결합식을 고정하지 않지만, 현재 구현은 다음 형태를 사용한다.
 
 - current implementation은 nearest winner가 아니라 **smooth skeleton anchor들을 좌표 control point로 보고 Gaussian elliptical blend로 만든 whole-fabric continuous function**을 사용한다
+- visible guide endpoint는 semantic start/end로 직접 해석하지 않고, 짧은 virtual continuation을 둬 local patch 안의 fake end-cap을 줄인다
 - branch 사이도 guide별 patch를 따로 만들지 않고, 같은 함수 안에서 fabric-like surface로 메운다
 - `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`
 - `transverse_component`는 같은 진행 slice에서 center-high profile을 만든다
 - `longitudinal_component`는 더 먼 progression gain을 더한다
+- `support_mod`, `alignment_mod`는 shape를 만드는 주성분이 아니라 약한 secondary modulation이다
 - `higher is better`를 유지하며, strong longitudinal 설정에서는 farther-ahead off-center point가 nearer-center point보다 높아질 수 있다
 
 ### 4. base field는 ideal preference를 담는다

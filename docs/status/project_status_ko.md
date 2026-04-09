@@ -22,6 +22,8 @@
 - Parameter Help와 summary를 current implementation guide 기준으로 정리 완료
 - 단일 canonical progression field 기준으로 코드 / preset / GUI naming 정렬 완료
 - current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정렬 진행 중
+- cached field runtime query layer 추가
+- progression debug component view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment) 추가
 
 전체 phase 진행은 다음 문서에서 관리한다.
 
@@ -35,6 +37,8 @@
 - progression field는 최소한 longitudinal term과 transverse term을 가져야 하며, 이 둘은 독립적으로 조정 가능해야 한다
 - current implementation은 smooth skeleton anchor를 좌표 control point로 쓰는 Gaussian-blended local-map-wide whole-fabric field를 사용한다
 - current implementation exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다
+- visible guide endpoint는 virtual continuation으로 처리한다
+- support / alignment는 weak secondary modulation으로만 유지한다
 - support / confidence / continuity / alignment는 보조 성분이다
 - canonical score는 higher is better다
 - obstacle/rule/dynamic은 separate layer다
@@ -44,6 +48,7 @@
 ## 다음 단계
 
 1. 같은 case + 같은 preset pair + 같은 effective context에서 export 재현성을 반복 확인한다
-2. longitudinal frame / family / shape와 transverse family / shape를 실제 morphology 기준으로 조정한다
-3. interior / continuity / exception 파라미터를 어떤 순서로 노출할지 정한다
-4. source adapter 범위는 후속 단계로 유지한다
+2. overlap 영역 ordering stability와 endpoint continuation behavior를 반복 확인한다
+3. longitudinal frame / family / shape와 transverse family / shape를 실제 morphology 기준으로 조정한다
+4. interior / continuity / exception 파라미터를 어떤 순서로 노출할지 정한다
+5. source adapter 범위는 후속 단계로 유지한다

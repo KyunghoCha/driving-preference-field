@@ -63,6 +63,12 @@ from driving_preference_field.visualization_scale import (
 
 CHANNEL_OPTIONS = {
     "progression_tilted": ("Progression Tilted", "plasma"),
+    "progression_s_hat": ("Progression s_hat", "viridis"),
+    "progression_n_hat": ("Progression n_hat", "magma"),
+    "progression_longitudinal_component": ("Longitudinal Component", "plasma"),
+    "progression_transverse_component": ("Transverse Component", "cividis"),
+    "progression_support_mod": ("Support Modulation", "inferno"),
+    "progression_alignment_mod": ("Alignment Modulation", "inferno"),
     "interior_boundary": ("Interior Boundary", "magma"),
     "continuity_branch": ("Continuity Branch", "cividis"),
     "base_preference_total": ("Base Preference Total", "viridis"),
@@ -870,6 +876,16 @@ class ParameterLabWindow(QMainWindow):
             return state_result.base_preference_total
         if channel_name in state_result.base_preference_channels:
             return state_result.base_preference_channels[channel_name]
+        debug_key_map = {
+            "progression_s_hat": "progression_s_hat",
+            "progression_n_hat": "progression_n_hat",
+            "progression_longitudinal_component": "progression_longitudinal_component",
+            "progression_transverse_component": "progression_transverse_component",
+            "progression_support_mod": "progression_support_mod",
+            "progression_alignment_mod": "progression_alignment_mod",
+        }
+        if channel_name in debug_key_map:
+            return float(state_result.diagnostics[debug_key_map[channel_name]])
         return state_result.soft_exception_channels[channel_name]
 
     def _export_comparison(self) -> None:

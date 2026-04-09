@@ -59,8 +59,11 @@ current implementation은 다음을 사용한다.
 - progression 본체:
   - smooth skeleton anchor들의 Gaussian elliptical blend로 local map 전체의 whole-fabric continuous function을 만든다
   - branch 사이도 별도 winner 없이 같은 함수 안에서 메운다
+  - visible guide endpoint는 virtual continuation으로 처리해 semantic start/end처럼 보이지 않게 한다
 - exact formula:
   - `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`
+- support/alignment:
+  - shape를 주도하지 않는 weak secondary modulation으로만 남긴다
 - 따라서 runtime은 center-high transverse profile과 stronger longitudinal tilt가 동시에 만드는 ordering을 평가해야 한다.
 
 ### 3. visualization
@@ -97,6 +100,13 @@ runtime evaluator는 최소한 다음 context를 받는다.
 - ego-centric local frame
 - local query window
 - optional mode / phase context
+
+또한 current implementation consumer를 위한 cached runtime layer는 별도 public interface로 유지할 수 있다.
+
+- cached runtime 생성: `snapshot + context + config`
+- fast state query
+- fast trajectory query
+- debug grid query
 
 ### 2. State Evaluation
 

@@ -25,6 +25,7 @@ canonical 핵심은 다음과 같다.
 - 문서 기준 single canonical progression field 정리 완료
 - 코드 / preset / GUI가 단일 canonical progression field 기준으로 정렬 완료
 - current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정리 진행 중
+- cached runtime query layer와 progression debug component view 추가
 - GitHub Actions CI와 git tracking 기준 정리 완료
 
 ## 아키텍처
@@ -36,25 +37,24 @@ flowchart TD
     B --> C[SemanticInputSnapshot]
     B --> D[QueryContext]
     Q --> E[FieldConfig]
-    C --> F[evaluator]
+    C --> F[field_runtime]
     D --> F
     E --> F
     F --> G[progression_surface]
     F --> H[channels]
     F --> I[exception_layers]
-    F --> J[StateEvaluationResult / TrajectoryEvaluationResult]
-    C --> K[raster]
-    D --> K
-    E --> K
-    K --> L[rendering]
-    J --> L
-    L --> M[PNG / render_summary.json]
-    C --> N[Parameter Lab GUI]
-    D --> N
-    E --> N
-    J --> N
-    M --> N
-    F --> O[CLI]
+    F --> J[evaluator]
+    J --> K[StateEvaluationResult / TrajectoryEvaluationResult]
+    F --> L[raster]
+    L --> M[rendering]
+    K --> M
+    M --> N[PNG / render_summary.json]
+    C --> O[Parameter Lab GUI]
+    D --> O
+    E --> O
+    K --> O
+    N --> O
+    J --> P[CLI]
 ```
 
 ## SSOT
@@ -78,6 +78,8 @@ flowchart TD
 - canonical 문서는 현재 정의만 직접 설명한다
 - archive와 reading 자료는 canonical 정의와 분리한다
 - 코드 작성 전 문서 SSOT를 먼저 고정한다
+- 다른 머신에서 작업한 현재 구현 변경도 merge 전에 같은 SSOT 문서에 반영한다
+- 운영체제 차이는 문서 의미가 아니라 재현 방법에서만 다룬다
 
 ## 참고 문헌 기록
 
@@ -103,11 +105,18 @@ flowchart TD
 - conda env 이름: `driving-preference-field`
 - Python 버전: `3.11`
 - 재현용 파일: `environment.yml`
+- line ending 정책: `.gitattributes`에서 `LF`를 기본으로 고정한다
 
 환경 준비:
 
 1. `conda env create -f environment.yml`
 2. `conda activate driving-preference-field`
+
+크로스플랫폼 메모:
+
+- canonical 문서, current formula, preset 의미는 Ubuntu와 Windows에서 동일해야 한다
+- 이 repo는 Python/YAML/Markdown 중심이라 Windows에서도 작업 가능하지만, 의미 변경은 항상 이 repo 문서 SSOT에 같이 남긴다
+- Git line ending은 `.gitattributes`를 기준으로 정규화한다
 
 ## V0 Evaluator와 시각화
 
@@ -128,7 +137,7 @@ flowchart TD
 렌더 출력:
 
 - 기본 출력 디렉토리: `artifacts/render/<case_name>/`
-- 각 케이스는 채널별 PNG, hard mask, `composite_debug.png`, `render_legend.png`, `render_summary.json`을 함께 만든다
+- 각 케이스는 채널별 PNG, progression debug component PNG, hard mask, `composite_debug.png`, `render_legend.png`, `render_summary.json`을 함께 만든다
 
 ## 현재 수식 요약
 
@@ -141,7 +150,7 @@ flowchart TD
 - exception layers: `src/driving_preference_field/exception_layers.py`
 - evaluator composition: `src/driving_preference_field/evaluator.py`
 
-progression anchor blend:
+progression coordinate blend:
 
 ```math
 \tau_i = \langle p - a_i,\ t_i \rangle,\quad
@@ -159,6 +168,8 @@ r_i = w_i^{guide} c_i \exp\left(
 \hat{s} = \sum_i \bar{w}_i s_i,\quad
 \hat{n} = \sqrt{\sum_i \bar{w}_i \nu_i^2}
 ```
+
+visible guide endpoint는 semantic start/end로 취급하지 않는다. current implementation은 양 끝에 짧은 virtual continuation anchor를 추가해 local patch 안의 fake end-cap을 줄인다.
 
 current progression score:
 
@@ -207,6 +218,7 @@ trajectory ordering:
 - 현재 channel range / unit 표시
 - 각 뷰 옆의 color scale bar 표시
 - Help와 summary를 통한 current implementation guide 제공
+- `s_hat`, `n_hat`, `longitudinal_component`, `transverse_component`, `support_mod`, `alignment_mod` debug view 제공
 - 기본 selected channel은 `progression_tilted`
 
 다만 현재 GUI는 canonical 전체를 아직 다 노출하지는 않는다.
@@ -218,6 +230,7 @@ trajectory ordering:
   - smooth skeleton anchor를 좌표 control point로 쓰는 Gaussian-blended whole-fabric continuous function을 만든다
   - `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`
 - same-s slice에서는 center-high transverse profile을, strong longitudinal에서는 farther-ahead ordering을 먼저 확인하는 것이 맞다
+- downstream runtime consumer는 `src/driving_preference_field/field_runtime.py`의 cached query layer를 기준으로 삼는다
 - branch 사이도 winner 없이 fabric-like surface로 이어지고, raster는 이 함수를 샘플링한 visualization이다
 - exact current formula는 canonical truth가 아니라 morphology 실험 대상이다
 

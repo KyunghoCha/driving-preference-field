@@ -25,6 +25,42 @@ CHANNEL_SCALE_SPECS = {
         fixed_max=5.0,
         diff_abs_max=5.0,
     ),
+    "progression_s_hat": ChannelScaleSpec(
+        unit="m",
+        fixed_min=-2.0,
+        fixed_max=10.0,
+        diff_abs_max=4.0,
+    ),
+    "progression_n_hat": ChannelScaleSpec(
+        unit="m",
+        fixed_min=0.0,
+        fixed_max=4.0,
+        diff_abs_max=2.0,
+    ),
+    "progression_longitudinal_component": ChannelScaleSpec(
+        unit="score",
+        fixed_min=0.0,
+        fixed_max=1.0,
+        diff_abs_max=1.0,
+    ),
+    "progression_transverse_component": ChannelScaleSpec(
+        unit="score",
+        fixed_min=0.0,
+        fixed_max=1.0,
+        diff_abs_max=1.0,
+    ),
+    "progression_support_mod": ChannelScaleSpec(
+        unit="score",
+        fixed_min=0.0,
+        fixed_max=1.0,
+        diff_abs_max=0.1,
+    ),
+    "progression_alignment_mod": ChannelScaleSpec(
+        unit="score",
+        fixed_min=0.0,
+        fixed_max=1.0,
+        diff_abs_max=0.1,
+    ),
     "interior_boundary": ChannelScaleSpec(
         unit="score",
         fixed_min=0.0,

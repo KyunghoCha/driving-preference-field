@@ -19,6 +19,12 @@ from .visualization_scale import SCALE_MODE_FIXED, display_unit, format_display_
 
 CHANNEL_DESCRIPTIONS = {
     "progression_tilted": "Whole-fabric blended progression space over the local map. Higher means stronger progression ordering.",
+    "progression_s_hat": "Blended progression coordinate over the local space. This is the current implementation debug view of s_hat.",
+    "progression_n_hat": "Blended transverse distance from the current progression fabric center. Lower means closer to the center-high slice.",
+    "progression_longitudinal_component": "Current implementation longitudinal tilt term before gain is applied.",
+    "progression_transverse_component": "Current implementation center-high transverse profile term.",
+    "progression_support_mod": "Weak secondary support modulation. It should not dominate the space shape.",
+    "progression_alignment_mod": "Weak secondary heading-alignment modulation. It should not dominate the space shape.",
     "interior_boundary": "Interior preference derived from boundary margin. Higher means deeper interior support.",
     "continuity_branch": "Continuation preference near split/merge structure. Higher means more coherent continuation.",
     "base_preference_total": "Sum of the three base preference channels.",
@@ -32,6 +38,12 @@ CHANNEL_DESCRIPTIONS = {
 
 CHANNEL_TITLES = {
     "progression_tilted": "Progression Tilted",
+    "progression_s_hat": "Progression s_hat",
+    "progression_n_hat": "Progression n_hat",
+    "progression_longitudinal_component": "Longitudinal Component",
+    "progression_transverse_component": "Transverse Component",
+    "progression_support_mod": "Support Modulation",
+    "progression_alignment_mod": "Alignment Modulation",
     "interior_boundary": "Interior Boundary",
     "continuity_branch": "Continuity Branch",
     "base_preference_total": "Base Preference Total",
@@ -289,6 +301,28 @@ def render_case(
 
     outputs = {
         "progression_tilted.png": ("progression_tilted", CHANNEL_TITLES["progression_tilted"], "plasma"),
+        "progression_s_hat.png": ("progression_s_hat", CHANNEL_TITLES["progression_s_hat"], "viridis"),
+        "progression_n_hat.png": ("progression_n_hat", CHANNEL_TITLES["progression_n_hat"], "magma"),
+        "progression_longitudinal_component.png": (
+            "progression_longitudinal_component",
+            CHANNEL_TITLES["progression_longitudinal_component"],
+            "plasma",
+        ),
+        "progression_transverse_component.png": (
+            "progression_transverse_component",
+            CHANNEL_TITLES["progression_transverse_component"],
+            "cividis",
+        ),
+        "progression_support_mod.png": (
+            "progression_support_mod",
+            CHANNEL_TITLES["progression_support_mod"],
+            "inferno",
+        ),
+        "progression_alignment_mod.png": (
+            "progression_alignment_mod",
+            CHANNEL_TITLES["progression_alignment_mod"],
+            "inferno",
+        ),
         "interior_boundary.png": ("interior_boundary", CHANNEL_TITLES["interior_boundary"], "magma"),
         "continuity_branch.png": ("continuity_branch", CHANNEL_TITLES["continuity_branch"], "cividis"),
         "base_total.png": ("base_preference_total", CHANNEL_TITLES["base_preference_total"], "viridis"),
@@ -342,6 +376,12 @@ def render_case(
         "visualization_scale_mode": scale_mode,
         "channel_ranges": {
             "progression_tilted": _channel_min_max(raster.channels["progression_tilted"]),
+            "progression_s_hat": _channel_min_max(raster.channels["progression_s_hat"]),
+            "progression_n_hat": _channel_min_max(raster.channels["progression_n_hat"]),
+            "progression_longitudinal_component": _channel_min_max(raster.channels["progression_longitudinal_component"]),
+            "progression_transverse_component": _channel_min_max(raster.channels["progression_transverse_component"]),
+            "progression_support_mod": _channel_min_max(raster.channels["progression_support_mod"]),
+            "progression_alignment_mod": _channel_min_max(raster.channels["progression_alignment_mod"]),
             "interior_boundary": _channel_min_max(raster.channels["interior_boundary"]),
             "continuity_branch": _channel_min_max(raster.channels["continuity_branch"]),
             "base_preference_total": _channel_min_max(raster.channels["base_preference_total"]),
@@ -360,6 +400,12 @@ def render_case(
             }
             for channel_name in (
                 "progression_tilted",
+                "progression_s_hat",
+                "progression_n_hat",
+                "progression_longitudinal_component",
+                "progression_transverse_component",
+                "progression_support_mod",
+                "progression_alignment_mod",
                 "interior_boundary",
                 "continuity_branch",
                 "base_preference_total",
