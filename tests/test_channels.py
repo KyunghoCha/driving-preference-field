@@ -158,11 +158,12 @@ def test_progression_split_branch_gap_is_filled_without_hole() -> None:
     config = _canonical_config()
     upper_branch = StateSample(x=5.2, y=1.4, yaw=0.55)
     branch_gap = StateSample(x=5.2, y=0.0, yaw=0.55)
+    outer_upper = StateSample(x=5.2, y=2.2, yaw=0.55)
 
     assert progression_tilted(snapshot, context, upper_branch, config=config) > progression_tilted(
         snapshot,
         context,
-        branch_gap,
+        outer_upper,
         config=config,
     )
     assert progression_tilted(snapshot, context, branch_gap, config=config) > 0.0
@@ -209,7 +210,7 @@ def test_longitudinal_frame_choice_changes_point_ordering() -> None:
         transverse_shape=1.0,
     )
     behind_center = StateSample(x=0.2, y=0.0, yaw=0.0)
-    slightly_ahead_off_axis = StateSample(x=0.8, y=0.15, yaw=0.0)
+    slightly_ahead_off_axis = StateSample(x=2.0, y=0.2, yaw=0.0)
 
     assert progression_tilted(snapshot, context, behind_center, config=local_absolute) > progression_tilted(
         snapshot,

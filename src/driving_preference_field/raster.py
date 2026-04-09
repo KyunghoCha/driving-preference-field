@@ -4,11 +4,9 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .channels import continuity_branch, interior_boundary
 from .config import DEFAULT_FIELD_CONFIG, FieldConfig
-from .contracts import QueryContext, SemanticInputSnapshot, StateSample
-from .exception_layers import evaluate_exception_layers
-from .progression_surface import progression_surface_grid
+from .contracts import QueryContext, SemanticInputSnapshot
+from .field_runtime import build_field_runtime
 
 
 @dataclass(frozen=True)
@@ -41,6 +39,12 @@ def sample_local_raster(
     shape = (y_samples, x_samples)
     channels = {
         "progression_tilted": np.zeros(shape, dtype=float),
+        "progression_s_hat": np.zeros(shape, dtype=float),
+        "progression_n_hat": np.zeros(shape, dtype=float),
+        "progression_longitudinal_component": np.zeros(shape, dtype=float),
+        "progression_transverse_component": np.zeros(shape, dtype=float),
+        "progression_support_mod": np.zeros(shape, dtype=float),
+        "progression_alignment_mod": np.zeros(shape, dtype=float),
         "interior_boundary": np.zeros(shape, dtype=float),
         "continuity_branch": np.zeros(shape, dtype=float),
         "base_preference_total": np.zeros(shape, dtype=float),
@@ -52,32 +56,8 @@ def sample_local_raster(
         "hard_dynamic_mask": np.zeros(shape, dtype=bool),
     }
 
-    progression_grid = progression_surface_grid(
-        snapshot,
-        context,
-        config=field_config.progression,
-        x_coords=x_coords,
-        y_coords=y_coords,
-    )
-    channels["progression_tilted"][:, :] = progression_grid
-
-    for yi, y in enumerate(y_coords):
-        for xi, x in enumerate(x_coords):
-            state = StateSample(x=float(x), y=float(y), yaw=context.ego_pose.yaw)
-            interior_value = interior_boundary(snapshot, context, state, config=field_config)
-            continuity_value = continuity_branch(snapshot, context, state, config=field_config)
-            soft_channels, hard_flags = evaluate_exception_layers(snapshot, context, state)
-            channels["interior_boundary"][yi, xi] = interior_value
-            channels["continuity_branch"][yi, xi] = continuity_value
-            channels["base_preference_total"][yi, xi] = (
-                progression_grid[yi, xi] + interior_value + continuity_value
-            )
-            channels["safety_soft"][yi, xi] = soft_channels["safety_soft"]
-            channels["rule_soft"][yi, xi] = soft_channels["rule_soft"]
-            channels["dynamic_soft"][yi, xi] = soft_channels["dynamic_soft"]
-            channels["hard_unsafe_mask"][yi, xi] = hard_flags["unsafe"]
-            channels["hard_rule_mask"][yi, xi] = hard_flags["rule_blocked"]
-            channels["hard_dynamic_mask"][yi, xi] = hard_flags["dynamic_blocked"]
+    runtime = build_field_runtime(snapshot, context, config=field_config)
+    channels.update(runtime.query_debug_grid(x_coords, y_coords))
 
     return RasterSampleResult(
         x_coords=x_coords,

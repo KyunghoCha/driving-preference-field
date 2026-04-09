@@ -2,9 +2,10 @@ from __future__ import annotations
 
 """Current progression surface implementation.
 
-This module turns progression and branch guides into a local-map-wide scalar
-field by first blending local coordinates and then evaluating an additive
-transverse-plus-longitudinal score:
+This module treats progression and branch guides as control structure for a
+continuous local-space coordinate field. The runtime first estimates blended
+coordinates over the local map and then evaluates an additive whole-fabric
+score:
 
     progression_tilted(p)
       = support_mod * alignment_mod * (T(n_hat) + gain * L(u))
@@ -22,7 +23,7 @@ import numpy as np
 
 from .config import ProgressionConfig
 from .contracts import Point2, QueryContext, SemanticInputSnapshot, StateSample
-from .geometry import clamp, dot, normalize, polyline_length
+from .geometry import clamp, polyline_length
 
 _ANCHOR_SPACING_M = 0.20
 _SPLINE_SAMPLE_DENSITY_M = 0.05
@@ -31,7 +32,14 @@ _MIN_SIGMA_T = 0.40
 _MIN_SIGMA_N = 0.35
 _SIGMA_T_SCALE = 0.35
 _SIGMA_N_SCALE = 1.50
-_TOP_K_ANCHORS = 12
+_END_EXTENSION_M = 2.0
+_QUERY_BATCH_SIZE = 4096
+_SUPPORT_BASE = 0.95
+_SUPPORT_RANGE = 0.05
+_ALIGNMENT_BASE = 0.95
+_ALIGNMENT_RANGE = 0.05
+_DOMINANT_GUIDE_WEIGHT_EPS = 1e-4
+_EFFECTIVE_ANCHOR_WEIGHT_EPS = 1e-3
 _EPS = 1e-9
 
 
@@ -51,6 +59,8 @@ class SurfaceIndex:
     guide_points: tuple[tuple[str, tuple[Point2, ...]], ...]
     guide_ids: tuple[str, ...]
     max_guide_length: float
+    min_progress_extent: float
+    max_progress_extent: float
     anchor_points: np.ndarray
     anchor_tangents: np.ndarray
     anchor_normals: np.ndarray
@@ -73,6 +83,200 @@ class BlendResult:
     anchor_count: int
 
 
+class ProgressionSurfaceRuntime:
+    """Cached runtime view over the current progression field implementation."""
+
+    def __init__(
+        self,
+        snapshot: SemanticInputSnapshot,
+        context: QueryContext,
+        *,
+        config: ProgressionConfig,
+    ) -> None:
+        self._snapshot = snapshot
+        self._context = context
+        self._config = config
+        self._surface = _surface_index(snapshot)
+        self._ego_s_hat = (
+            _ego_s_hat(self._surface, context, config)
+            if config.longitudinal_frame == "ego_relative"
+            else None
+        )
+
+    @property
+    def surface(self) -> SurfaceIndex:
+        return self._surface
+
+    @property
+    def config(self) -> ProgressionConfig:
+        return self._config
+
+    def query_state(self, state: StateSample) -> dict[str, object]:
+        if self._config.support_ceiling <= 0.0 or self._surface.anchor_points.size == 0:
+            return {
+                "score": 0.0,
+                "anchor_count": 0,
+                "support_sum": 0.0,
+                "support_mod": 0.0,
+                "alignment_mod": 0.0,
+                "longitudinal_component": 0.0,
+                "transverse_component": 0.0,
+                "s_hat": 0.0,
+                "n_hat": 0.0,
+                "blended_progress": 0.0,
+                "dominant_guides": (),
+                "longitudinal_frame": self._config.longitudinal_frame,
+            }
+        arrays = self._query_arrays(
+            np.asarray([state.x], dtype=float),
+            np.asarray([state.y], dtype=float),
+            np.asarray([state.yaw], dtype=float),
+            include_internal=True,
+        )
+        dominant_guides = _dominant_guides(
+            self._surface,
+            arrays["_anchor_indices"][:, 0],
+            arrays["_blend_weights"][:, 0],
+        )
+        return {
+            "score": float(arrays["score"][0]),
+            "anchor_count": int(arrays["effective_anchor_count"][0]),
+            "support_sum": float(arrays["support_sum"][0]),
+            "support_mod": float(arrays["support_mod"][0]),
+            "alignment_mod": float(arrays["alignment_mod"][0]),
+            "longitudinal_component": float(arrays["longitudinal_component"][0]),
+            "transverse_component": float(arrays["transverse_component"][0]),
+            "s_hat": float(arrays["s_hat"][0]),
+            "n_hat": float(arrays["n_hat"][0]),
+            "blended_progress": float(arrays["s_hat"][0]),
+            "dominant_guides": dominant_guides,
+            "longitudinal_frame": self._config.longitudinal_frame,
+        }
+
+    def query_grid(self, x_coords: np.ndarray, y_coords: np.ndarray) -> dict[str, np.ndarray]:
+        if x_coords.ndim != 1 or y_coords.ndim != 1:
+            raise ValueError("x_coords and y_coords must be 1-D arrays")
+        if self._surface.anchor_points.size == 0 or self._config.support_ceiling <= 0.0:
+            shape = (len(y_coords), len(x_coords))
+            return {
+                "score": np.zeros(shape, dtype=float),
+                "s_hat": np.zeros(shape, dtype=float),
+                "n_hat": np.zeros(shape, dtype=float),
+                "support_sum": np.zeros(shape, dtype=float),
+                "support_mod": np.zeros(shape, dtype=float),
+                "alignment_mod": np.zeros(shape, dtype=float),
+                "longitudinal_component": np.zeros(shape, dtype=float),
+                "transverse_component": np.zeros(shape, dtype=float),
+            }
+
+        grid_x, grid_y = np.meshgrid(x_coords, y_coords)
+        flat_yaw = np.full(grid_x.size, self._context.ego_pose.yaw, dtype=float)
+        arrays = self._query_arrays(
+            grid_x.ravel(),
+            grid_y.ravel(),
+            flat_yaw,
+            include_internal=False,
+        )
+        shape = (len(y_coords), len(x_coords))
+        return {
+            "score": arrays["score"].reshape(shape),
+            "s_hat": arrays["s_hat"].reshape(shape),
+            "n_hat": arrays["n_hat"].reshape(shape),
+            "support_sum": arrays["support_sum"].reshape(shape),
+            "support_mod": arrays["support_mod"].reshape(shape),
+            "alignment_mod": arrays["alignment_mod"].reshape(shape),
+            "longitudinal_component": arrays["longitudinal_component"].reshape(shape),
+            "transverse_component": arrays["transverse_component"].reshape(shape),
+        }
+
+    def _query_arrays(
+        self,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        heading_yaws: np.ndarray,
+        *,
+        include_internal: bool,
+    ) -> dict[str, np.ndarray]:
+        point_count = x_values.size
+        if point_count == 0 or self._config.support_ceiling <= 0.0 or self._surface.anchor_points.size == 0:
+            empty = np.zeros((0,), dtype=float)
+            return {
+                "score": empty,
+                "s_hat": empty,
+                "n_hat": empty,
+                "support_sum": empty,
+                "support_mod": empty,
+                "alignment_mod": empty,
+                "longitudinal_component": empty,
+                "transverse_component": empty,
+                "effective_anchor_count": empty.astype(int),
+            }
+
+        chunks: dict[str, list[np.ndarray]] = {
+            "score": [],
+            "s_hat": [],
+            "n_hat": [],
+            "support_sum": [],
+            "support_mod": [],
+            "alignment_mod": [],
+            "longitudinal_component": [],
+            "transverse_component": [],
+            "effective_anchor_count": [],
+        }
+        internal_chunks: dict[str, list[np.ndarray]] = {"_anchor_indices": [], "_blend_weights": []}
+
+        for start in range(0, point_count, _QUERY_BATCH_SIZE):
+            stop = min(point_count, start + _QUERY_BATCH_SIZE)
+            blend = _blend_coordinates(
+                self._surface,
+                x_values[start:stop],
+                y_values[start:stop],
+                self._config,
+            )
+            longitudinal_component, transverse_component, support_mod, alignment_mod = _surface_components(
+                self._surface,
+                blend,
+                config=self._config,
+                heading_yaws=heading_yaws[start:stop],
+                ego_s_hat=self._ego_s_hat,
+            )
+            score = support_mod * alignment_mod * (
+                transverse_component + self._config.longitudinal_gain * longitudinal_component
+            )
+            effective_anchor_count = np.sum(
+                blend.blend_weights > _EFFECTIVE_ANCHOR_WEIGHT_EPS,
+                axis=0,
+                dtype=int,
+            )
+            chunks["score"].append(score)
+            chunks["s_hat"].append(blend.s_hat)
+            chunks["n_hat"].append(blend.n_hat)
+            chunks["support_sum"].append(blend.support_sum)
+            chunks["support_mod"].append(support_mod)
+            chunks["alignment_mod"].append(alignment_mod)
+            chunks["longitudinal_component"].append(longitudinal_component)
+            chunks["transverse_component"].append(transverse_component)
+            chunks["effective_anchor_count"].append(effective_anchor_count)
+            if include_internal:
+                internal_chunks["_anchor_indices"].append(blend.anchor_indices)
+                internal_chunks["_blend_weights"].append(blend.blend_weights)
+
+        result = {name: np.concatenate(parts) for name, parts in chunks.items()}
+        if include_internal:
+            result["_anchor_indices"] = np.concatenate(internal_chunks["_anchor_indices"], axis=1)
+            result["_blend_weights"] = np.concatenate(internal_chunks["_blend_weights"], axis=1)
+        return result
+
+
+def build_progression_surface_runtime(
+    snapshot: SemanticInputSnapshot,
+    context: QueryContext,
+    *,
+    config: ProgressionConfig,
+) -> ProgressionSurfaceRuntime:
+    return ProgressionSurfaceRuntime(snapshot, context, config=config)
+
+
 def progression_surface_details(
     snapshot: SemanticInputSnapshot,
     context: QueryContext,
@@ -89,54 +293,14 @@ def progression_surface_details(
             "alignment_mod": 0.0,
             "longitudinal_component": 0.0,
             "transverse_component": 0.0,
+            "s_hat": 0.0,
+            "n_hat": 0.0,
             "blended_progress": 0.0,
             "dominant_guides": (),
             "longitudinal_frame": config.longitudinal_frame,
         }
-
-    surface = _surface_index(snapshot)
-    if surface.anchor_points.size == 0:
-        return {
-            "score": 0.0,
-            "anchor_count": 0,
-            "support_sum": 0.0,
-            "support_mod": 0.0,
-            "alignment_mod": 0.0,
-            "longitudinal_component": 0.0,
-            "transverse_component": 0.0,
-            "blended_progress": 0.0,
-            "dominant_guides": (),
-            "longitudinal_frame": config.longitudinal_frame,
-        }
-
-    x_values = np.asarray([state.x], dtype=float)
-    y_values = np.asarray([state.y], dtype=float)
-    blend = _blend_coordinates(surface, x_values, y_values, config)
-    longitudinal_component, transverse_component, support_mod, alignment_mod = _surface_components(
-        surface,
-        blend,
-        config=config,
-        heading_yaws=np.asarray([state.yaw], dtype=float),
-        ego_s_hat=_ego_s_hat(surface, context, config) if config.longitudinal_frame == "ego_relative" else None,
-    )
-    score = float(
-        support_mod[0]
-        * alignment_mod[0]
-        * (transverse_component[0] + config.longitudinal_gain * longitudinal_component[0])
-    )
-    dominant_guides = _dominant_guides(surface, blend.anchor_indices[:, 0], blend.blend_weights[:, 0])
-    return {
-        "score": score,
-        "anchor_count": blend.anchor_count,
-        "support_sum": float(blend.support_sum[0]),
-        "support_mod": float(support_mod[0]),
-        "alignment_mod": float(alignment_mod[0]),
-        "longitudinal_component": float(longitudinal_component[0]),
-        "transverse_component": float(transverse_component[0]),
-        "blended_progress": float(blend.s_hat[0]),
-        "dominant_guides": dominant_guides,
-        "longitudinal_frame": config.longitudinal_frame,
-    }
+    runtime = build_progression_surface_runtime(snapshot, context, config=config)
+    return runtime.query_state(state)
 
 
 def progression_surface_grid(
@@ -147,29 +311,20 @@ def progression_surface_grid(
     x_coords: np.ndarray,
     y_coords: np.ndarray,
 ) -> np.ndarray:
-    if config.support_ceiling <= 0.0:
-        return np.zeros((len(y_coords), len(x_coords)), dtype=float)
+    runtime = build_progression_surface_runtime(snapshot, context, config=config)
+    return runtime.query_grid(x_coords, y_coords)["score"]
 
-    surface = _surface_index(snapshot)
-    if surface.anchor_points.size == 0:
-        return np.zeros((len(y_coords), len(x_coords)), dtype=float)
 
-    grid_x, grid_y = np.meshgrid(x_coords, y_coords)
-    flat_x = grid_x.ravel()
-    flat_y = grid_y.ravel()
-    yaw_values = np.full_like(flat_x, context.ego_pose.yaw, dtype=float)
-    blend = _blend_coordinates(surface, flat_x, flat_y, config)
-    longitudinal_component, transverse_component, support_mod, alignment_mod = _surface_components(
-        surface,
-        blend,
-        config=config,
-        heading_yaws=yaw_values,
-        ego_s_hat=_ego_s_hat(surface, context, config) if config.longitudinal_frame == "ego_relative" else None,
-    )
-    score = support_mod * alignment_mod * (
-        transverse_component + config.longitudinal_gain * longitudinal_component
-    )
-    return score.reshape((len(y_coords), len(x_coords)))
+def progression_surface_grid_details(
+    snapshot: SemanticInputSnapshot,
+    context: QueryContext,
+    *,
+    config: ProgressionConfig,
+    x_coords: np.ndarray,
+    y_coords: np.ndarray,
+) -> dict[str, np.ndarray]:
+    runtime = build_progression_surface_runtime(snapshot, context, config=config)
+    return runtime.query_grid(x_coords, y_coords)
 
 
 def _surface_components(
@@ -184,9 +339,9 @@ def _surface_components(
         zeros = np.zeros_like(blend.s_hat)
         return zeros, zeros, zeros, zeros
 
-    s_max = max(surface.max_guide_length, _EPS)
+    progress_span = max(surface.max_progress_extent - surface.min_progress_extent, _EPS)
     if config.longitudinal_frame == "local_absolute":
-        u_value = np.clip(blend.s_hat / s_max, 0.0, 1.0)
+        u_value = np.clip((blend.s_hat - surface.min_progress_extent) / progress_span, 0.0, 1.0)
     else:
         lookahead = max(_ego_relative_lookahead(surface, config), _EPS)
         reference_s = float(ego_s_hat or 0.0)
@@ -198,18 +353,21 @@ def _surface_components(
 
     heading_x = np.cos(heading_yaws)
     heading_y = np.sin(heading_yaws)
-    alignment = np.maximum(
+    alignment_quality = np.maximum(
         0.0,
         heading_x * blend.tangent_hat[:, 0] + heading_y * blend.tangent_hat[:, 1],
     )
-    alignment_mod = 0.85 + 0.15 * alignment
+    alignment_mod = _ALIGNMENT_BASE + _ALIGNMENT_RANGE * alignment_quality
 
-    support_ratio = np.clip(
-        blend.support_sum / max(config.support_ceiling, _EPS),
-        0.0,
-        1.0,
+    clipped_confidence = np.minimum(
+        surface.anchor_confidences[:, None],
+        max(config.support_ceiling, _EPS),
     )
-    support_mod = 0.85 + 0.15 * support_ratio
+    support_quality = np.sum(blend.blend_weights * clipped_confidence, axis=0) / max(
+        config.support_ceiling,
+        _EPS,
+    )
+    support_mod = _SUPPORT_BASE + _SUPPORT_RANGE * np.clip(support_quality, 0.0, 1.0)
     return longitudinal_component, transverse_component, support_mod, alignment_mod
 
 
@@ -219,32 +377,38 @@ def _blend_coordinates(
     y_values: np.ndarray,
     config: ProgressionConfig,
 ) -> BlendResult:
+    if surface.anchor_points.size == 0:
+        empty = np.zeros((0, x_values.size), dtype=float)
+        tangent_hat = np.zeros((x_values.size, 2), dtype=float)
+        return BlendResult(
+            anchor_indices=np.zeros((0, x_values.size), dtype=int),
+            raw_weights=empty,
+            blend_weights=empty,
+            s_hat=np.zeros_like(x_values),
+            n_hat=np.zeros_like(x_values),
+            tangent_hat=tangent_hat,
+            support_sum=np.zeros_like(x_values),
+            anchor_count=0,
+        )
+
+    anchor_count = surface.anchor_points.shape[0]
+    anchor_indices = np.repeat(np.arange(anchor_count, dtype=int)[:, None], x_values.size, axis=1)
     points_x = surface.anchor_points[:, 0][:, None]
     points_y = surface.anchor_points[:, 1][:, None]
     dx = x_values[None, :] - points_x
     dy = y_values[None, :] - points_y
-    distance_sq = dx * dx + dy * dy
 
-    anchor_count = surface.anchor_points.shape[0]
-    selected = min(_TOP_K_ANCHORS, anchor_count)
-    if selected == anchor_count:
-        anchor_indices = np.repeat(np.arange(anchor_count, dtype=int)[:, None], x_values.size, axis=1)
-    else:
-        anchor_indices = np.argpartition(distance_sq, kth=selected - 1, axis=0)[:selected, :]
+    tangent_x = surface.anchor_tangents[:, 0][:, None]
+    tangent_y = surface.anchor_tangents[:, 1][:, None]
+    normal_x = surface.anchor_normals[:, 0][:, None]
+    normal_y = surface.anchor_normals[:, 1][:, None]
+    cumulative_s = surface.anchor_cumulative_s[:, None]
+    guide_lengths = surface.anchor_guide_lengths[:, None]
+    guide_weights = surface.anchor_guide_weights[:, None]
+    confidences = surface.anchor_confidences[:, None]
 
-    dx_sel = np.take_along_axis(dx, anchor_indices, axis=0)
-    dy_sel = np.take_along_axis(dy, anchor_indices, axis=0)
-    tangent_x = surface.anchor_tangents[:, 0][anchor_indices]
-    tangent_y = surface.anchor_tangents[:, 1][anchor_indices]
-    normal_x = surface.anchor_normals[:, 0][anchor_indices]
-    normal_y = surface.anchor_normals[:, 1][anchor_indices]
-    cumulative_s = surface.anchor_cumulative_s[anchor_indices]
-    guide_lengths = surface.anchor_guide_lengths[anchor_indices]
-    guide_weights = surface.anchor_guide_weights[anchor_indices]
-    confidences = surface.anchor_confidences[anchor_indices]
-
-    tau = dx_sel * tangent_x + dy_sel * tangent_y
-    nu = dx_sel * normal_x + dy_sel * normal_y
+    tau = dx * tangent_x + dy * tangent_y
+    nu = dx * normal_x + dy * normal_y
 
     sigma_t = np.maximum(_MIN_SIGMA_T, guide_lengths * config.lookahead_scale * _SIGMA_T_SCALE)
     sigma_n = max(_MIN_SIGMA_N, config.transverse_scale * _SIGMA_N_SCALE)
@@ -254,7 +418,7 @@ def _blend_coordinates(
     support_sum = np.sum(raw_weights, axis=0)
     blend_weights = raw_weights / np.clip(support_sum, _EPS, None)
 
-    s_values = np.clip(cumulative_s + tau, 0.0, guide_lengths)
+    s_values = cumulative_s + tau
     s_hat = np.sum(blend_weights * s_values, axis=0)
     n_hat = np.sqrt(np.sum(blend_weights * (nu**2), axis=0))
     tangent_hat = np.stack(
@@ -274,7 +438,7 @@ def _blend_coordinates(
         n_hat=n_hat,
         tangent_hat=tangent_hat,
         support_sum=support_sum,
-        anchor_count=selected,
+        anchor_count=anchor_count,
     )
 
 
@@ -285,6 +449,8 @@ def _dominant_guides(
 ) -> tuple[tuple[str, float], ...]:
     per_guide: dict[str, float] = {}
     for anchor_index, weight in zip(anchor_indices.tolist(), blend_weights.tolist(), strict=False):
+        if weight <= _DOMINANT_GUIDE_WEIGHT_EPS:
+            continue
         guide_id = surface.guide_ids[int(surface.anchor_guide_indices[int(anchor_index)])]
         per_guide[guide_id] = per_guide.get(guide_id, 0.0) + float(weight)
     ranked = sorted(per_guide.items(), key=lambda item: item[1], reverse=True)
@@ -330,7 +496,7 @@ def _ego_s_hat_cached(
 
 
 def _ego_relative_lookahead(surface: SurfaceIndex, config: ProgressionConfig) -> float:
-    return max(_MIN_SIGMA_T, surface.max_guide_length * config.lookahead_scale)
+    return max(_MIN_SIGMA_T, (surface.max_progress_extent - surface.min_progress_extent) * config.lookahead_scale)
 
 
 def _longitudinal_value_array(u_value: np.ndarray, config: ProgressionConfig) -> np.ndarray:
@@ -410,7 +576,10 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         guides.append(guide)
         guide_ids.append(guide.guide_id)
         guide_points.append((guide.guide_id, guide.points))
-        for cumulative_s, point, tangent in _anchor_points(smooth_points):
+        for cumulative_s, point, tangent in _anchor_points_with_continuation(
+            smooth_points,
+            extension_length=_END_EXTENSION_M,
+        ):
             normal = (-tangent[1], tangent[0])
             anchor_points.append(point)
             anchor_tangents.append(tangent)
@@ -428,6 +597,8 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             guide_points=tuple(guide_points),
             guide_ids=tuple(guide_ids),
             max_guide_length=0.0,
+            min_progress_extent=0.0,
+            max_progress_extent=0.0,
             anchor_points=np.zeros((0, 2), dtype=float),
             anchor_tangents=np.zeros((0, 2), dtype=float),
             anchor_normals=np.zeros((0, 2), dtype=float),
@@ -438,16 +609,19 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             anchor_guide_indices=np.zeros((0,), dtype=int),
         )
 
+    cumulative_array = np.asarray(anchor_cumulative_s, dtype=float)
     return SurfaceIndex(
         signature=signature,
         guides=tuple(guides),
         guide_points=tuple(guide_points),
         guide_ids=tuple(guide_ids),
         max_guide_length=max(anchor_guide_lengths),
+        min_progress_extent=float(np.min(cumulative_array)),
+        max_progress_extent=float(np.max(cumulative_array)),
         anchor_points=np.asarray(anchor_points, dtype=float),
         anchor_tangents=np.asarray(anchor_tangents, dtype=float),
         anchor_normals=np.asarray(anchor_normals, dtype=float),
-        anchor_cumulative_s=np.asarray(anchor_cumulative_s, dtype=float),
+        anchor_cumulative_s=cumulative_array,
         anchor_guide_lengths=np.asarray(anchor_guide_lengths, dtype=float),
         anchor_guide_weights=np.asarray(anchor_guide_weights, dtype=float),
         anchor_confidences=np.asarray(anchor_confidences, dtype=float),
@@ -560,15 +734,61 @@ def _anchor_points(points: tuple[Point2, ...]) -> tuple[tuple[float, Point2, Poi
     anchors: list[tuple[float, Point2, Point2]] = []
     for index, point in enumerate(points):
         if index == 0:
-            tangent = normalize((points[1][0] - point[0], points[1][1] - point[1]))
+            tangent = _segment_tangent(point, points[1])
         elif index == len(points) - 1:
-            tangent = normalize((point[0] - points[index - 1][0], point[1] - points[index - 1][1]))
+            tangent = _segment_tangent(points[index - 1], point)
         else:
-            tangent = normalize(
-                (
-                    points[index + 1][0] - points[index - 1][0],
-                    points[index + 1][1] - points[index - 1][1],
-                )
-            )
+            tangent = _segment_tangent(points[index - 1], points[index + 1])
         anchors.append((cumulative[index], point, tangent))
     return tuple(anchors)
+
+
+def _anchor_points_with_continuation(
+    points: tuple[Point2, ...],
+    *,
+    extension_length: float,
+) -> tuple[tuple[float, Point2, Point2], ...]:
+    anchors = list(_anchor_points(points))
+    if not anchors:
+        return ()
+    start_s, start_point, start_tangent = anchors[0]
+    end_s, end_point, end_tangent = anchors[-1]
+
+    start_extension: list[tuple[float, Point2, Point2]] = []
+    distance_cursor = _ANCHOR_SPACING_M
+    while distance_cursor <= extension_length + _EPS:
+        start_extension.append(
+            (
+                start_s - distance_cursor,
+                (
+                    start_point[0] - start_tangent[0] * distance_cursor,
+                    start_point[1] - start_tangent[1] * distance_cursor,
+                ),
+                start_tangent,
+            )
+        )
+        distance_cursor += _ANCHOR_SPACING_M
+    end_extension: list[tuple[float, Point2, Point2]] = []
+    distance_cursor = _ANCHOR_SPACING_M
+    while distance_cursor <= extension_length + _EPS:
+        end_extension.append(
+            (
+                end_s + distance_cursor,
+                (
+                    end_point[0] + end_tangent[0] * distance_cursor,
+                    end_point[1] + end_tangent[1] * distance_cursor,
+                ),
+                end_tangent,
+            )
+        )
+        distance_cursor += _ANCHOR_SPACING_M
+    return tuple(reversed(start_extension)) + tuple(anchors) + tuple(end_extension)
+
+
+def _segment_tangent(a: Point2, b: Point2) -> Point2:
+    dx = b[0] - a[0]
+    dy = b[1] - a[1]
+    norm = math.hypot(dx, dy)
+    if norm <= _EPS:
+        return (1.0, 0.0)
+    return (dx / norm, dy / norm)

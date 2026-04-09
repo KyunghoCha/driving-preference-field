@@ -11,16 +11,9 @@ The evaluator keeps the canonical layer split explicit:
 
 from dataclasses import dataclass, field
 
-from .channels import (
-    continuity_branch,
-    continuity_branch_details,
-    interior_boundary,
-    interior_signed_margin,
-    progression_tilted_details,
-)
 from .config import DEFAULT_FIELD_CONFIG, FieldConfig
 from .contracts import QueryContext, SemanticInputSnapshot, StateSample, TrajectorySample
-from .exception_layers import evaluate_exception_layers
+from .field_runtime import build_field_runtime
 
 
 @dataclass(frozen=True)
@@ -68,45 +61,12 @@ def evaluate_state(
     config: FieldConfig | None = None,
 ) -> StateEvaluationResult:
     field_config = config or DEFAULT_FIELD_CONFIG
-    progression_details = progression_tilted_details(snapshot, context, state, config=field_config)
-    branch_details = continuity_branch_details(snapshot, context, state, config=field_config)
-    base_channels = {
-        "progression_tilted": float(progression_details["score"]),
-        "interior_boundary": interior_boundary(snapshot, context, state, config=field_config),
-        "continuity_branch": continuity_branch(snapshot, context, state, config=field_config),
-    }
-    soft_channels, hard_flags = evaluate_exception_layers(snapshot, context, state)
-    base_total = sum(base_channels.values())
-    soft_total = sum(soft_channels.values())
-    diagnostics = {
-        "mode": context.mode,
-        "phase": context.phase,
-        "window": {
-            "x_min": context.local_window.x_min,
-            "x_max": context.local_window.x_max,
-            "y_min": context.local_window.y_min,
-            "y_max": context.local_window.y_max,
-        },
-        "field_config": field_config.to_dict(),
-        "progression_frame": field_config.progression.longitudinal_frame,
-        "progression_anchor_count": progression_details["anchor_count"],
-        "progression_support_sum": progression_details["support_sum"],
-        "progression_support_mod": progression_details["support_mod"],
-        "progression_alignment_mod": progression_details["alignment_mod"],
-        "progression_longitudinal_component": progression_details["longitudinal_component"],
-        "progression_transverse_component": progression_details["transverse_component"],
-        "progression_blended_progress": progression_details["blended_progress"],
-        "progression_dominant_guides": progression_details["dominant_guides"],
-        "interior_signed_margin": interior_signed_margin(snapshot, state),
-        "nearest_branch_guide_id": branch_details["guide_id"],
-        "base_preference_total": base_total,
-        "soft_exception_total": soft_total,
-    }
+    payload = build_field_runtime(snapshot, context, config=field_config).query_state(state)
     return StateEvaluationResult(
-        base_preference_channels=base_channels,
-        soft_exception_channels=soft_channels,
-        hard_violation_flags=hard_flags,
-        diagnostics=diagnostics,
+        base_preference_channels=payload.base_channels,
+        soft_exception_channels=payload.soft_channels,
+        hard_violation_flags=payload.hard_flags,
+        diagnostics=payload.diagnostics,
     )
 
 
@@ -118,29 +78,19 @@ def evaluate_trajectory(
     config: FieldConfig | None = None,
 ) -> TrajectoryEvaluationResult:
     field_config = config or DEFAULT_FIELD_CONFIG
-    state_results = tuple(evaluate_state(snapshot, context, state, config=field_config) for state in trajectory.states)
-    base_channels = {
-        "progression_tilted": sum(result.base_preference_channels["progression_tilted"] for result in state_results),
-        "interior_boundary": sum(result.base_preference_channels["interior_boundary"] for result in state_results),
-        "continuity_branch": sum(result.base_preference_channels["continuity_branch"] for result in state_results),
-    }
-    soft_channels = {
-        "safety_soft": sum(result.soft_exception_channels["safety_soft"] for result in state_results),
-        "rule_soft": sum(result.soft_exception_channels["rule_soft"] for result in state_results),
-        "dynamic_soft": sum(result.soft_exception_channels["dynamic_soft"] for result in state_results),
-    }
-    hard_flags = {
-        "unsafe": any(result.hard_violation_flags["unsafe"] for result in state_results),
-        "rule_blocked": any(result.hard_violation_flags["rule_blocked"] for result in state_results),
-        "dynamic_blocked": any(result.hard_violation_flags["dynamic_blocked"] for result in state_results),
-    }
-    hard_count = sum(1 for value in hard_flags.values() if value)
-    soft_total = sum(soft_channels.values())
-    base_total = sum(base_channels.values())
+    payload = build_field_runtime(snapshot, context, config=field_config).query_trajectory(trajectory)
     return TrajectoryEvaluationResult(
-        trajectory_base_preference_channels=base_channels,
-        trajectory_soft_exception_channels=soft_channels,
-        trajectory_hard_violation_flags=hard_flags,
-        ordering_key=(hard_count, soft_total, -base_total),
-        state_results=state_results,
+        trajectory_base_preference_channels=payload.base_channels,
+        trajectory_soft_exception_channels=payload.soft_channels,
+        trajectory_hard_violation_flags=payload.hard_flags,
+        ordering_key=payload.ordering_key,
+        state_results=tuple(
+            StateEvaluationResult(
+                base_preference_channels=state.base_channels,
+                soft_exception_channels=state.soft_channels,
+                hard_violation_flags=state.hard_flags,
+                diagnostics=state.diagnostics,
+            )
+            for state in payload.state_results
+        ),
     )

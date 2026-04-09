@@ -28,6 +28,7 @@ from .evaluator import (
     evaluate_state,
     evaluate_trajectory,
 )
+from .field_runtime import FieldRuntime, build_field_runtime
 from .presets import DEFAULT_PRESET_DIR, load_preset, save_preset
 from .rendering import RenderArtifacts, render_case
 
@@ -55,6 +56,8 @@ __all__ = [
     "DEFAULT_PRESET_DIR",
     "evaluate_state",
     "evaluate_trajectory",
+    "FieldRuntime",
+    "build_field_runtime",
     "load_preset",
     "RenderArtifacts",
     "render_case",
