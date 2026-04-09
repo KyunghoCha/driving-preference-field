@@ -308,6 +308,7 @@ def export_profile_bundle(
         file_manifest[path.name] = str(path)
 
     payload = {
+        "available": True,
         "selected_channel": selected_channel,
         "summary": summarize_profile_result(result, selected_channel=selected_channel),
         "result": result.to_dict(),

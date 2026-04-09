@@ -135,6 +135,7 @@
 
 late Phase 4 acceptance:
 
+- acceptance 판단은 semantic-first로 유지한다
 - overlap 영역 ordering stability가 유지된다
 - visible endpoint가 semantic start/end처럼 보이지 않는다
 - `straight_corridor`, `left_bend`, `split_branch`, `merge_like_patch`, `u_turn`에서 hole / abrupt ranking flip / fake end-cap이 없다

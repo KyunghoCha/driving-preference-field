@@ -117,6 +117,13 @@ Phase 4 late-stage public runtime interface는 다음으로 기록한다.
 
 downstream consumer는 current formula를 복제하지 않고 이 runtime layer를 소비하는 것을 원칙으로 한다.
 
+late Phase 4 acceptance에서 runtime contract는 다음을 만족해야 한다.
+
+- cache 사용 여부가 semantic drift를 만들지 않는다
+- evaluator entrypoint와 `FieldRuntime` layer가 의미상 같은 base / soft / hard 결과를 반환한다
+- overlap 영역 ordering stability와 endpoint continuation acceptance를 runtime layer가 깨지 않는다
+- downstream consumer는 formula copy가 아니라 이 public runtime interface를 그대로 소비한다
+
 ### 2. State Evaluation
 
 state evaluator는 다음 개념 출력을 제공해야 한다.

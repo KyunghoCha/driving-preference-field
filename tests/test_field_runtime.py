@@ -5,7 +5,7 @@ import numpy as np
 from driving_preference_field.config import FieldConfig, ProgressionConfig
 from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample, TrajectorySample
 from driving_preference_field.evaluator import evaluate_state, evaluate_trajectory
-from driving_preference_field.field_runtime import build_field_runtime
+from driving_preference_field.field_runtime import FieldRuntime, build_field_runtime
 from driving_preference_field.toy_loader import load_toy_snapshot
 
 
@@ -42,6 +42,24 @@ def test_field_runtime_state_query_matches_evaluator_semantics() -> None:
     assert payload.hard_flags == result.hard_violation_flags
     assert payload.diagnostics["progression_s_hat"] == result.diagnostics["progression_s_hat"]
     assert payload.diagnostics["progression_n_hat"] == result.diagnostics["progression_n_hat"]
+
+
+def test_field_runtime_cache_does_not_create_semantic_drift() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    config = _canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0)
+    state = StateSample(x=4.7, y=2.0, yaw=1.0)
+
+    first_runtime = build_field_runtime(snapshot, context, config=config)
+    second_runtime = build_field_runtime(snapshot, context, config=config)
+
+    first_payload = first_runtime.query_state(state)
+    second_payload = second_runtime.query_state(state)
+
+    assert first_payload.base_channels == second_payload.base_channels
+    assert first_payload.soft_channels == second_payload.soft_channels
+    assert first_payload.hard_flags == second_payload.hard_flags
+    assert first_payload.diagnostics["progression_s_hat"] == second_payload.diagnostics["progression_s_hat"]
+    assert first_payload.diagnostics["progression_n_hat"] == second_payload.diagnostics["progression_n_hat"]
 
 
 def test_field_runtime_trajectory_query_matches_evaluator_ordering() -> None:
@@ -82,6 +100,17 @@ def test_field_runtime_debug_grid_exposes_progression_components() -> None:
     assert grid["progression_alignment_mod"].shape == (6, 8)
 
 
+def test_field_runtime_public_contract_is_locked_for_late_phase4() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
+    runtime = build_field_runtime(snapshot, context)
+
+    assert isinstance(runtime, FieldRuntime)
+    assert callable(build_field_runtime)
+    assert callable(runtime.query_state)
+    assert callable(runtime.query_trajectory)
+    assert callable(runtime.query_debug_grid)
+
+
 def test_overlap_ordering_stays_stable_under_small_context_shift() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
     shifted = QueryContext(
@@ -111,6 +140,35 @@ def test_overlap_ordering_stays_stable_under_small_context_shift() -> None:
     assert second_runtime.query_state(center).base_channels["progression_tilted"] > second_runtime.query_state(off_axis).base_channels["progression_tilted"]
 
 
+def test_left_bend_overlap_ordering_stays_stable_under_small_context_shift() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    shifted = QueryContext(
+        semantic_snapshot=snapshot,
+        ego_pose=StateSample(
+            x=context.ego_pose.x + 0.15,
+            y=context.ego_pose.y + 0.10,
+            yaw=context.ego_pose.yaw,
+        ),
+        local_window=QueryWindow(
+            x_min=context.local_window.x_min + 0.15,
+            x_max=context.local_window.x_max + 0.15,
+            y_min=context.local_window.y_min + 0.10,
+            y_max=context.local_window.y_max + 0.10,
+        ),
+        mode=context.mode,
+        phase=context.phase,
+    )
+    config = _canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0)
+    on_curve = StateSample(x=4.8, y=3.1, yaw=1.2)
+    off_curve = StateSample(x=4.1, y=3.1, yaw=1.2)
+
+    first_runtime = build_field_runtime(snapshot, context, config=config)
+    second_runtime = build_field_runtime(snapshot, shifted, config=config)
+
+    assert first_runtime.query_state(on_curve).base_channels["progression_tilted"] > first_runtime.query_state(off_curve).base_channels["progression_tilted"]
+    assert second_runtime.query_state(on_curve).base_channels["progression_tilted"] > second_runtime.query_state(off_curve).base_channels["progression_tilted"]
+
+
 def test_visible_endpoint_no_longer_creates_local_end_cap_peak() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
     config = _canonical_config(longitudinal_frame="local_absolute", longitudinal_gain=2.0)
@@ -122,6 +180,22 @@ def test_visible_endpoint_no_longer_creates_local_end_cap_peak() -> None:
     near_score = runtime.query_state(near_end).base_channels["progression_tilted"]
     end_score = runtime.query_state(visible_end).base_channels["progression_tilted"]
     beyond_score = runtime.query_state(beyond_end).base_channels["progression_tilted"]
+
+    assert end_score >= near_score
+    assert beyond_score >= end_score - 0.05
+
+
+def test_u_turn_visible_endpoint_does_not_create_fake_end_cap_on_return_leg() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
+    config = _canonical_config(longitudinal_frame="local_absolute", longitudinal_gain=2.0)
+    near_visible_return_end = StateSample(x=0.9, y=3.2, yaw=3.141592653589793)
+    visible_return_end = StateSample(x=0.4, y=3.2, yaw=3.141592653589793)
+    beyond_visible_return_end = StateSample(x=0.0, y=3.2, yaw=3.141592653589793)
+
+    runtime = build_field_runtime(snapshot, context, config=config)
+    near_score = runtime.query_state(near_visible_return_end).base_channels["progression_tilted"]
+    end_score = runtime.query_state(visible_return_end).base_channels["progression_tilted"]
+    beyond_score = runtime.query_state(beyond_visible_return_end).base_channels["progression_tilted"]
 
     assert end_score >= near_score
     assert beyond_score >= end_score - 0.05

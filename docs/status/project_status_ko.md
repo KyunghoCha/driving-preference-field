@@ -57,3 +57,20 @@
 3. longitudinal frame / family / shape와 transverse family / shape를 실제 morphology 기준으로 조정한다
 4. line cut / profile export를 활용해 contour 원인을 계속 해석한다
 5. source adapter 범위는 후속 단계로 유지한다
+
+## late Phase 4 acceptance lock
+
+현재 Phase 4 종료 조건은 아래를 동시에 만족하는 것으로 본다.
+
+- overlap 영역 ordering stability가 유지된다
+- visible endpoint가 semantic start/end처럼 보이지 않는다
+- `straight_corridor`, `left_bend`, `split_branch`, `merge_like_patch`, `u_turn`에서 hole / fake end-cap / abrupt ranking flip이 없다
+- `FieldRuntime` public contract와 evaluator semantics가 계속 일치한다
+- Parameter Lab export만으로 morphology 비교가 재현 가능하다
+
+이번 라운드에서 명시적으로 하지 않는 일:
+
+- 3D preview 본체화
+- source adapter
+- Gazebo / RViz / MPPI hookup
+- 큰 파라미터 retuning

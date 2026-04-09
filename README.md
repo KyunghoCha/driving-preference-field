@@ -28,6 +28,7 @@ canonical 핵심은 다음과 같다.
 - cached runtime query layer와 progression debug component view 추가
 - Parameter Lab line cut / profile inspection과 profile export 추가
 - GitHub Actions CI와 git tracking 기준 정리 완료
+- late Phase 4 acceptance를 semantic-first 문서/테스트 기준으로 잠그는 단계
 
 ## 아키텍처
 
@@ -71,6 +72,18 @@ flowchart TD
 - 로드맵 SSOT: `docs/status/roadmap_ko.md`
 - 진행 상태 SSOT: `docs/status/project_status_ko.md`
 - 실험 계획 SSOT: `docs/status/experiment_plan_ko.md`
+
+late Phase 4 현재 목표:
+
+- 자연 contour와 인공 artifact를 문서와 테스트에서 구분한다
+- `FieldRuntime` public contract를 downstream-ready로 잠근다
+- Parameter Lab export만으로 morphology 비교를 재현 가능하게 유지한다
+
+명시적 비범위:
+
+- 3D preview 본체화
+- Source Adapter
+- Gazebo / RViz / MPPI hookup
 
 ## 문서 운영 규칙
 

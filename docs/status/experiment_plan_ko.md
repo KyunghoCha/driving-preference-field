@@ -152,6 +152,29 @@ Phase 3까지 만든 toy case를 기본 실험 집합으로 둔다.
 - line cut/profile inspection에서 `s_hat`, `n_hat`, longitudinal/transverse component가 contour 원인을 설명하는가
 - visible endpoint 근처에서 fake end-cap이나 ranking flip이 생기지 않는가
 
+## late Phase 4 semantic acceptance
+
+현재 late Phase 4 실험에서는 자연 contour와 인공 artifact를 구분해서 기록한다.
+
+허용:
+
+- bend/U-turn에서 보이는 대각선 contour
+- 2D heatmap에서 비틀린 면처럼 보이는 global 등고선
+
+제거 대상:
+
+- overlap 영역 ordering flip
+- visible endpoint saturation wall 또는 fake end-cap
+- branch 사이 hole
+- active-set / neighborhood artifact가 만든 abrupt jump
+
+실험 결과는 숫자 threshold보다 아래 semantic 기준을 우선 기록한다.
+
+- ordering 보존
+- continuity 유지
+- local peak 부재
+- export bundle만으로 같은 morphology 비교 재현 가능
+
 ## 현재 단계 결론
 
 이 문서의 목적은 아직 최적 수식을 확정하는 것이 아니다.
