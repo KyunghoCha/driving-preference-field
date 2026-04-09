@@ -84,3 +84,17 @@
 - 일반 채널 heatmap은 0을 절대 최소값으로 두는 채널별 고정 스케일을 기본으로 둔다
 - diff heatmap은 0 중심 대칭 스케일을 기본으로 둔다
 - 상대 정규화는 탐색용 보조 모드로만 제공하며, 현재 표시 범위와 단위를 함께 드러낸다
+
+### 12. 다른 머신에서 한 작업도 같은 SSOT에 남긴다
+
+- Ubuntu, Windows, 다른 노트북, 다른 workstation에서 한 작업이라도 canonical 의미 변경은 같은 repo 문서 SSOT에 남긴다
+- 다른 머신에서 구현한 현재 수식, runtime contract, preset 의미 변경도 merge 전에 관련 문서를 같이 갱신한다
+- 머신 로컬 메모, 채팅 맥락, shell history에만 의도를 남기지 않는다
+- 문서만 읽어도 현재 canonical과 current implementation을 복원할 수 있어야 한다
+
+### 13. 크로스플랫폼 차이는 의미가 아니라 재현 방식으로만 다룬다
+
+- 운영체제 차이로 field semantics, config semantics, preset semantics가 달라지면 안 된다
+- 플랫폼 차이는 환경 준비, line ending, 경로 처리, CI 구성 같은 재현 계층에서 해결한다
+- 특정 OS에서만 우연히 맞는 동작이나 렌더 결과를 canonical truth로 올리지 않는다
+- Windows에서 확인한 동작도 Ubuntu 기준 문서와 테스트에 다시 남겨 cross-platform drift를 줄인다
