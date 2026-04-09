@@ -1,0 +1,42 @@
+metadata:
+  name: sensor_patch_open
+  description: Sensor-only local patch with broad drivable interior and weak progression.
+  expected_behavior:
+    - interior center should score higher than boundary
+    - progression should remain bounded because guide confidence is weak
+query_window:
+  x_min: -2.0
+  x_max: 5.0
+  y_min: -2.5
+  y_max: 2.5
+ego_pose:
+  x: 0.0
+  y: 0.0
+  yaw: 0.0
+drivable_regions:
+  - id: local_patch
+    points:
+      - [-1.5, -1.5]
+      - [4.0, -1.5]
+      - [4.0, 1.5]
+      - [-1.5, 1.5]
+    metadata:
+      margin_scale: 1.4
+progression_guides:
+  - id: weak_forward_hint
+    weight: 0.35
+    metadata:
+      confidence: 0.55
+    points:
+      - [-0.5, 0.0]
+      - [2.5, 0.15]
+boundaries:
+  - id: lower_boundary
+    points:
+      - [-1.5, -1.5]
+      - [4.0, -1.5]
+  - id: upper_boundary
+    points:
+      - [-1.5, 1.5]
+      - [4.0, 1.5]
+safety_regions: []

@@ -1,0 +1,33 @@
+preset_name: candidate__nonlinear_longitudinal
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: power
+    longitudinal_gain: 2.5
+    lookahead_scale: 0.3
+    longitudinal_shape: 3.0
+    transverse_family: exponential
+    transverse_scale: 1.0
+    transverse_shape: 1.0
+    support_ceiling: 1.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: 비선형 longitudinal ramp를 더 강하게 보는 candidate
+metadata:
+  role: candidate
+  origin: reference
+  label: Nonlinear Longitudinal
+  family: local_absolute:power/exponential
+  description: longitudinal gain을 nonlinearity와 함께 키운 reference candidate
+  recommended_cases:
+    - straight_corridor
+    - left_bend
+    - u_turn
+    - split_branch
+    - merge_like_patch

@@ -1,0 +1,54 @@
+metadata:
+  name: left_bend
+  description: Local bend that should reward future-facing curved progression.
+query_window:
+  x_min: -1.0
+  x_max: 6.5
+  y_min: -1.5
+  y_max: 6.0
+ego_pose:
+  x: 0.5
+  y: 0.0
+  yaw: 0.0
+drivable_regions:
+  - id: bend_corridor
+    points:
+      - [0.0, -1.0]
+      - [3.2, -1.0]
+      - [5.8, 1.6]
+      - [5.8, 5.6]
+      - [4.2, 5.6]
+      - [4.2, 2.2]
+      - [2.8, 0.8]
+      - [0.0, 0.8]
+progression_guides:
+  - id: bend_guide
+    points:
+      - [0.0, 0.0]
+      - [3.0, 0.0]
+      - [4.6, 1.6]
+      - [5.0, 3.5]
+      - [5.0, 5.0]
+boundaries:
+  - id: outer_bend
+    points:
+      - [0.0, -1.0]
+      - [3.2, -1.0]
+      - [5.8, 1.6]
+      - [5.8, 5.6]
+  - id: inner_bend
+    points:
+      - [0.0, 0.8]
+      - [2.8, 0.8]
+      - [4.2, 2.2]
+      - [4.2, 5.6]
+safety_regions:
+  - id: near_outer_wall
+    points:
+      - [5.6, 2.6]
+      - [6.0, 2.6]
+      - [6.0, 3.3]
+      - [5.6, 3.3]
+    severity: 1.2
+    hard: true
+    influence_radius: 0.8

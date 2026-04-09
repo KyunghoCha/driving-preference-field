@@ -1,0 +1,33 @@
+preset_name: baseline__weak_longitudinal
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: linear
+    longitudinal_gain: 0.5
+    lookahead_scale: 0.4
+    longitudinal_shape: 1.0
+    transverse_family: exponential
+    transverse_scale: 1.0
+    transverse_shape: 1.0
+    support_ceiling: 1.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: longitudinal gain을 약하게 둔 기준 baseline
+metadata:
+  role: baseline
+  origin: reference
+  label: Weak Longitudinal
+  family: local_absolute:linear/exponential
+  description: center-high transverse는 유지하고 longitudinal tilt를 약하게 둔 reference baseline
+  recommended_cases:
+    - straight_corridor
+    - left_bend
+    - u_turn
+    - sensor_patch_open
+    - merge_like_patch

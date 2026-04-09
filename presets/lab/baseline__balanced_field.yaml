@@ -1,0 +1,36 @@
+preset_name: baseline__balanced_field
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: tanh
+    longitudinal_gain: 0.9
+    lookahead_scale: 0.35
+    longitudinal_shape: 2.0
+    transverse_family: exponential
+    transverse_scale: 1.0
+    transverse_shape: 1.0
+    support_ceiling: 1.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: current canonical progression field의 균형 잡힌 reference baseline
+metadata:
+  role: baseline
+  origin: reference
+  label: Balanced Field
+  family: local_absolute:tanh/exponential
+  description: center-high transverse와 완만한 longitudinal tilt를 함께 쓰는 reference baseline
+  recommended_cases:
+    - straight_corridor
+    - left_bend
+    - u_turn
+    - split_branch
+    - sensor_patch_open
+    - sensor_patch_narrow
+    - sensor_patch_blocked
+    - merge_like_patch

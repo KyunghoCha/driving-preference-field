@@ -1,0 +1,66 @@
+metadata:
+  name: merge_like_patch
+  description: Sensor-only local patch with weak merge-like continuity cues.
+  expected_behavior:
+    - continuity should prefer the more aligned merge continuation
+query_window:
+  x_min: -1.5
+  x_max: 5.5
+  y_min: -2.0
+  y_max: 2.0
+ego_pose:
+  x: -0.2
+  y: 0.0
+  yaw: 0.0
+drivable_regions:
+  - id: merge_patch
+    points:
+      - [-0.8, -1.4]
+      - [1.8, -1.4]
+      - [3.6, -0.4]
+      - [4.8, -0.4]
+      - [4.8, 0.4]
+      - [3.6, 0.4]
+      - [1.8, 1.4]
+      - [-0.8, 1.4]
+    metadata:
+      margin_scale: 0.9
+progression_guides:
+  - id: weak_trunk
+    weight: 0.4
+    metadata:
+      confidence: 0.65
+    points:
+      - [-0.5, 0.0]
+      - [4.5, 0.0]
+branch_guides:
+  - id: upper_merge
+    weight: 0.45
+    metadata:
+      confidence: 0.7
+    points:
+      - [1.2, 1.0]
+      - [3.2, 0.25]
+      - [4.6, 0.0]
+  - id: lower_merge
+    weight: 0.42
+    metadata:
+      confidence: 0.7
+    points:
+      - [1.2, -1.0]
+      - [3.2, -0.25]
+      - [4.6, 0.0]
+boundaries:
+  - id: upper_boundary
+    points:
+      - [-0.8, 1.4]
+      - [1.8, 1.4]
+      - [3.6, 0.4]
+      - [4.8, 0.4]
+  - id: lower_boundary
+    points:
+      - [-0.8, -1.4]
+      - [1.8, -1.4]
+      - [3.6, -0.4]
+      - [4.8, -0.4]
+safety_regions: []

@@ -1,0 +1,51 @@
+metadata:
+  name: sensor_patch_blocked
+  description: Sensor-only patch with a forward preference but a blocked front region.
+  expected_behavior:
+    - hard and soft exception layers remain separate from base channels
+    - progression still exists outside the blocked region
+query_window:
+  x_min: -1.0
+  x_max: 5.5
+  y_min: -2.0
+  y_max: 2.0
+ego_pose:
+  x: 0.0
+  y: 0.0
+  yaw: 0.0
+drivable_regions:
+  - id: blocked_patch
+    points:
+      - [-0.5, -1.2]
+      - [4.8, -1.2]
+      - [4.8, 1.2]
+      - [-0.5, 1.2]
+    metadata:
+      margin_scale: 1.0
+progression_guides:
+  - id: weak_forward_band
+    weight: 0.45
+    metadata:
+      confidence: 0.7
+    points:
+      - [-0.2, 0.0]
+      - [4.4, 0.0]
+boundaries:
+  - id: lower_boundary
+    points:
+      - [-0.5, -1.2]
+      - [4.8, -1.2]
+  - id: upper_boundary
+    points:
+      - [-0.5, 1.2]
+      - [4.8, 1.2]
+safety_regions:
+  - id: blocked_front
+    points:
+      - [2.8, -0.45]
+      - [3.9, -0.45]
+      - [3.9, 0.45]
+      - [2.8, 0.45]
+    severity: 1.4
+    hard: true
+    influence_radius: 0.5

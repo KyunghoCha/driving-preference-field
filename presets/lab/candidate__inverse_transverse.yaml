@@ -1,0 +1,33 @@
+preset_name: candidate__inverse_transverse
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: tanh
+    longitudinal_gain: 1.0
+    lookahead_scale: 0.35
+    longitudinal_shape: 2.0
+    transverse_family: inverse
+    transverse_scale: 1.0
+    transverse_shape: 2.0
+    support_ceiling: 1.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: inverse transverse 감쇠를 쓰는 candidate
+metadata:
+  role: candidate
+  origin: reference
+  label: Inverse Transverse
+  family: local_absolute:tanh/inverse
+  description: 중심은 유지하면서 off-axis 감쇠 모양을 inverse 계열로 바꾼 reference candidate
+  recommended_cases:
+    - straight_corridor
+    - u_turn
+    - split_branch
+    - sensor_patch_open
+    - sensor_patch_narrow

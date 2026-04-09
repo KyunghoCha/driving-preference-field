@@ -1,0 +1,50 @@
+metadata:
+  name: u_turn
+  description: Local U-turn hairpin that should keep a continuous whole-fabric progression surface through a 180-degree turn.
+  expected_behavior:
+    - progression should remain continuous through the hairpin without creating a hole at the apex
+    - same-slice transverse profile should stay center-high on both the entry leg and the return leg
+    - strong longitudinal tilt can eventually make the farther return leg outrank a nearer entry point
+query_window:
+  x_min: -1.5
+  x_max: 6.5
+  y_min: -1.8
+  y_max: 4.8
+ego_pose:
+  x: 0.6
+  y: 0.0
+  yaw: 0.0
+drivable_regions:
+  - id: u_turn_corridor
+    points:
+      - [0.0, -1.0]
+      - [5.8, -1.0]
+      - [5.8, 4.0]
+      - [-0.2, 4.0]
+      - [-0.2, 2.4]
+      - [4.2, 2.4]
+      - [4.2, 0.6]
+      - [0.0, 0.6]
+progression_guides:
+  - id: u_turn_guide
+    points:
+      - [0.2, 0.0]
+      - [4.8, 0.0]
+      - [5.0, 0.8]
+      - [5.0, 3.0]
+      - [4.8, 3.2]
+      - [0.4, 3.2]
+boundaries:
+  - id: outer_u_turn
+    points:
+      - [0.0, -1.0]
+      - [5.8, -1.0]
+      - [5.8, 4.0]
+      - [-0.2, 4.0]
+  - id: inner_u_turn
+    points:
+      - [0.0, 0.6]
+      - [4.2, 0.6]
+      - [4.2, 2.4]
+      - [-0.2, 2.4]
+safety_regions: []

@@ -1,0 +1,41 @@
+metadata:
+  name: sensor_patch_narrow
+  description: Sensor-only narrow patch where boundary-derived preference should separate center and edge strongly.
+  expected_behavior:
+    - interior should stay clearly above near-boundary states
+query_window:
+  x_min: -1.0
+  x_max: 4.5
+  y_min: -1.0
+  y_max: 1.0
+ego_pose:
+  x: 0.0
+  y: 0.0
+  yaw: 0.0
+drivable_regions:
+  - id: narrow_patch
+    points:
+      - [-0.5, -0.35]
+      - [3.8, -0.35]
+      - [3.8, 0.35]
+      - [-0.5, 0.35]
+    metadata:
+      margin_scale: 0.25
+progression_guides:
+  - id: weak_center_hint
+    weight: 0.3
+    metadata:
+      confidence: 0.5
+    points:
+      - [-0.2, 0.0]
+      - [3.6, 0.02]
+boundaries:
+  - id: lower_boundary
+    points:
+      - [-0.5, -0.35]
+      - [3.8, -0.35]
+  - id: upper_boundary
+    points:
+      - [-0.5, 0.35]
+      - [3.8, 0.35]
+safety_regions: []

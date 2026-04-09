@@ -1,0 +1,36 @@
+preset_name: baseline__no_progression
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: tanh
+    longitudinal_gain: 0.0
+    lookahead_scale: 0.35
+    longitudinal_shape: 2.0
+    transverse_family: exponential
+    transverse_scale: 1.0
+    transverse_shape: 1.0
+    support_ceiling: 0.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: progression_tilted를 끄고 다른 base 채널 구조만 비교하는 baseline
+metadata:
+  role: baseline
+  origin: reference
+  label: No Progression
+  family: disabled
+  description: progression surface contribution 없이 base field의 다른 항만 확인하는 reference baseline
+  recommended_cases:
+    - straight_corridor
+    - left_bend
+    - u_turn
+    - split_branch
+    - sensor_patch_open
+    - sensor_patch_narrow
+    - sensor_patch_blocked
+    - merge_like_patch

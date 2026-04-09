@@ -1,0 +1,49 @@
+# 프로젝트 진행 상태 문서
+
+작성일: 2026-04-08
+
+## 현재 상태
+
+- 새 workspace 생성 완료
+- docs-first 재시작 완료
+- 운영 원칙 / 연구 범위 / base field 관련 canonical 문서 정리 완료
+- input semantics / field terms / layer composition / runtime contract 정리 완료
+- canonical progression field를 단일 source-agnostic 모델 기준으로 다시 정리 완료
+- 전용 conda 환경 생성 완료
+- V0 tiny analytic evaluator skeleton 추가
+- toy case 기반 state / trajectory evaluator와 CLI 추가
+- local raster visualization 추가
+- channel별 PNG export와 composite debug view 추가
+- PyQt6 기반 Parameter Lab 초기 구현 추가
+- baseline/candidate compare, diff, single view 추가
+- preset 저장 / load / copy와 `comparison_session.json` 기반 export 추가
+- case-level ego/window control과 working context 분리 추가
+- channel scale mode (`Fixed` / `Normalized`)와 range/unit 표시 추가
+- Parameter Help와 summary를 current implementation guide 기준으로 정리 완료
+- 단일 canonical progression field 기준으로 코드 / preset / GUI naming 정렬 완료
+- current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정렬 진행 중
+
+전체 phase 진행은 다음 문서에서 관리한다.
+
+- [로드맵 문서](./roadmap_ko.md)
+
+## 현재 합의된 것
+
+- 외부에서 주어진 주행 가능 의미와 진행 의미를 받아 base driving preference field를 정의하는 프로젝트다
+- progression field는 특정 source 예시에 종속되지 않는다
+- runtime은 현재 보이는 local map 전체를 analytic하게 평가할 수 있어야 한다
+- progression field는 최소한 longitudinal term과 transverse term을 가져야 하며, 이 둘은 독립적으로 조정 가능해야 한다
+- current implementation은 smooth skeleton anchor를 좌표 control point로 쓰는 Gaussian-blended local-map-wide whole-fabric field를 사용한다
+- current implementation exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다
+- support / confidence / continuity / alignment는 보조 성분이다
+- canonical score는 higher is better다
+- obstacle/rule/dynamic은 separate layer다
+- full raster는 visualization/debugging용이다
+- canonical input은 source가 아니라 semantic contract로 정의한다
+
+## 다음 단계
+
+1. 같은 case + 같은 preset pair + 같은 effective context에서 export 재현성을 반복 확인한다
+2. longitudinal frame / family / shape와 transverse family / shape를 실제 morphology 기준으로 조정한다
+3. interior / continuity / exception 파라미터를 어떤 순서로 노출할지 정한다
+4. source adapter 범위는 후속 단계로 유지한다

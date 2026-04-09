@@ -1,0 +1,33 @@
+preset_name: candidate__wide_transverse
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: tanh
+    longitudinal_gain: 1.0
+    lookahead_scale: 0.35
+    longitudinal_shape: 2.0
+    transverse_family: exponential
+    transverse_scale: 2.5
+    transverse_shape: 0.75
+    support_ceiling: 1.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: transverse spread를 더 넓게 본 candidate
+metadata:
+  role: candidate
+  origin: reference
+  label: Wide Transverse
+  family: local_absolute:tanh/exponential-wide
+  description: center-high profile을 더 넓게 퍼지게 해 멀리 있는 좋은 영역으로 이어질 여지를 키운 reference candidate
+  recommended_cases:
+    - straight_corridor
+    - left_bend
+    - u_turn
+    - sensor_patch_open
+    - merge_like_patch
