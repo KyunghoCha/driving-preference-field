@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Driving Preference Field Lab
+Comment=Open the driving-preference-field Parameter Lab
+Exec=/home/ckh/Projects/driving-preference-field/run-parameter-lab.sh
+Path=/home/ckh/Projects/driving-preference-field
+Icon=/home/ckh/Projects/driving-preference-field/assets/parameter_lab_launcher.svg
+Terminal=false
+StartupNotify=true
+Categories=Development;Science;
+Keywords=driving;preference;field;parameter;lab;
