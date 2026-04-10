@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from driving_preference_field.config import FieldConfig, ProgressionConfig
 from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample, TrajectorySample
@@ -108,7 +109,51 @@ def test_field_runtime_public_contract_is_locked_for_late_phase4() -> None:
     assert callable(build_field_runtime)
     assert callable(runtime.query_state)
     assert callable(runtime.query_trajectory)
+    assert callable(runtime.query_progression_points)
+    assert callable(runtime.query_progression_trajectories)
     assert callable(runtime.query_debug_grid)
+
+
+def test_field_runtime_batched_progression_points_match_state_queries() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    runtime = build_field_runtime(snapshot, context)
+    xs = np.asarray([4.7, 5.1, 5.5], dtype=float)
+    ys = np.asarray([2.0, 2.4, 2.8], dtype=float)
+    yaws = np.asarray([1.0, 1.0, 1.0], dtype=float)
+
+    batched = runtime.query_progression_points(xs, ys, yaws)
+
+    for index, (x, y, yaw) in enumerate(zip(xs, ys, yaws)):
+        state = StateSample(x=float(x), y=float(y), yaw=float(yaw))
+        single = runtime.query_state(state)
+        assert batched["progression_tilted"][index] == pytest.approx(single.base_channels["progression_tilted"])
+        assert batched["progression_s_hat"][index] == pytest.approx(single.diagnostics["progression_s_hat"])
+        assert batched["progression_n_hat"][index] == pytest.approx(single.diagnostics["progression_n_hat"])
+
+
+def test_field_runtime_batched_progression_trajectories_match_trajectory_sum() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
+    runtime = build_field_runtime(snapshot, context)
+    trajectories_xy = np.asarray(
+        [
+            [[1.0, 0.0], [2.0, 0.0], [3.0, 0.0]],
+            [[1.0, 0.4], [2.0, 0.4], [3.0, 0.4]],
+        ],
+        dtype=float,
+    )
+    batched = runtime.query_progression_trajectories(trajectories_xy)
+    center_trajectory = TrajectorySample(
+        states=tuple(StateSample(x=float(x), y=float(y), yaw=0.0) for x, y in trajectories_xy[0])
+    )
+    off_axis_trajectory = TrajectorySample(
+        states=tuple(StateSample(x=float(x), y=float(y), yaw=0.0) for x, y in trajectories_xy[1])
+    )
+
+    center_result = runtime.query_trajectory(center_trajectory)
+    off_axis_result = runtime.query_trajectory(off_axis_trajectory)
+
+    assert float(np.sum(batched["progression_tilted"][0])) == pytest.approx(center_result.base_channels["progression_tilted"])
+    assert float(np.sum(batched["progression_tilted"][1])) == pytest.approx(off_axis_result.base_channels["progression_tilted"])
 
 
 def test_overlap_ordering_stays_stable_under_small_context_shift() -> None:

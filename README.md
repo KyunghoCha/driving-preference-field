@@ -36,6 +36,7 @@ canonical 핵심은 다음과 같다.
 - 코드 / preset / GUI가 단일 canonical progression field 기준으로 정렬 완료
 - current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정리 진행 중
 - cached runtime query layer와 progression debug component view 추가
+- downstream-ready batched progression query (`FieldRuntime.query_progression_points`, `FieldRuntime.query_progression_trajectories`) 추가
 - Parameter Lab line cut / profile inspection과 profile export 추가
 - GitHub Actions CI와 git tracking 기준 정리 완료
 - late Phase 4 acceptance lock 완료
@@ -94,6 +95,7 @@ late Phase 4 현재 목표:
 현재 판단:
 
 - 위 late Phase 4 목표는 충족한 상태로 본다
+- downstream optimizer consumer는 debug grid가 아니라 batched progression query를 operational path로 사용할 수 있는 상태다
 
 명시적 비범위:
 

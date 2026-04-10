@@ -189,6 +189,56 @@ class ProgressionSurfaceRuntime:
             "transverse_component": arrays["transverse_component"].reshape(shape),
         }
 
+    def query_points(
+        self,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        heading_yaws: np.ndarray | None = None,
+    ) -> dict[str, np.ndarray]:
+        x_values = np.asarray(x_values, dtype=float)
+        y_values = np.asarray(y_values, dtype=float)
+        if x_values.ndim != 1 or y_values.ndim != 1:
+            raise ValueError("x_values and y_values must be 1-D arrays")
+        if x_values.shape != y_values.shape:
+            raise ValueError("x_values and y_values must have the same shape")
+        if heading_yaws is None:
+            heading_yaws = np.full(x_values.shape, self._context.ego_pose.yaw, dtype=float)
+        else:
+            heading_yaws = np.asarray(heading_yaws, dtype=float)
+            if heading_yaws.ndim != 1 or heading_yaws.shape != x_values.shape:
+                raise ValueError("heading_yaws must be a 1-D array with the same shape as x_values")
+        arrays = self._query_arrays(x_values, y_values, heading_yaws, include_internal=False)
+        return {
+            "progression_tilted": arrays["score"],
+            "progression_s_hat": arrays["s_hat"],
+            "progression_n_hat": arrays["n_hat"],
+            "progression_support_sum": arrays["support_sum"],
+            "progression_support_mod": arrays["support_mod"],
+            "progression_alignment_mod": arrays["alignment_mod"],
+            "progression_longitudinal_component": arrays["longitudinal_component"],
+            "progression_transverse_component": arrays["transverse_component"],
+        }
+
+    def query_trajectories(
+        self,
+        trajectories_xy: np.ndarray,
+        heading_yaws: np.ndarray | None = None,
+    ) -> dict[str, np.ndarray]:
+        trajectories_xy = np.asarray(trajectories_xy, dtype=float)
+        if trajectories_xy.ndim != 3 or trajectories_xy.shape[-1] != 2:
+            raise ValueError("trajectories_xy must have shape (batch, steps, 2)")
+        batch_shape = trajectories_xy.shape[:-1]
+        flat_xy = trajectories_xy.reshape(-1, 2)
+        if heading_yaws is None:
+            flat_yaws = np.full((flat_xy.shape[0],), self._context.ego_pose.yaw, dtype=float)
+        else:
+            heading_yaws = np.asarray(heading_yaws, dtype=float)
+            if heading_yaws.shape != batch_shape:
+                raise ValueError("heading_yaws must have shape trajectories_xy.shape[:-1]")
+            flat_yaws = heading_yaws.reshape(-1)
+        flat_result = self.query_points(flat_xy[:, 0], flat_xy[:, 1], flat_yaws)
+        return {name: values.reshape(batch_shape) for name, values in flat_result.items()}
+
     def _query_arrays(
         self,
         x_values: np.ndarray,

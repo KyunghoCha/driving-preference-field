@@ -114,8 +114,19 @@ Phase 4 late-stage public runtime interface는 다음으로 기록한다.
 - `FieldRuntime.query_state(state)`
 - `FieldRuntime.query_trajectory(trajectory)`
 - `FieldRuntime.query_debug_grid(x_coords, y_coords)`
+- `FieldRuntime.query_progression_points(x_values, y_values, heading_yaws=None)`
+- `FieldRuntime.query_progression_trajectories(trajectories_xy, heading_yaws=None)`
 
 downstream consumer는 current formula를 복제하지 않고 이 runtime layer를 소비하는 것을 원칙으로 한다.
+
+추가된 batched progression query의 역할은 다음으로 고정한다.
+
+- local window 안의 다수 state/rollout를 current implementation semantics 그대로 빠르게 평가한다
+- optimizer consumer가 debug grid를 operational path로 쓰지 않게 한다
+- 반환값은 raw progression channel payload다
+  - 최소 `progression_tilted`
+  - 현재 implementation debug component들 (`progression_s_hat`, `progression_n_hat`, `progression_support_mod`, `progression_alignment_mod`, `progression_longitudinal_component`, `progression_transverse_component`)을 함께 반환할 수 있다
+- batched query 결과는 같은 snapshot/context/config에서 `query_state` / `query_trajectory` ordering과 모순되면 안 된다
 
 late Phase 4 acceptance에서 runtime contract는 다음을 만족해야 한다.
 
@@ -123,6 +134,7 @@ late Phase 4 acceptance에서 runtime contract는 다음을 만족해야 한다.
 - evaluator entrypoint와 `FieldRuntime` layer가 의미상 같은 base / soft / hard 결과를 반환한다
 - overlap 영역 ordering stability와 endpoint continuation acceptance를 runtime layer가 깨지 않는다
 - downstream consumer는 formula copy가 아니라 이 public runtime interface를 그대로 소비한다
+- downstream optimizer consumer는 debug grid secondary visualization 대신 batched progression query를 operational path로 우선 사용한다
 
 ### 2. State Evaluation
 

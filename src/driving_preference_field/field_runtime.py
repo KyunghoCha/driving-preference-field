@@ -126,6 +126,21 @@ class FieldRuntime:
             state_results=state_results,
         )
 
+    def query_progression_points(
+        self,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        heading_yaws: np.ndarray | None = None,
+    ) -> dict[str, np.ndarray]:
+        return self.progression_runtime.query_points(x_values, y_values, heading_yaws)
+
+    def query_progression_trajectories(
+        self,
+        trajectories_xy: np.ndarray,
+        heading_yaws: np.ndarray | None = None,
+    ) -> dict[str, np.ndarray]:
+        return self.progression_runtime.query_trajectories(trajectories_xy, heading_yaws)
+
     def query_debug_grid(self, x_coords: np.ndarray, y_coords: np.ndarray) -> dict[str, np.ndarray]:
         shape = (len(y_coords), len(x_coords))
         progression_grid = self.progression_runtime.query_grid(x_coords, y_coords)

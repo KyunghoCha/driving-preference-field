@@ -23,6 +23,7 @@
 - 단일 canonical progression field 기준으로 코드 / preset / GUI naming 정렬 완료
 - current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정렬 완료
 - cached field runtime query layer 추가
+- public batched progression runtime query 추가
 - progression debug component view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment) 추가
 - Parameter Lab profile inspection 탭과 profile export 추가
 - late Phase 4 acceptance를 문서와 테스트로 고정 완료
@@ -50,6 +51,7 @@
 - full raster는 visualization/debugging용이다
 - canonical input은 source가 아니라 semantic contract로 정의한다
 - downstream consumer는 formula copy가 아니라 `field_runtime` cached query layer를 소비하는 것을 기준으로 한다
+- downstream optimizer consumer를 위한 batched progression query는 `query_state` / `query_trajectory`와 의미상 일치하는 public contract로 본다
 
 ## 다음 단계
 
