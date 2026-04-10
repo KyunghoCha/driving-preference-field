@@ -23,8 +23,8 @@
 이 문서에서 중요한 구분은 다음이다.
 
 - canonical은 지금 **확정된 semantic slot**만 고정한다
-- source adapter가 이것을 어떤 raw structure에서 어떻게 번역할지는 아직 Phase 5 proposal / experiment 영역이다
-- `ego_pose`, local window policy, support/confidence transport shape 같은 것은 현재 canonical 본체보다 runtime context 또는 future adapter proposal 쪽에 더 가깝다
+- source adapter가 이것을 어떤 output contract로 번역하는지는 `docs/design/source_adapter_ko.md`에서 고정한다
+- `ego_pose`, local window policy, support/confidence transport shape 같은 것은 semantic slot 본체보다 QueryContext 또는 experiment 영역에 더 가깝다
 
 ### 1. Drivable Support
 
@@ -52,7 +52,7 @@ drivable support는 움직일 수 있는 공간을 알려주지만, progression 
   - reverse context
   - future anchor
   - phase or mode context
-  - support confidence
+  - optional support confidence
 - field generator 해석:
   - progression-aware potential structure를 만든다
 
@@ -78,9 +78,9 @@ progression support는 “무엇이 앞이고 뒤인가”를 정해주는 order
 - 최소 의미:
   - 대안적 continuation 사이의 continuity relation을 구분할 수 있어야 한다
 - 선택 의미:
-  - branch priority
+  - optional branch priority
   - merge preference
-  - continuity confidence
+  - optional continuity confidence
 - field generator 해석:
   - continuity / branch structure를 생성한다
 
@@ -107,6 +107,8 @@ progression support는 “무엇이 앞이고 뒤인가”를 정해주는 order
 
 이 경우 해당 source는 canonical contract의 일부만 약하게 채우는 것으로 해석한다. 즉 부분 입력은 canonical contract의 **약한 instantiation**일 수는 있지만, canonical contract 자체를 대체하지 않는다.
 
+Phase 5 current adapter는 이런 부분 입력을 generic source adapter output으로 번역할 수 있게 하되, optional branch/support/confidence가 없다고 canonical output 전체를 invalid로 보지는 않는다.
+
 ## Canonical이 요구하지 않는 것
 
 다음은 canonical input의 필수 형식이 아니다.
@@ -115,7 +117,7 @@ progression support는 “무엇이 앞이고 뒤인가”를 정해주는 order
 - 특정 reference 표현 형식
 - fixed source type
 - 선호도 label 자체
-- source adapter의 raw wire shape
+- source adapter의 raw source naming
 - ego pose를 snapshot 본체에 넣는 특정 규칙
 - local window 크기나 slicing policy의 고정값
 

@@ -8,6 +8,8 @@
 
 현재 비교 실험은 코드 수정으로 한 번씩 돌리는 작업이 아니라, Parameter Lab 위에서 preset과 export를 통해 반복 수행하는 절차를 기준으로 한다.
 
+Phase 5 이후에는 hand-authored toy case뿐 아니라 generic adapter fixture도 같은 canonical snapshot contract로 실험에 넣을 수 있다.
+
 이 문서는 다음을 고정한다.
 
 - 어떤 morphology 축을 비교할 것인가
@@ -107,6 +109,12 @@ Phase 3까지 만든 toy case를 기본 실험 집합으로 둔다.
 - `sensor_patch_blocked`
 - `merge_like_patch`
 
+Phase 5부터는 필요할 때 다음 generic adapter fixture도 같은 실험 절차로 열 수 있다.
+
+- `fixtures/adapter/straight_corridor_generic.yaml`
+- `fixtures/adapter/left_bend_generic.yaml`
+- `fixtures/adapter/split_branch_generic.yaml`
+
 ## 출력과 기록 방식
 
 각 실험 조합마다 다음을 남긴다.
@@ -182,5 +190,5 @@ Phase 3까지 만든 toy case를 기본 실험 집합으로 둔다.
 현재 단계의 목적은 다음과 같다.
 
 - longitudinal / transverse 독립 실험축을 고정한다
-- 같은 case와 같은 출력 형식으로 비교 가능한 절차를 유지한다
+- 같은 case 또는 generic adapter fixture와 같은 출력 형식으로 비교 가능한 절차를 유지한다
 - 이후 코드 cleanup과 canonical model 정렬 뒤에도 반복 실험이 가능하게 만든다

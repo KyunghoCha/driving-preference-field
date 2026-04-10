@@ -29,8 +29,10 @@ from .evaluator import (
     evaluate_trajectory,
 )
 from .field_runtime import FieldRuntime, build_field_runtime
+from .input_loader import LoadedSemanticInput, detect_input_kind, load_semantic_input
 from .presets import DEFAULT_PRESET_DIR, load_preset, save_preset
 from .rendering import RenderArtifacts, render_case
+from .source_adapter import GenericAdapterValidationError, load_generic_snapshot
 
 __all__ = [
     "DEFAULT_FIELD_CONFIG",
@@ -57,8 +59,13 @@ __all__ = [
     "evaluate_state",
     "evaluate_trajectory",
     "FieldRuntime",
+    "GenericAdapterValidationError",
+    "LoadedSemanticInput",
     "build_field_runtime",
+    "detect_input_kind",
     "load_preset",
+    "load_generic_snapshot",
+    "load_semantic_input",
     "RenderArtifacts",
     "render_case",
     "save_preset",

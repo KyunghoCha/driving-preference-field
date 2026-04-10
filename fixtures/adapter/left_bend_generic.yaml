@@ -1,0 +1,46 @@
+metadata:
+  name: left_bend_generic
+  description: Generic local semantic map fixture for a bend corridor.
+drivable_regions:
+  - id: bend_corridor
+    points:
+      - [0.0, -1.0]
+      - [3.2, -1.0]
+      - [5.8, 1.6]
+      - [5.8, 5.6]
+      - [4.2, 5.6]
+      - [4.2, 2.2]
+      - [2.8, 0.8]
+      - [0.0, 0.8]
+progression_supports:
+  - id: bend_progression
+    points:
+      - [0.0, 0.0]
+      - [3.0, 0.0]
+      - [4.6, 1.6]
+      - [5.0, 3.5]
+      - [5.0, 5.0]
+    support_confidence: 0.92
+boundaries:
+  - id: outer_bend
+    points:
+      - [0.0, -1.0]
+      - [3.2, -1.0]
+      - [5.8, 1.6]
+      - [5.8, 5.6]
+  - id: inner_bend
+    points:
+      - [0.0, 0.8]
+      - [2.8, 0.8]
+      - [4.2, 2.2]
+      - [4.2, 5.6]
+query_context:
+  ego_pose:
+    x: 0.5
+    y: 0.0
+    yaw: 0.0
+  local_window:
+    x_min: -1.0
+    x_max: 6.5
+    y_min: -1.5
+    y_max: 6.0

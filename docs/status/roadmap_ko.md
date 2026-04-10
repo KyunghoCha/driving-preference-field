@@ -15,14 +15,15 @@
 
 ## 현재 위치
 
-현재 프로젝트는 **Phase 4 완료, Phase 5 준비 상태**로 본다.
+현재 프로젝트는 **Phase 5 완료, Phase 6 준비 상태**로 본다.
 
 - Phase 0: 완료
 - Phase 1: 완료
 - Phase 2: 완료
 - Phase 3: 완료
 - Phase 4: 완료
-- Phase 5: 후속 단계
+- Phase 5: 완료
+- Phase 6: 후속 단계
 
 ## Phase 구조
 
@@ -154,17 +155,19 @@ late Phase 4 acceptance:
 
 - 최소 한 종류의 외부 source를 canonical input으로 변환할 수 있다
 - source-specific 구조가 canonical 내부로 새어 들어오지 않는다
+- reference adapter input이 SSC naming 없이 generic YAML/JSON fixture로 존재한다
+- adapter output이 기존 runtime / evaluator / Parameter Lab contract와 바로 연결된다
 
 현재 상태:
 
-- 보류
+- 완료
 
 현재 참고:
 
-- Phase 5 방향의 현재 proposal은 canonical design이 아니라 reading 문서로만 남긴다
-- proposal: `docs/reading/phase5_adapter_proposal_ko.md`
+- current decision SSOT: `docs/design/source_adapter_ko.md`
+- proposal history: `docs/reading/phase5_adapter_proposal_ko.md`
 
-### Phase 6. Interactive Studio
+### Phase 6. Interactive Studio / Downstream Preparation
 
 목표:
 
@@ -196,15 +199,15 @@ late Phase 4 acceptance:
 
 ### 현재 진행
 
-- Phase 4 결과를 SSOT 상태로 유지
-- downstream consumer가 사용할 runtime contract drift 방지
+- Phase 5 결과를 SSOT 상태로 유지
+- downstream consumer가 사용할 runtime contract와 adapter contract drift 방지
 - morphology lab 기준선 유지
 
 ### 다음 액션
 
-1. 이 repo에서는 Phase 4 결과를 안정 상태로 유지하고 drift만 관리
+1. 이 repo에서는 Phase 5 결과를 안정 상태로 유지하고 drift만 관리
 2. morphology 미세조정은 downstream 실험 결과가 생길 때만 되돌아와 수행
-3. Phase 5 Source Adapter는 후속 단계로 유지
+3. Phase 6 이후 작업은 이 repo가 아니라 downstream integration evidence와 분리해서 판단
 
 ## 사용 원칙
 

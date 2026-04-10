@@ -35,6 +35,7 @@ class CasePanelWidget(QWidget):
     def __init__(self, cases_root: Path) -> None:
         super().__init__()
         self._cases_root = cases_root
+        self._external_case_path: str | None = None
         self._default_context: QueryContext | None = None
         self._applied_ego_pose: StateSample | None = None
         self._applied_local_window: QueryWindow | None = None
@@ -86,6 +87,8 @@ class CasePanelWidget(QWidget):
         self._combo.clear()
         for case_path in sorted(self._cases_root.glob("*.yaml")):
             self._combo.addItem(case_path.stem, str(case_path))
+        if self._external_case_path is not None and self._combo.findData(self._external_case_path) < 0:
+            self._combo.addItem(f"[external] {Path(self._external_case_path).name}", self._external_case_path)
         if current is not None:
             index = self._combo.findData(current)
             if index >= 0:
@@ -99,6 +102,10 @@ class CasePanelWidget(QWidget):
     def set_case_path(self, case_path: Path | str) -> None:
         normalized = self._normalize_case_path(case_path)
         index = self._combo.findData(normalized)
+        if index < 0:
+            self._external_case_path = normalized
+            self._combo.addItem(f"[external] {Path(normalized).name}", normalized)
+            index = self._combo.findData(normalized)
         if index >= 0:
             self._combo.setCurrentIndex(index)
 

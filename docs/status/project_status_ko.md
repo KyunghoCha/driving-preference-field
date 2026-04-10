@@ -27,7 +27,12 @@
 - progression debug component view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment) 추가
 - Parameter Lab profile inspection 탭과 profile export 추가
 - late Phase 4 acceptance를 문서와 테스트로 고정 완료
-- 현재 phase 판단은 `Phase 4 완료, Phase 5 준비 상태`
+- generic source adapter SSOT 문서 추가
+- generic YAML/JSON reference adapter와 fixtures 추가
+- adapter inspection / conversion CLI 추가
+- toy path와 generic adapter path를 병행 유지하도록 loader dispatch 추가
+- Parameter Lab이 generic adapter input path도 직접 열 수 있게 정리
+- 현재 phase 판단은 `Phase 5 완료, Phase 6 준비 상태`
 
 전체 phase 진행은 다음 문서에서 관리한다.
 
@@ -50,18 +55,24 @@
 - obstacle/rule/dynamic은 separate layer다
 - full raster는 visualization/debugging용이다
 - canonical input은 source가 아니라 semantic contract로 정의한다
+- raw source가 아니라 adapter output contract가 canonical이다
 - downstream consumer는 formula copy가 아니라 `field_runtime` cached query layer를 소비하는 것을 기준으로 한다
 - downstream optimizer consumer를 위한 batched progression query는 `query_state` / `query_trajectory`와 의미상 일치하는 public contract로 본다
+- adapter는 의미 번역기만 하며 branch winner를 정하지 않는다
+- `ego_pose`는 snapshot 본체가 아니라 `QueryContext` 책임으로 둔다
+- `local_window` 정책은 canonical truth가 아니라 experiment 영역으로 남긴다
+- support/confidence/branch prior는 optional weak prior로만 다룬다
 
 ## 다음 단계
 
-1. 이 repo에서는 Phase 4 결과를 안정 상태로 유지한다
+1. 이 repo에서는 Phase 5 결과를 안정 상태로 유지한다
 2. morphology 미세조정은 downstream 실험 결과가 생길 때만 되돌아와 수행한다
-3. runtime contract와 문서 SSOT의 drift만 계속 관리한다
-4. source adapter 범위는 후속 단계로 유지한다
+3. runtime contract와 adapter contract, 문서 SSOT의 drift만 계속 관리한다
+4. integration 요구사항은 downstream evidence로만 받아 다시 canonical로 승격할지 판단한다
 
-Phase 5 방향에 대한 현재 working proposal은 아래 reading 문서에만 남긴다.
+Phase 5의 현재 canonical 결정은 design SSOT에 있고, proposal history는 reading 문서에 남긴다.
 
+- `docs/design/source_adapter_ko.md`
 - `docs/reading/phase5_adapter_proposal_ko.md`
 
 ## late Phase 4 acceptance lock
@@ -78,9 +89,8 @@ Phase 5 방향에 대한 현재 working proposal은 아래 reading 문서에만 
 
 - 위 종료 조건은 충족한 상태로 본다
 
-이번 라운드에서 명시적으로 하지 않는 일:
+이번 상태에서 명시적으로 하지 않는 일:
 
 - 3D preview 본체화
-- source adapter
 - Gazebo / RViz / MPPI hookup
 - 큰 파라미터 retuning

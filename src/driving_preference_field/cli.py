@@ -9,8 +9,9 @@ import yaml
 from .config import DEFAULT_FIELD_CONFIG
 from .contracts import StateSample, TrajectorySample
 from .evaluator import evaluate_state, evaluate_trajectory
+from .input_loader import load_semantic_input, summarize_loaded_input
 from .rendering import render_case
-from .toy_loader import load_toy_snapshot, summarize_snapshot
+from .source_adapter import serialize_canonical_bundle
 
 
 def _load_trajectory_arg(raw: str) -> TrajectorySample:
@@ -37,6 +38,15 @@ def _build_parser() -> argparse.ArgumentParser:
 
     inspect_parser = subparsers.add_parser("inspect-case")
     inspect_parser.add_argument("--case", required=True)
+
+    inspect_adapter_parser = subparsers.add_parser("inspect-adapter-input")
+    inspect_adapter_parser.add_argument("--input", required=True)
+
+    convert_adapter_parser = subparsers.add_parser("convert-adapter-input")
+    convert_adapter_parser.add_argument("--input", required=True)
+    convert_adapter_parser.add_argument("--out")
+    convert_adapter_parser.add_argument("--format", choices=("json", "yaml"), default="json")
+    convert_adapter_parser.add_argument("--summary-only", action="store_true")
 
     eval_state_parser = subparsers.add_parser("evaluate-state")
     eval_state_parser.add_argument("--case", required=True)
@@ -81,12 +91,23 @@ def main(argv: list[str] | None = None) -> int:
         window.show()
         return app.exec()
 
-    snapshot, context = load_toy_snapshot(args.case)
+    if args.command in {"inspect-case", "evaluate-state", "evaluate-trajectory", "render-case"}:
+        loaded = load_semantic_input(args.case)
+        snapshot = loaded.snapshot
+        context = loaded.context
+    elif args.command in {"inspect-adapter-input", "convert-adapter-input"}:
+        loaded = load_semantic_input(args.input)
+        if loaded.input_kind != "generic_adapter":
+            parser.error("--input must point to a generic adapter fixture")
+        snapshot = loaded.snapshot
+        context = loaded.context
+    else:
+        raise AssertionError("unreachable")
 
     if args.command == "inspect-case":
         payload = {
             "case": str(args.case),
-            "summary": summarize_snapshot(snapshot),
+            **summarize_loaded_input(loaded),
             "query_window": {
                 "x_min": context.local_window.x_min,
                 "x_max": context.local_window.x_max,
@@ -100,6 +121,46 @@ def main(argv: list[str] | None = None) -> int:
             },
         }
         print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "inspect-adapter-input":
+        payload = {
+            "input": str(args.input),
+            **summarize_loaded_input(loaded),
+            "query_window": {
+                "x_min": context.local_window.x_min,
+                "x_max": context.local_window.x_max,
+                "y_min": context.local_window.y_min,
+                "y_max": context.local_window.y_max,
+            },
+            "ego_pose": {
+                "x": context.ego_pose.x,
+                "y": context.ego_pose.y,
+                "yaw": context.ego_pose.yaw,
+            },
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+
+    if args.command == "convert-adapter-input":
+        payload: dict[str, object]
+        if args.summary_only:
+            payload = {
+                "input": str(args.input),
+                **summarize_loaded_input(loaded),
+            }
+        else:
+            payload = serialize_canonical_bundle(snapshot, context, include_summary=True)
+            payload["input"] = str(args.input)
+            payload["input_kind"] = loaded.input_kind
+        if args.format == "yaml":
+            serialized = yaml.safe_dump(payload, sort_keys=False, allow_unicode=True)
+        else:
+            serialized = json.dumps(payload, indent=2, sort_keys=True)
+        if args.out:
+            Path(args.out).write_text(f"{serialized}\n", encoding="utf-8")
+        else:
+            print(serialized)
         return 0
 
     if args.command == "evaluate-state":

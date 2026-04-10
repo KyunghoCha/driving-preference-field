@@ -1,0 +1,64 @@
+metadata:
+  name: split_branch_generic
+  description: Generic local semantic map fixture for a split branch corridor.
+drivable_regions:
+  - id: split_region
+    points:
+      - [0.0, -1.0]
+      - [3.5, -1.0]
+      - [6.0, -2.5]
+      - [6.0, -0.6]
+      - [3.6, 0.0]
+      - [6.0, 0.6]
+      - [6.0, 2.5]
+      - [3.5, 1.0]
+      - [0.0, 1.0]
+progression_supports:
+  - id: trunk_progression
+    points:
+      - [0.0, 0.0]
+      - [3.5, 0.0]
+branch_supports:
+  - id: upper_branch
+    points:
+      - [3.4, 0.0]
+      - [5.8, 1.6]
+    weight: 1.0
+    branch_prior: 1.0
+  - id: lower_branch
+    points:
+      - [3.4, 0.0]
+      - [5.8, -1.6]
+    weight: 0.95
+    branch_prior: 0.9
+boundaries:
+  - id: upper_boundary
+    points:
+      - [0.0, 1.0]
+      - [3.5, 1.0]
+      - [6.0, 2.5]
+  - id: lower_boundary
+    points:
+      - [0.0, -1.0]
+      - [3.5, -1.0]
+      - [6.0, -2.5]
+safety_regions:
+  - id: blocked_median
+    points:
+      - [3.2, -0.3]
+      - [3.8, -0.3]
+      - [3.8, 0.3]
+      - [3.2, 0.3]
+    severity: 0.8
+    hard: false
+    influence_radius: 0.6
+query_context:
+  query_pose:
+    x: 0.5
+    y: 0.0
+    yaw: 0.0
+  local_window:
+    x_min: -1.0
+    x_max: 7.0
+    y_min: -3.0
+    y_max: 3.5

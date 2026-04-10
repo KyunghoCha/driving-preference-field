@@ -2,15 +2,16 @@
 
 이 워크스페이스는 문서 SSOT를 먼저 세우고, 그 위에 evaluator와 Parameter Lab을 단계적으로 구현하는 프로젝트다.
 
-현재 문서 상태는 `Phase 4 완료, Phase 5 준비 상태`다.
+현재 문서 상태는 `Phase 5 완료, Phase 6 준비 상태`다.
 
 처음 보는 사람은 아래 순서로 읽는 것이 가장 빠르다.
 
 1. [프로젝트 개요](./design/project_overview_ko.md)
 2. [운영 원칙](./design/engineering_operating_principles_ko.md)
 3. [Base Field 기초](./design/base_field_foundation_ko.md)
-4. [Runtime Evaluation Contract](./design/runtime_evaluation_contract_ko.md)
-5. [로드맵](./status/roadmap_ko.md)
+4. [Source Adapter](./design/source_adapter_ko.md)
+5. [Runtime Evaluation Contract](./design/runtime_evaluation_contract_ko.md)
+6. [로드맵](./status/roadmap_ko.md)
 
 ## Canonical
 
@@ -19,6 +20,7 @@
 - [연구 범위](./design/research_scope_ko.md)
 - [Base Field 기초](./design/base_field_foundation_ko.md)
 - [입력 Semantics](./design/input_semantics_ko.md)
+- [Source Adapter](./design/source_adapter_ko.md)
 - [Base Field 항](./design/base_field_terms_ko.md)
 - [Layer 조합](./design/layer_composition_ko.md)
 - [Runtime Evaluation Contract](./design/runtime_evaluation_contract_ko.md)
@@ -41,7 +43,8 @@
 - canonical score는 higher is better로 읽는다
 - archive와 source 예시는 `docs/reading/`에서만 다룬다
 - 구현은 문서 SSOT를 기준으로만 확장한다
-- Phase 5 생각은 아직 design SSOT가 아니라 reading proposal로만 둔다
+- Phase 5 current truth는 design SSOT에 있다
+- Phase 5 proposal은 reading/history로만 남긴다
 
 ## 권장 읽기 순서
 
@@ -50,19 +53,20 @@
 3. [연구 범위](./design/research_scope_ko.md)
 4. [Base Field 기초](./design/base_field_foundation_ko.md)
 5. [입력 Semantics](./design/input_semantics_ko.md)
-6. [Base Field 항](./design/base_field_terms_ko.md)
-7. [Runtime Evaluation Contract](./design/runtime_evaluation_contract_ko.md)
-8. [Parameter Lab 설계](./design/parameter_lab_ko.md)
-9. [로드맵](./status/roadmap_ko.md)
-10. [진행 상태](./status/project_status_ko.md)
-11. [실험 계획](./status/experiment_plan_ko.md)
+6. [Source Adapter](./design/source_adapter_ko.md)
+7. [Base Field 항](./design/base_field_terms_ko.md)
+8. [Runtime Evaluation Contract](./design/runtime_evaluation_contract_ko.md)
+9. [Parameter Lab 설계](./design/parameter_lab_ko.md)
+10. [로드맵](./status/roadmap_ko.md)
+11. [진행 상태](./status/project_status_ko.md)
+12. [실험 계획](./status/experiment_plan_ko.md)
 
-## Reading / Proposal
+## Reading / Proposal / History
 
 - [외부 참고 문헌 기록](./reading/external_references_ko.md)
 - [Current Implementation Formula Reference](./reading/current_implementation_formula_reference_ko.md)
 - [입력 Capability Tier](./reading/input_capability_tiers_ko.md)
-- [Phase 5 Adapter Proposal](./reading/phase5_adapter_proposal_ko.md)
+- [Phase 5 Adapter Proposal History](./reading/phase5_adapter_proposal_ko.md)
 - [Archive 참고 목록](./reading/archive_references_ko.md)
 - [SSC 입력 매핑](./reading/ssc_input_mapping_ko.md)
 - [Archive score field 메모](./reading/archive_score_field_notes_ko.md)

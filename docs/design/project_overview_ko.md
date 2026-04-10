@@ -115,8 +115,8 @@ SSC는 이 아이디어를 실제로 적용해보는 중요한 validation source
 
 현재 이 repo는 다음 상태다.
 
-- `Phase 4 완료`
-- `Phase 5 준비 상태`
+- `Phase 5 완료`
+- `Phase 6 준비 상태`
 
 여기서 이미 정리된 것:
 
@@ -125,12 +125,12 @@ SSC는 이 아이디어를 실제로 적용해보는 중요한 validation source
 - local raster visualization
 - Parameter Lab compare workflow
 - cached runtime query layer
+- generic source adapter SSOT와 reference adapter
 - debug component view와 profile inspection
 - semantic-first acceptance lock
 
 아직 여기서 하지 않는 것:
 
-- Source Adapter 본체 구현
 - Gazebo / RViz / MPPI hookup
 - optimizer integration
 

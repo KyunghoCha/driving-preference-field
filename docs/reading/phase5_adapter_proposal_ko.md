@@ -8,6 +8,12 @@
 
 이 문서는 canonical design SSOT가 아니다. 아직 구현 전이며, source adapter 방향을 이후에 다시 검토하기 위한 working proposal이다.
 
+현재 canonical 결정은 아래 design SSOT에 반영됐다.
+
+- `docs/design/source_adapter_ko.md`
+
+이 문서는 이제 **proposal history / reading 기록**으로만 유지한다.
+
 ## 현재 proposal 핵심
 
 ### 1. adapter는 의미 번역기만 한다

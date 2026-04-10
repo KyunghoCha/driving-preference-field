@@ -32,6 +32,7 @@ from driving_preference_field.config import (
     progression_family_label,
 )
 from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample
+from driving_preference_field.input_loader import load_semantic_input
 from driving_preference_field.profile_inspection import (
     ComparisonProfileResult,
     build_comparison_profile,
@@ -47,7 +48,6 @@ from driving_preference_field.presets import (
     save_preset,
 )
 from driving_preference_field.rendering import render_case, render_diff_image, summarize_diff_array
-from driving_preference_field.toy_loader import load_toy_snapshot
 from driving_preference_field.ui.async_raster_evaluator import AsyncRasterEvaluator, RasterComparisonResult
 from driving_preference_field.ui.canvas_view import RasterCanvasView, raster_to_qimage
 from driving_preference_field.ui.parameter_guide import parameter_help_html
@@ -207,8 +207,11 @@ class ParameterLabWindow(QMainWindow):
         if not case_candidates and case_path is None:
             raise RuntimeError(f"no toy cases found under {self._cases_root}")
         initial_case = self._normalize_case_path(Path(case_path) if case_path is not None else case_candidates[0])
-        self._snapshot, loaded_context = load_toy_snapshot(initial_case)
+        loaded = load_semantic_input(initial_case)
+        self._snapshot = loaded.snapshot
+        loaded_context = loaded.context
         self._current_case_path = initial_case
+        self._current_input_kind = loaded.input_kind
         self._default_context = loaded_context
         self._working_context = loaded_context
         self._comparison_result: RasterComparisonResult | None = None
@@ -528,7 +531,10 @@ class ParameterLabWindow(QMainWindow):
         )
 
     def _reload_case(self) -> None:
-        self._snapshot, loaded_context = load_toy_snapshot(self._current_case_path)
+        loaded = load_semantic_input(self._current_case_path)
+        self._snapshot = loaded.snapshot
+        loaded_context = loaded.context
+        self._current_input_kind = loaded.input_kind
         self._default_context = loaded_context
         self._working_context = loaded_context
         self._profile_panel.set_context(self._working_context)
@@ -563,7 +569,10 @@ class ParameterLabWindow(QMainWindow):
 
     def _on_case_changed(self, case_path: str) -> None:
         self._current_case_path = self._normalize_case_path(case_path)
-        self._snapshot, loaded_context = load_toy_snapshot(self._current_case_path)
+        loaded = load_semantic_input(self._current_case_path)
+        self._snapshot = loaded.snapshot
+        loaded_context = loaded.context
+        self._current_input_kind = loaded.input_kind
         self._default_context = loaded_context
         self._working_context = loaded_context
         self._profile_panel.set_context(self._working_context)

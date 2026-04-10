@@ -8,6 +8,7 @@ from driving_preference_field.ui.parameter_lab_window import PARAMETER_HELP_TEXT
 
 
 ROOT = Path(__file__).resolve().parents[1]
+FIXTURES = ROOT / "fixtures/adapter"
 
 
 def _wait_for_result(qtbot, window: ParameterLabWindow) -> None:
@@ -85,6 +86,21 @@ def test_parameter_lab_relative_case_path_matches_case_panel_selection(qtbot) ->
     assert window._current_case_path.name == "straight_corridor.yaml"
     assert window._case_panel.current_case_path() is not None
     assert Path(window._case_panel.current_case_path()).name == "straight_corridor.yaml"
+
+    window.close()
+
+
+def test_parameter_lab_accepts_generic_adapter_input_path(qtbot) -> None:
+    case_path = FIXTURES / "straight_corridor_generic.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    assert window._current_case_path.name == "straight_corridor_generic.yaml"
+    assert window._current_input_kind == "generic_adapter"
+    assert window._case_panel.current_case_path() is not None
+    assert Path(window._case_panel.current_case_path()).name == "straight_corridor_generic.yaml"
 
     window.close()
 
