@@ -1,0 +1,32 @@
+preset_name: candidate__inverse_transverse_forward_tilt
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: tanh
+    longitudinal_gain: 1.6
+    lookahead_scale: 0.35
+    longitudinal_shape: 1.4
+    transverse_family: inverse
+    transverse_scale: 0.65
+    transverse_shape: 4.0
+    support_ceiling: 1.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: inverse transverse 중심 감쇠를 더 날카롭게 만들고, forward tilt는 과도하지 않게 줄인 candidate
+metadata:
+  role: candidate
+  origin: downstream_experiment
+  label: Inverse Transverse Forward Tilt
+  family: local_absolute:tanh/inverse-forward-tilt-narrow-center
+  description: center pull을 더 강하게 만들기 위해 transverse scale을 줄이고 shape를 키우면서, forward tilt는 과도하지 않게 줄인 candidate
+  recommended_cases:
+    - straight_corridor
+    - left_bend
+    - sensor_patch_blocked
+    - sensor_patch_open
