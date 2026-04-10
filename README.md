@@ -4,6 +4,14 @@
 
 source-agnostic progression semantics를 받아, 현재 보이는 local map 전체에 대해 base driving preference field를 정의하고 evaluator, raster render, Parameter Lab GUI로 시험하기 위한 연구 워크스페이스다.
 
+처음 보는 사람은 먼저 아래 순서로 읽는 것이 가장 빠르다.
+
+1. `docs/design/project_overview_ko.md`
+2. `docs/design/engineering_operating_principles_ko.md`
+3. `docs/design/base_field_foundation_ko.md`
+4. `docs/design/runtime_evaluation_contract_ko.md`
+5. `docs/status/roadmap_ko.md`
+
 canonical 핵심은 다음과 같다.
 
 - progression field는 특정 입력원에 종속되지 않는다
@@ -11,6 +19,8 @@ canonical 핵심은 다음과 같다.
 - field는 최소한 `longitudinal / progression term`과 `transverse term`을 가진다
 - longitudinal과 transverse는 독립적으로 함수 family와 파라미터를 가질 수 있다
 - longitudinal 좌표는 `local absolute s` 또는 `ego-relative Δs`로 읽을 수 있다
+- progression semantics와 drivable semantics는 구분해서 본다
+- field는 공간의 ordering을 알려주고, winner 방향 선택은 상위 layer가 담당한다
 - support / confidence / continuity / alignment는 보조 성분이다
 - canonical score는 `higher is better`다
 - obstacle / rule / dynamic은 separate layer다
@@ -62,6 +72,7 @@ flowchart TD
 
 ## SSOT
 
+- newcomer overview SSOT: `docs/design/project_overview_ko.md`
 - 운영 원칙 SSOT: `docs/design/engineering_operating_principles_ko.md`
 - 연구 범위 SSOT: `docs/design/research_scope_ko.md`
 - base field 개념 SSOT: `docs/design/base_field_foundation_ko.md`
@@ -90,6 +101,10 @@ late Phase 4 현재 목표:
 - Source Adapter
 - Gazebo / RViz / MPPI hookup
 
+Phase 5 생각은 아직 canonical design이 아니라 reading proposal로만 둔다.
+
+- proposal: `docs/reading/phase5_adapter_proposal_ko.md`
+
 ## 문서 운영 규칙
 
 - user-facing 설계 문서는 한국어로 유지한다
@@ -99,25 +114,29 @@ late Phase 4 현재 목표:
 - 코드 작성 전 문서 SSOT를 먼저 고정한다
 - 다른 머신에서 작업한 현재 구현 변경도 merge 전에 같은 SSOT 문서에 반영한다
 - 운영체제 차이는 문서 의미가 아니라 재현 방법에서만 다룬다
+- newcomer가 처음 읽어도 프로젝트 의도와 현재 위치를 복원할 수 있어야 한다
+- Phase 5 proposal 같은 미결정 사항은 design SSOT가 아니라 reading/status proposal로만 남긴다
 
 ## 참고 문헌 기록
 
 - 외부 논문/글 reference log: `docs/reading/external_references_ko.md`
 - archive path / source-specific reading 목록: `docs/reading/archive_references_ko.md`
 - current implementation formula reference: `docs/reading/current_implementation_formula_reference_ko.md`
+- Phase 5 adapter proposal: `docs/reading/phase5_adapter_proposal_ko.md`
 
 ## 먼저 읽을 문서
 
-1. `docs/design/engineering_operating_principles_ko.md`
-2. `docs/design/research_scope_ko.md`
-3. `docs/design/base_field_foundation_ko.md`
-4. `docs/design/input_semantics_ko.md`
-5. `docs/design/base_field_terms_ko.md`
-6. `docs/design/runtime_evaluation_contract_ko.md`
-7. `docs/design/parameter_lab_ko.md`
-8. `docs/status/roadmap_ko.md`
-9. `docs/status/project_status_ko.md`
-10. `docs/status/experiment_plan_ko.md`
+1. `docs/design/project_overview_ko.md`
+2. `docs/design/engineering_operating_principles_ko.md`
+3. `docs/design/research_scope_ko.md`
+4. `docs/design/base_field_foundation_ko.md`
+5. `docs/design/input_semantics_ko.md`
+6. `docs/design/base_field_terms_ko.md`
+7. `docs/design/runtime_evaluation_contract_ko.md`
+8. `docs/design/parameter_lab_ko.md`
+9. `docs/status/roadmap_ko.md`
+10. `docs/status/project_status_ko.md`
+11. `docs/status/experiment_plan_ko.md`
 
 ## 권장 실행 환경
 

@@ -29,6 +29,12 @@
 
 즉 base field는 입력 semantics 자체가 아니라, 입력 semantics를 바탕으로 생성되는 **공간 전체의 선호 분포**다.
 
+이 문서에서 중요한 관점은 다음이다.
+
+- field는 space-first다
+- field는 winner direction selector가 아니라 space ordering generator다
+- progression semantics와 drivable semantics는 같은 것이 아니다
+
 ## 중요한 성질
 
 이 field는 최소한 다음 성질을 가져야 한다.
@@ -67,6 +73,13 @@ field는 일부 좁은 띠 안에서만 작동하는 local pattern에 머물면 
 
 즉 canonical 중심은 “reference 근처 점수 계산”이 아니라 **local map 전체를 덮는 progression-aware potential surface**다.
 
+이때 progression과 drivable은 역할이 다르다.
+
+- progression semantics는 이 local place에서 무엇이 before / after인지, 어떤 흐름이 intended progression과 양립하는지를 알려준다
+- drivable semantics는 현재 어떤 공간이 움직일 수 있는지를 알려준다
+
+둘은 같이 필요하지만 같은 의미가 아니다. local drivable support가 progression support를 약간 벗어나더라도, progression ordering 자체가 곧바로 사라지는 식으로 읽어서는 안 된다.
+
 같은 progression slice에서는 중심이 가장 높게 보일 수 있지만, longitudinal tilt가 충분히 강하면 더 먼 progression gain이 가까운 중심 선호를 이길 수 있다. 즉 이상적인 trajectory는 바로 앞 중심을 반드시 통과하지 않아도 된다.
 
 현재 보이는 local map 전체에서:
@@ -87,6 +100,8 @@ field는 일부 좁은 띠 안에서만 작동하는 local pattern에 머물면 
 - heading alignment
 
 즉 support와 gate는 field의 존재를 보조적으로 조절할 수 있지만, field를 단순한 nearest-reference scoring으로 축소해서는 안 된다.
+
+또한 field는 공간의 ordering을 알려줄 뿐, 최종 winner 방향을 직접 결정하지 않는다. 다시 말해, **field는 공간을 알려주지 방향을 직접 고르지 않는다.** winner 결정, 행동 선택, 최종 trajectory 형성은 상위 layer나 optimizer가 담당한다.
 
 canonical은 exact 결합식을 고정하지 않는다.
 
@@ -134,6 +149,7 @@ field의 의미가 global하다고 해서 runtime 계산도 항상 전역 dense 
 - 특정 geometry primitive
 - 특정 GUI 구현
 - 특정 버전 비교 서술
+- 특정 downstream stack이나 SSC 구조
 
 예시 source나 과거 구현 비교는 reading 자료나 status 메모로만 다룬다.
 

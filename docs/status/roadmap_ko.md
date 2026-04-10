@@ -159,6 +159,11 @@ late Phase 4 acceptance:
 
 - 보류
 
+현재 참고:
+
+- Phase 5 방향의 현재 proposal은 canonical design이 아니라 reading 문서로만 남긴다
+- proposal: `docs/reading/phase5_adapter_proposal_ko.md`
+
 ### Phase 6. Interactive Studio
 
 목표:

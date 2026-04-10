@@ -2,32 +2,33 @@
 
 Roadmap phase tracking lives in `docs/status/roadmap_ko.md`.
 
-## P0: Tune canonical field morphology
+## P0: Keep Phase 4 results stable
 
-- validate whether the current longitudinal/transverse coupling produces the intended field shape
-- use Parameter Lab to compare morphology inside one canonical model
-- keep the main question on field shape, not UI polish
+- keep Phase 4 complete docs, runtime contract, and lab behavior aligned
+- avoid semantic drift between newcomer docs, status docs, and current implementation notes
+- keep this repo as the score-field SSOT rather than an integration-specific branch
 
-## P1: Align Parameter Lab with canonical parameter axes
+## P1: Preserve repeatable morphology experiments
 
-- expose longitudinal, transverse, and support/gate axes more directly
-- keep the lab useful for repeatable comparison while reducing semantic drift
-- preserve fixed-scale interpretability
+- keep Parameter Lab useful for repeatable comparison, export, and profile inspection
+- keep preset/config comparison as the primary experiment unit
+- retune morphology only when downstream evidence shows a real need
 
-## P2: Preserve repeatable experiments
+## P2: Keep runtime query semantics stable
 
-- keep evaluator re-runnable on the same semantic snapshot with different configs
-- keep presets as the unit of repeatable comparison
-- keep export bundles sufficient for reproduction
+- keep `FieldRuntime` semantics aligned with evaluator semantics
+- keep downstream consumers on the runtime API rather than formula copies
+- treat cache and debug tooling as implementation detail, not separate truth
 
-## P3: Keep non-compensatory composition stable
+## P3: Prepare Phase 5 without promoting it early
 
-- separate base field from obstacle/rule/dynamic layers
-- avoid quietly falling back to naive addition
-- define a prototype ordering rule for hard, soft, and base outputs
+- keep Phase 5 adapter thinking in reading/proposal docs only
+- do not promote source-specific assumptions into canonical design docs
+- keep SSC and other downstream systems as validation sources, not canonical truth
 
-## P4: Keep adapters and geometry editing later
+## P4: Keep adapters, planners, and geometry editing later
 
 - do not pull source adapter work ahead of field/code alignment
+- keep planner / Gazebo / RViz / MPPI integration out of this repo
 - keep geometry editing out of the current phase
 - treat interactive studio as a later phase built on top of a cleaned-up lab

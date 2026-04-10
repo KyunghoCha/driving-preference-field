@@ -21,7 +21,7 @@
 - channel scale mode (`Fixed` / `Normalized`)와 range/unit 표시 추가
 - Parameter Help와 summary를 current implementation guide 기준으로 정리 완료
 - 단일 canonical progression field 기준으로 코드 / preset / GUI naming 정렬 완료
-- current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정렬 진행 중
+- current implementation을 smooth skeleton anchor blend 기반 fabric surface로 정렬 완료
 - cached field runtime query layer 추가
 - progression debug component view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment) 추가
 - Parameter Lab profile inspection 탭과 profile export 추가
@@ -57,6 +57,10 @@
 2. morphology 미세조정은 downstream 실험 결과가 생길 때만 되돌아와 수행한다
 3. runtime contract와 문서 SSOT의 drift만 계속 관리한다
 4. source adapter 범위는 후속 단계로 유지한다
+
+Phase 5 방향에 대한 현재 working proposal은 아래 reading 문서에만 남긴다.
+
+- `docs/reading/phase5_adapter_proposal_ko.md`
 
 ## late Phase 4 acceptance lock
 

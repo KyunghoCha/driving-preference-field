@@ -20,6 +20,12 @@
 
 현재 canonical input interface는 다음 semantic slot으로 구성된다.
 
+이 문서에서 중요한 구분은 다음이다.
+
+- canonical은 지금 **확정된 semantic slot**만 고정한다
+- source adapter가 이것을 어떤 raw structure에서 어떻게 번역할지는 아직 Phase 5 proposal / experiment 영역이다
+- `ego_pose`, local window policy, support/confidence transport shape 같은 것은 현재 canonical 본체보다 runtime context 또는 future adapter proposal 쪽에 더 가깝다
+
 ### 1. Drivable Support
 
 이 slot은 어떤 상태가 현재 문맥에서 주행 가능한 구조 안에 있는지를 뒷받침한다.
@@ -32,6 +38,8 @@
   - occupancy-free support
 - field generator 해석:
   - base field가 정의될 수 있는 지지 공간을 제공한다
+
+drivable support는 움직일 수 있는 공간을 알려주지만, progression ordering 자체를 대신하지는 않는다.
 
 ### 2. Progression Support
 
@@ -47,6 +55,8 @@
   - support confidence
 - field generator 해석:
   - progression-aware potential structure를 만든다
+
+progression support는 “무엇이 앞이고 뒤인가”를 정해주는 ordering support다. 이것은 discrete winner direction을 직접 고르는 action input이 아니라, local map 전체에서 longitudinal / transverse structure를 만들게 하는 progression hint다.
 
 ### 3. Boundary / Interior Support
 
@@ -105,6 +115,9 @@
 - 특정 reference 표현 형식
 - fixed source type
 - 선호도 label 자체
+- source adapter의 raw wire shape
+- ego pose를 snapshot 본체에 넣는 특정 규칙
+- local window 크기나 slicing policy의 고정값
 
 즉 canonical은 “무슨 파일/센서에서 왔는가”보다 “어떤 semantic slot을 어느 정도 채울 수 있는가”를 기준으로 본다.
 
