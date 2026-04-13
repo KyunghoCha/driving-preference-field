@@ -107,6 +107,18 @@ $$T_{\text{pow}}(r)=\frac{1}{1+r^{\beta}}$
 
 - $$\beta=\text{transverse\_shape}$
 
+그래프 입력 (대칭 시각화용):
+
+- $$y=e^{-\beta\lvert x\rvert}$
+- $$y=\frac{1}{1+\beta\lvert x\rvert}$
+- $$y=\frac{1}{1+\lvert x\rvert^{\beta}}$
+
+그래프 입력 (구현 도메인, r>=0):
+
+- $$y=e^{-\beta x}$
+- $$y=\frac{1}{1+\beta x}$
+- $$y=\frac{1}{1+x^{\beta}}$
+
 ### 1.7 Secondary modulation
 
 $$\text{alignment\_mod} = 0.95 + 0.05\,\max(0,\langle h,\hat{t}\rangle)$
