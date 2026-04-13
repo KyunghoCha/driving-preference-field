@@ -5,7 +5,7 @@
 - canonical truth를 대신하지 않는다
 - 구현과 문서 SSOT를 한 번에 대조하는 용도다
 - 수식 변경 시 README, 관련 design 문서, 그리고 이 문서를 함께 갱신한다
-- Notion에 붙여넣을 때 inline 수식은 $$...$ 형태로 쓴다 (뒤의 $는 사용자가 채움, 공백 없이).
+- Notion에 붙여넣을 때 수식은 $$...$ 형식으로 쓴다 (inline/블록 동일, 뒤의 $는 사용자가 채움).
 
 ## 0. 공통 표기
 
@@ -23,13 +23,9 @@
 
 anchor i에 대해:
 
-$$
-\tau_i = \langle p-a_i,\ t_i \rangle
-$$
+$$\tau_i = \langle p-a_i,\ t_i \rangle$
 
-$$
-\nu_i = \langle p-a_i,\ n_i \rangle
-$$
+$$\nu_i = \langle p-a_i,\ n_i \rangle$
 
 변수:
 
@@ -40,13 +36,9 @@ $$
 
 ### 1.2 Gaussian anchor weights
 
-$$
-r_i = w_i^{guide}\, c_i\, \exp\left(-\frac{1}{2}\left[\left(\frac{\tau_i}{\sigma_t}\right)^2+\left(\frac{\nu_i}{\sigma_n}\right)^2\right]\right)
-$$
+$$r_i = w_i^{guide}\, c_i\, \exp\left(-\frac{1}{2}\left[\left(\frac{\tau_i}{\sigma_t}\right)^2+\left(\frac{\nu_i}{\sigma_n}\right)^2\right]\right)$
 
-$$
-\bar{w}_i = \frac{r_i}{\sum_j r_j}
-$$
+$$\bar{w}_i = \frac{r_i}{\sum_j r_j}$
 
 변수:
 
@@ -57,33 +49,21 @@ $$
 
 현재 구현:
 
-$$
-\sigma_t=\max(0.40,\ L\cdot \text{lookahead\_scale}\cdot 0.35)
-$$
+$$\sigma_t=\max(0.40,\ L\cdot \text{lookahead\_scale}\cdot 0.35)$
 
-$$
-\sigma_n=\max(0.35,\ \text{transverse\_scale}\cdot 1.50)
-$$
+$$\sigma_n=\max(0.35,\ \text{transverse\_scale}\cdot 1.50)$
 
 ### 1.3 Blended coordinates
 
-$$
-\hat{s} = \sum_i \bar{w}_i s_i
-$$
+$$\hat{s} = \sum_i \bar{w}_i s_i$
 
-$$
-\hat{n} = \sqrt{\sum_i \bar{w}_i \nu_i^2}
-$$
+$$\hat{n} = \sqrt{\sum_i \bar{w}_i \nu_i^2}$
 
-$$
-\hat{t} = \mathrm{normalize}\left(\sum_i \bar{w}_i t_i\right)
-$$
+$$\hat{t} = \mathrm{normalize}\left(\sum_i \bar{w}_i t_i\right)$
 
 여기서:
 
-$$
-s_i = s_i^{\text{anchor}} + \tau_i
-$$
+$$s_i = s_i^{\text{anchor}} + \tau_i$
 
 변수:
 
@@ -95,53 +75,33 @@ $$
 
 local absolute:
 
-$$
-u = \mathrm{clip}\left(\frac{\hat{s}-s_{\min}^{ext}}{s_{\max}^{ext}-s_{\min}^{ext}},\ 0,\ 1\right)
-$$
+$$u = \mathrm{clip}\left(\frac{\hat{s}-s_{\min}^{ext}}{s_{\max}^{ext}-s_{\min}^{ext}},\ 0,\ 1\right)$
 
 ego relative:
 
-$$
-u = \mathrm{clip}\left(\frac{\max(0,\ \hat{s}-\hat{s}_{ego})}{\text{lookahead}},\ 0,\ 1\right)
-$$
+$$u = \mathrm{clip}\left(\frac{\max(0,\ \hat{s}-\hat{s}_{ego})}{\text{lookahead}},\ 0,\ 1\right)$
 
 ### 1.5 Longitudinal families
 
-$$
-L_{\text{linear}}(u)=u
-$$
+$$L_{\text{linear}}(u)=u$
 
-$$
-L_{\text{inverse}}(u)=\frac{(1+\alpha)u}{1+\alpha u}
-$$
+$$L_{\text{inverse}}(u)=\frac{(1+\alpha)u}{1+\alpha u}$
 
-$$
-L_{\text{power}}(u)=u^{\alpha}
-$$
+$$L_{\text{power}}(u)=u^{\alpha}$
 
-$$
-L_{\tanh}(u)=\frac{\tanh(\alpha u)}{\tanh(\alpha)}
-$$
+$$L_{\tanh}(u)=\frac{\tanh(\alpha u)}{\tanh(\alpha)}$
 
 ### 1.6 Transverse families
 
 정의:
 
-$$
-r=\frac{\hat{n}}{s_t},\quad s_t=\text{transverse\_scale}
-$$
+$$r=\frac{\hat{n}}{s_t},\quad s_t=\text{transverse\_scale}$
 
-$$
-T_{\text{exp}}(r)=e^{-\beta r}
-$$
+$$T_{\text{exp}}(r)=e^{-\beta r}$
 
-$$
-T_{\text{inv}}(r)=\frac{1}{1+\beta r}
-$$
+$$T_{\text{inv}}(r)=\frac{1}{1+\beta r}$
 
-$$
-T_{\text{pow}}(r)=\frac{1}{1+r^{\beta}}
-$$
+$$T_{\text{pow}}(r)=\frac{1}{1+r^{\beta}}$
 
 변수:
 
@@ -149,19 +109,13 @@ $$
 
 ### 1.7 Secondary modulation
 
-$$
-\text{alignment\_mod} = 0.95 + 0.05\,\max(0,\langle h,\hat{t}\rangle)
-$$
+$$\text{alignment\_mod} = 0.95 + 0.05\,\max(0,\langle h,\hat{t}\rangle)$
 
-$$
-\text{support\_mod} = 0.95 + 0.05\,\mathrm{clip}\left(\frac{\sum_i \bar{w}_i\min(c_i,c_{\max})}{c_{\max}},\ 0,\ 1\right)
-$$
+$$\text{support\_mod} = 0.95 + 0.05\,\mathrm{clip}\left(\frac{\sum_i \bar{w}_i\min(c_i,c_{\max})}{c_{\max}},\ 0,\ 1\right)$
 
 ### 1.8 Final progression score
 
-$$
-\text{progression\_tilted}(p)=\text{support\_mod}\cdot\text{alignment\_mod}\cdot\left(T(r)+g\cdot L(u)\right)
-$$
+$$\text{progression\_tilted}(p)=\text{support\_mod}\cdot\text{alignment\_mod}\cdot\left(T(r)+g\cdot L(u)\right)$
 
 변수:
 
@@ -171,9 +125,7 @@ $$
 
 ### 2.1 Interior boundary score
 
-$$
-\text{interior\_boundary}(p)=\gamma\cdot\mathrm{clip}\left(\frac{d_{\partial\Omega}(p)}{\text{margin\_scale}},\ 0,\ 1\right)
-$$
+$$\text{interior\_boundary}(p)=\gamma\cdot\mathrm{clip}\left(\frac{d_{\partial\Omega}(p)}{\text{margin\_scale}},\ 0,\ 1\right)$
 
 변수:
 
@@ -182,9 +134,7 @@ $$
 
 ### 2.2 Interior signed margin (debug)
 
-$$
-\text{interior\_signed\_margin}(p)=\max_{\Omega}\ d_{\text{signed}}(p,\Omega)
-$$
+$$\text{interior\_signed\_margin}(p)=\max_{\Omega}\ d_{\text{signed}}(p,\Omega)$
 
 region 내부이면 signed distance가 양수, 외부이면 음수.
 
@@ -192,21 +142,13 @@ region 내부이면 signed distance가 양수, 외부이면 음수.
 
 guide i에 대해:
 
-$$
-\text{alignment}_i = \max(0,\langle h, t_i\rangle)\cdot w_{align}
-$$
+$$\text{alignment}_i = \max(0,\langle h, t_i\rangle)\cdot w_{align}$
 
-$$
-\text{proximity}_i = e^{-d_i/\lambda}
-$$
+$$\text{proximity}_i = e^{-d_i/\lambda}$
 
-$$
-\text{score}_i = g\cdot w_i^{guide}\cdot\min(c_i,c_{\max})\cdot\text{proximity}_i\cdot\text{alignment}_i
-$$
+$$\text{score}_i = g\cdot w_i^{guide}\cdot\min(c_i,c_{\max})\cdot\text{proximity}_i\cdot\text{alignment}_i$
 
-$$
-\text{continuity\_branch}(p)=\max_i \text{score}_i
-$$
+$$\text{continuity\_branch}(p)=\max_i \text{score}_i$
 
 변수:
 
@@ -218,69 +160,49 @@ $$
 
 soft burden:
 
-$$
-b_{\text{soft}}(p,R)=
+$$b_{\text{soft}}(p,R)=
 \begin{cases}
 \text{severity}(R), & p\in R\\
 \text{severity}(R)\exp\left(\frac{d_{\text{signed}}(p,R)}{\rho_R}\right), & p\notin R
-\end{cases}
-$$
+\end{cases}$
 
 hard hit:
 
-$$
-b_{\text{hard}}(p,R)=\text{hard}(R)\land(p\in R)
-$$
+$$b_{\text{hard}}(p,R)=\text{hard}(R)\land(p\in R)$
 
 채널별 합:
 
-$$
-\text{safety\_soft}(p)=\sum_{R\in\mathcal{S}} b_{\text{soft}}(p,R)
-$$
+$$\text{safety\_soft}(p)=\sum_{R\in\mathcal{S}} b_{\text{soft}}(p,R)$
 
-$$
-\text{rule\_soft}(p)=\sum_{R\in\mathcal{R}} b_{\text{soft}}(p,R)
-$$
+$$\text{rule\_soft}(p)=\sum_{R\in\mathcal{R}} b_{\text{soft}}(p,R)$
 
-$$
-\text{dynamic\_soft}(p)=\sum_{R\in\mathcal{D}} b_{\text{soft}}(p,R)
-$$
+$$\text{dynamic\_soft}(p)=\sum_{R\in\mathcal{D}} b_{\text{soft}}(p,R)$
 
 ## 5. State / Trajectory Composition
 
 state base total:
 
-$$
-\text{base\_preference\_total}(p)=
+$$\text{base\_preference\_total}(p)=
 \text{progression\_tilted}(p)+
 \text{interior\_boundary}(p)+
-\text{continuity\_branch}(p)
-$$
+\text{continuity\_branch}(p)$
 
 state soft total:
 
-$$
-\text{soft\_exception\_total}(p)=
+$$\text{soft\_exception\_total}(p)=
 \text{safety\_soft}(p)+
 \text{rule\_soft}(p)+
-\text{dynamic\_soft}(p)
-$$
+\text{dynamic\_soft}(p)$
 
 trajectory totals:
 
-$$
-\text{trajectory\_base\_preference\_total}=\sum_k \text{base\_preference\_total}(p_k)
-$$
+$$\text{trajectory\_base\_preference\_total}=\sum_k \text{base\_preference\_total}(p_k)$
 
-$$
-\text{trajectory\_soft\_exception\_total}=\sum_k \text{soft\_exception\_total}(p_k)
-$$
+$$\text{trajectory\_soft\_exception\_total}=\sum_k \text{soft\_exception\_total}(p_k)$
 
 ordering key:
 
-$$
-(\text{hard\_violation\_count},\ \text{trajectory\_soft\_exception\_total},\ -\text{trajectory\_base\_preference\_total})
-$$
+$$(\text{hard\_violation\_count},\ \text{trajectory\_soft\_exception\_total},\ -\text{trajectory\_base\_preference\_total})$
 
 ## 6. 변수 요약 (핵심)
 
