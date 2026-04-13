@@ -10,11 +10,11 @@
 
 점/벡터:
 
-- 점: \(p\in\mathbb{R}^2\)
-- 벡터: \(v\in\mathbb{R}^2\)
-- 내적: \(\langle a,b\rangle\)
-- 정규화: \(\mathrm{normalize}(v)=v/\lVert v\rVert\)
-- 클립: \(\mathrm{clip}(x, a, b)=\min(\max(x,a),b)\)
+- 점: $p\in\mathbb{R}^2$
+- 벡터: $v\in\mathbb{R}^2$
+- 내적: $\langle a,b\rangle$
+- 정규화: $\mathrm{normalize}(v)=v/\lVert v\rVert$
+- 클립: $\mathrm{clip}(x, a, b)=\min(\max(x,a),b)$
 
 ## 1. Progression Surface (whole-fabric)
 
@@ -32,10 +32,10 @@ $$
 
 변수:
 
-- \(p\): query point
-- \(a_i\): anchor point
-- \(t_i\): anchor tangent (unit)
-- \(n_i\): anchor normal (unit)
+- $p$: query point
+- $a_i$: anchor point
+- $t_i$: anchor tangent (unit)
+- $n_i$: anchor normal (unit)
 
 ### 1.2 Gaussian anchor weights
 
@@ -49,10 +49,10 @@ $$
 
 변수:
 
-- \(w_i^{guide}\): guide weight
-- \(c_i\): confidence
-- \(\sigma_t\): tangential scale
-- \(\sigma_n\): normal scale
+- $w_i^{guide}$: guide weight
+- $c_i$: confidence
+- $\sigma_t$: tangential scale
+- $\sigma_n$: normal scale
 
 현재 구현:
 
@@ -86,9 +86,9 @@ $$
 
 변수:
 
-- \(\hat{s}\): blended progress
-- \(\hat{n}\): blended transverse distance (\(\ge 0\))
-- \(\hat{t}\): blended tangent
+- $\hat{s}$: blended progress
+- $\hat{n}$: blended transverse distance ($\ge 0$)
+- $\hat{t}$: blended tangent
 
 ### 1.4 Longitudinal frame
 
@@ -144,7 +144,7 @@ $$
 
 변수:
 
-- \(\beta=\text{transverse\_shape}\)
+- $\beta=\text{transverse\_shape}$
 
 ### 1.7 Secondary modulation
 
@@ -164,7 +164,7 @@ $$
 
 변수:
 
-- \(g=\text{longitudinal\_gain}\)
+- $g=\text{longitudinal\_gain}$
 
 ## 2. Interior / Boundary
 
@@ -176,8 +176,8 @@ $$
 
 변수:
 
-- \(d_{\partial\Omega}(p)\): drivable boundary distance
-- \(\gamma\): interior boundary gain
+- $d_{\partial\Omega}(p)$: drivable boundary distance
+- $\gamma$: interior boundary gain
 
 ### 2.2 Interior signed margin (debug)
 
@@ -209,9 +209,9 @@ $$
 
 변수:
 
-- \(d_i\): point-to-guide distance
-- \(\lambda\): distance scale
-- \(w_{align}\): alignment weight
+- $d_i$: point-to-guide distance
+- $\lambda$: distance scale
+- $w_{align}$: alignment weight
 
 ## 4. Exception Layers
 
@@ -283,17 +283,17 @@ $$
 
 ## 6. 변수 요약 (핵심)
 
-- \(p\): query point
-- \(h\): heading unit vector
-- \(\tau_i\): tangential offset
-- \(\nu_i\): signed normal offset
-- \(\hat{n}\): blended transverse distance
-- \(\hat{s}\): blended progress
-- \(s_t\): transverse scale
-- \(\alpha\): longitudinal shape
-- \(\beta\): transverse shape
-- \(g\): longitudinal gain
-- \(c_i\): confidence
-- \(c_{\max}\): support ceiling
-- \(\gamma\): interior boundary gain
-- \(\lambda\): branch distance scale
+- $p$: query point
+- $h$: heading unit vector
+- $\tau_i$: tangential offset
+- $\nu_i$: signed normal offset
+- $\hat{n}$: blended transverse distance
+- $\hat{s}$: blended progress
+- $s_t$: transverse scale
+- $\alpha$: longitudinal shape
+- $\beta$: transverse shape
+- $g$: longitudinal gain
+- $c_i$: confidence
+- $c_{\max}$: support ceiling
+- $\gamma$: interior boundary gain
+- $\lambda$: branch distance scale
