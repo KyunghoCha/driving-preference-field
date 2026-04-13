@@ -65,6 +65,7 @@
 
 - [외부 참고 문헌 기록](./reading/external_references_ko.md)
 - [Current Implementation Formula Reference](./reading/current_implementation_formula_reference_ko.md)
+- [전체 수식 정리](./reading/all_formulas_ko.md)
 - [입력 Capability Tier](./reading/input_capability_tiers_ko.md)
 - [Phase 5 Adapter Proposal History](./reading/phase5_adapter_proposal_ko.md)
 - [Archive 참고 목록](./reading/archive_references_ko.md)

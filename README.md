@@ -133,6 +133,7 @@ Phase 5 proposal history는 reading 문서로만 남긴다.
 - 외부 논문/글 reference log: `docs/reading/external_references_ko.md`
 - archive path / source-specific reading 목록: `docs/reading/archive_references_ko.md`
 - current implementation formula reference: `docs/reading/current_implementation_formula_reference_ko.md`
+- 전체 수식 정리: `docs/reading/all_formulas_ko.md`
 - Phase 5 adapter proposal history: `docs/reading/phase5_adapter_proposal_ko.md`
 
 ## 먼저 읽을 문서
