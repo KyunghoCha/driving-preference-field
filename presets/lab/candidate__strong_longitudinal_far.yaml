@@ -1,0 +1,33 @@
+preset_name: candidate__strong_longitudinal_far
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: power
+    longitudinal_gain: 5.0
+    lookahead_scale: 0.8
+    longitudinal_shape: 2.8
+    transverse_family: exponential
+    transverse_scale: 0.45
+    transverse_shape: 3.2
+    support_ceiling: 1.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: candidate__strong_longitudinal을 기준으로 forward tilt를 power family로 바꾸고 gain/shape를 크게 올려 전방 성분이 실제 수식에서 더 강하게 작동하게 했으며, transverse contrast도 크게 강화해 중심선에서 벗어날 때 점수 차가 빨리 벌어지게 한 candidate
+metadata:
+  role: candidate
+  origin: reference
+  label: Strong Longitudinal Far
+  family: local_absolute:power/exponential
+  description: much stronger forward tilt with power-shaped longitudinal rise and stronger transverse pull than candidate__strong_longitudinal
+  recommended_cases:
+    - straight_corridor
+    - left_bend
+    - u_turn
+    - sensor_patch_open
+    - sensor_patch_blocked

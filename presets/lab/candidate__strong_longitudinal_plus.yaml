@@ -1,0 +1,33 @@
+preset_name: candidate__strong_longitudinal_plus
+field_config:
+  progression:
+    longitudinal_frame: local_absolute
+    longitudinal_family: power
+    longitudinal_gain: 3.2
+    lookahead_scale: 0.38
+    longitudinal_shape: 1.8
+    transverse_family: exponential
+    transverse_scale: 0.7
+    transverse_shape: 1.4
+    support_ceiling: 1.0
+  interior_boundary:
+    gain: 1.0
+    margin_scale_multiplier: 1.0
+  continuity_branch:
+    gain: 1.0
+    distance_scale: 0.75
+    alignment_weight: 1.0
+    confidence_ceiling: 1.0
+note: 전방 progression ordering은 strong_longitudinal보다 약간 더 강하게 유지하되, 과도한 원거리 bias는 줄이고 transverse contrast는 더 빨리 벌어지게 조정한 candidate
+metadata:
+  role: candidate
+  origin: reference
+  label: Strong Longitudinal Plus
+  family: local_absolute:power/exponential
+  description: moderate forward tilt with power-shaped longitudinal rise and tighter transverse contrast than candidate__strong_longitudinal
+  recommended_cases:
+    - straight_corridor
+    - left_bend
+    - u_turn
+    - sensor_patch_open
+    - sensor_patch_blocked
