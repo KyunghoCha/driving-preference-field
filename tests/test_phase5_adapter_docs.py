@@ -57,6 +57,7 @@ def test_newcomer_docs_and_phase5_history_split_are_consistent() -> None:
     docs_index = _read("docs/index.md")
     overview = _read("docs/design/project_overview_ko.md")
     phase5_history = _read("docs/reading/phase5_adapter_proposal_ko.md")
+    semantic_conditions = _read("docs/reading/semantic_support_conditions_ko.md")
     internal_status = _read("docs/internal/status.md")
     internal_priorities = _read("docs/internal/priorities.md")
 
@@ -67,6 +68,7 @@ def test_newcomer_docs_and_phase5_history_split_are_consistent() -> None:
     assert "Phase 5 완료, Phase 6 준비 상태" in docs_index
     assert "./design/source_adapter_ko.md" in docs_index
     assert "Phase 5 Adapter Proposal History" in docs_index
+    assert "Semantic Support 조건 메모" in docs_index
 
     assert "`Phase 5 완료`" in overview
     assert "`Phase 6 준비 상태`" in overview
@@ -76,6 +78,10 @@ def test_newcomer_docs_and_phase5_history_split_are_consistent() -> None:
     assert "canonical 결정은 아래 design SSOT에 반영됐다" in phase5_history
     assert "docs/design/source_adapter_ko.md" in phase5_history
     assert "proposal history / reading 기록" in phase5_history
+
+    assert "semantic support 관련 사실과 미확정 항목" in semantic_conditions
+    assert "canonical truth를 새로 정의하지 않는다" in semantic_conditions
+    assert "transverse 또는 longitudinal support scope를 global로 고정하는 것은 current canonical truth가 아니다" in semantic_conditions
 
     assert "Phase 5 is complete and the repo is in Phase 6 prep state" in internal_status
     assert "generic external-like source is translated into the canonical snapshot/context contract" in internal_status
