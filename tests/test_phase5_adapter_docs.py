@@ -13,6 +13,7 @@ ACTIVE_DOCS = [
     "docs/design/index.md",
     "docs/explanation/project_overview_ko.md",
     "docs/explanation/engineering_operating_principles_ko.md",
+    "docs/explanation/documentation_writing_principles_ko.md",
     "docs/explanation/research_scope_ko.md",
     "docs/explanation/base_field_foundation_ko.md",
     "docs/reference/input_semantics_ko.md",
@@ -37,6 +38,7 @@ ACTIVE_DOCS = [
 TITLE_DOCS = [
     "docs/explanation/project_overview_ko.md",
     "docs/explanation/engineering_operating_principles_ko.md",
+    "docs/explanation/documentation_writing_principles_ko.md",
     "docs/explanation/research_scope_ko.md",
     "docs/explanation/base_field_foundation_ko.md",
     "docs/reference/input_semantics_ko.md",
@@ -75,13 +77,17 @@ def test_docs_index_stays_portal_with_newcomer_spine() -> None:
     assert "1. [00. 프로젝트 개요]" in docs_index
     assert "./design/index.md" in docs_index
     assert "./explanation/project_overview_ko.md" in docs_index
+    assert "./explanation/documentation_writing_principles_ko.md" in docs_index
     assert "./reference/source_adapter_ko.md" in docs_index
     assert "./how-to/parameter_lab_ko.md" in docs_index
     assert "./reading/source/input_reconstruction_notes_ko.md" in docs_index
     assert "./reading/history/phase5_adapter_proposal_ko.md" in docs_index
     assert "./reading/references/external_references_ko.md" in docs_index
+    assert "./reading/references/documentation_style_references_ko.md" in docs_index
+    assert "./internal/audit/index.md" in docs_index
     assert "| 문서 | canonical | 대상 독자 | 언제 읽는지 |" in docs_index
     assert "../explanation/project_overview_ko.md" in design_index
+    assert "../explanation/documentation_writing_principles_ko.md" in design_index
     assert "../reference/runtime_evaluation_contract_ko.md" in design_index
     assert "../how-to/parameter_lab_ko.md" in design_index
 
