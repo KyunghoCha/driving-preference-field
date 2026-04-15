@@ -20,6 +20,7 @@
 | --- | --- | --- | --- |
 | [프로젝트 개요](./explanation/project_overview_ko.md) | 예 | newcomer | 프로젝트가 무엇인지 처음 파악할 때 |
 | [운영 원칙](./explanation/engineering_operating_principles_ko.md) | 예 | contributor, maintainer | 문서/코드/reading 경계를 잡을 때 |
+| [문서 작성 원칙](./explanation/documentation_writing_principles_ko.md) | 예 | contributor, maintainer | 글쓰기와 문서 설계 판단 기준이 필요할 때 |
 | [연구 범위](./explanation/research_scope_ko.md) | 예 | newcomer, contributor | in/out of scope를 확인할 때 |
 | [Base Field 기초](./explanation/base_field_foundation_ko.md) | 예 | newcomer, contributor | whole-space field 개념을 이해할 때 |
 
@@ -55,6 +56,7 @@
 | [Input Reconstruction Notes](./reading/source/input_reconstruction_notes_ko.md) | 비-canonical | contributor | source/input 사례를 참고할 때 |
 | [Phase 5 Adapter Proposal History](./reading/history/phase5_adapter_proposal_ko.md) | 비-canonical | maintainer | proposal history를 볼 때 |
 | [External References](./reading/references/external_references_ko.md) | 비-canonical | contributor | 참고 문헌 근거를 추적할 때 |
+| [Documentation Style References](./reading/references/documentation_style_references_ko.md) | 비-canonical | contributor, maintainer | 공식 글쓰기 기준을 다시 확인할 때 |
 | [Archive References](./reading/history/archive/archive_references_ko.md) | 비-canonical | maintainer | archive 경로를 추적할 때 |
 | [Archive Score Field Notes](./reading/history/archive/archive_score_field_notes_ko.md) | 비-canonical | maintainer | 이전 실험 메모를 추적할 때 |
 
@@ -63,6 +65,7 @@
 | 문서 | 역할 | 대상 독자 | 언제 읽는지 |
 | --- | --- | --- | --- |
 | [internal README](./internal/README.md) | internal policy | maintainer | internal docs 경계를 확인할 때 |
+| [audit index](./internal/audit/index.md) | internal audit | maintainer | 파일군별 감사 결과를 볼 때 |
 | [internal status](./internal/status.md) | internal snapshot | maintainer | 내부 상태를 짧게 복기할 때 |
 | [internal priorities](./internal/priorities.md) | internal priorities | maintainer | 현재 유지 우선순위를 볼 때 |
 | [internal glossary](./internal/glossary.md) | internal terms | maintainer | working vocabulary를 맞출 때 |

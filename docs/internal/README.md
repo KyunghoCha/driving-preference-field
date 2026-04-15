@@ -1,12 +1,14 @@
 # Internal Docs Policy
 
 This directory contains English internal working notes for `driving-preference-field`.
+Tracked audit results live under `docs/internal/audit/`.
 
 ## Purpose
 
 - keep working notes in English
 - separate internal planning from user-facing Korean SSOT
 - keep the working language compact without widening the canonical scope
+- keep file-group audit results separate from user-facing canonical docs
 
 ## Rules
 
