@@ -1,4 +1,9 @@
-# Runtime Evaluation Contract 문서
+# 06. Runtime Contract
+
+- 역할: reference
+- 현재성: canonical
+- 대상 독자: contributor, maintainer
+- 다음으로 읽을 문서: [07. Parameter Lab 사용](../how-to/parameter_lab_ko.md)
 
 작성일: 2026-04-08
 

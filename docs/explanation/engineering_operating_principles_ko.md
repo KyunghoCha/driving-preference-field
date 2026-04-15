@@ -1,4 +1,9 @@
-# 운영 원칙 문서
+# 01. 운영 원칙
+
+- 역할: explanation
+- 현재성: canonical
+- 대상 독자: newcomer, contributor, maintainer
+- 다음으로 읽을 문서: [02. 연구 범위](./research_scope_ko.md)
 
 작성일: 2026-04-08
 

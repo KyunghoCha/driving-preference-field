@@ -1,4 +1,9 @@
-# 입력 Semantics 문서
+# 04. 입력 Semantics
+
+- 역할: reference
+- 현재성: canonical
+- 대상 독자: contributor
+- 다음으로 읽을 문서: [05. Source Adapter](./source_adapter_ko.md)
 
 작성일: 2026-04-08
 
@@ -23,7 +28,7 @@
 이 문서에서 중요한 구분은 다음이다.
 
 - canonical은 지금 **확정된 semantic slot**만 고정한다
-- source adapter가 이것을 어떤 output contract로 번역하는지는 `docs/design/source_adapter_ko.md`에서 고정한다
+- source adapter가 이것을 어떤 output contract로 번역하는지는 `docs/reference/source_adapter_ko.md`에서 고정한다
 - `ego_pose`, local window policy, support/confidence transport shape 같은 것은 semantic slot 본체보다 QueryContext 또는 experiment 영역에 더 가깝다
 
 ### 1. Drivable Support

@@ -1,5 +1,10 @@
 # Internal Priorities
 
+- 역할: internal
+- 현재성: non-canonical
+- 대상 독자: maintainer
+- 다음으로 읽을 문서: [internal glossary](./glossary.md)
+
 Roadmap phase tracking lives in `docs/status/roadmap_ko.md`.
 
 ## P0: Keep Phase 5 results stable

@@ -1,4 +1,9 @@
-# 프로젝트 로드맵 문서
+# 08. 로드맵
+
+- 역할: status
+- 현재성: canonical
+- 대상 독자: newcomer, contributor
+- 다음으로 읽을 문서: [진행 상태](./project_status_ko.md)
 
 작성일: 2026-04-08
 
@@ -37,7 +42,7 @@
 
 완료 기준:
 
-- `docs/design/` 핵심 문서가 서로 충돌하지 않는다
+- `docs/explanation/`와 `docs/reference/` 핵심 문서가 서로 충돌하지 않는다
 - canonical 문서만 읽어도 프로젝트 목적을 이해할 수 있다
 - reading 문서와 canonical 문서의 경계가 분명하다
 
@@ -164,8 +169,8 @@ late Phase 4 acceptance:
 
 현재 참고:
 
-- current decision SSOT: `docs/design/source_adapter_ko.md`
-- proposal history: `docs/reading/phase5_adapter_proposal_ko.md`
+- current decision SSOT: `docs/reference/source_adapter_ko.md`
+- proposal history: `docs/reading/history/phase5_adapter_proposal_ko.md`
 
 ### Phase 6. Interactive Studio / Downstream Preparation
 
@@ -213,6 +218,6 @@ late Phase 4 acceptance:
 
 - phase는 구현체가 아니라 프로젝트 truth 기준으로 갱신한다
 - roadmap 본문은 현재 계획만 직접 설명한다
-- 자세한 설계 근거는 `docs/design/`
+- 자세한 설계 근거는 `docs/explanation/`, `docs/reference/`, `docs/how-to/`
 - 구체 source 사례는 `docs/reading/`
 - 내부 우선순위는 `docs/internal/priorities.md`

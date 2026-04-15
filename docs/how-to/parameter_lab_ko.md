@@ -1,12 +1,31 @@
-# Parameter Lab 설계 문서
+# 07. Parameter Lab 사용
+
+- 역할: how-to
+- 현재성: current implementation
+- 대상 독자: newcomer, contributor
+- 다음으로 읽을 문서: [08. 로드맵](../status/roadmap_ko.md)
 
 작성일: 2026-04-08
 
 ## 문서 목적
 
-이 문서는 연구용 Parameter Lab의 목적, 범위, 기본 동작, 출력 형태와 현재 구현 상태를 고정한다.
+이 문서는 연구용 Parameter Lab을 실제로 실행하고 morphology 비교 실험에 쓰는 절차를 고정한다.
 
 Parameter Lab은 geometry를 편집하는 studio가 아니라, 같은 semantic snapshot과 같은 effective local context 위에서 field 파라미터를 바꾸며 비교 실험하는 도구다. 또한 이 툴은 optimizer나 integration runtime을 붙이는 도구가 아니라, **morphology 해석과 current implementation 비교를 위한 연구용 랩**으로 본다.
+
+## Prerequisite
+
+- `conda activate driving-preference-field`
+- repo root에서 `PYTHONPATH=src python -m driving_preference_field parameter-lab`
+- toy case 또는 generic adapter input path 준비
+
+## 기본 사용 절차
+
+1. case 또는 generic adapter input path를 연다
+2. baseline preset과 candidate preset을 고른다
+3. 필요하면 case-level ego/window control을 적용한다
+4. `Single`, `Compare`, `Diff`, `Profile` 탭으로 morphology를 확인한다
+5. export를 만들어 preset snapshot, render set, profile bundle을 남긴다
 
 ## 툴 목적
 

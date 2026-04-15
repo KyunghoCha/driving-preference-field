@@ -1,4 +1,9 @@
-# Base Field 항 문서
+# Base Field 항
+
+- 역할: reference
+- 현재성: canonical
+- 대상 독자: contributor
+- 다음으로 읽을 문서: [Layer 조합](./layer_composition_ko.md)
 
 작성일: 2026-04-08
 

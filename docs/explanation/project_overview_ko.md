@@ -1,4 +1,9 @@
-# 프로젝트 개요 문서
+# 00. 프로젝트 개요
+
+- 역할: explanation
+- 현재성: canonical
+- 대상 독자: newcomer
+- 다음으로 읽을 문서: [01. 운영 원칙](./engineering_operating_principles_ko.md)
 
 작성일: 2026-04-10
 

@@ -1,4 +1,9 @@
-# Source Adapter 설계 문서
+# 05. Source Adapter
+
+- 역할: reference
+- 현재성: canonical
+- 대상 독자: contributor
+- 다음으로 읽을 문서: [06. Runtime Contract](./runtime_evaluation_contract_ko.md)
 
 작성일: 2026-04-10
 

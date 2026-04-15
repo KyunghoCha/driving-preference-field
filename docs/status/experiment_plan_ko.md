@@ -1,4 +1,9 @@
-# 연구용 실험 계획 문서
+# 실험 계획
+
+- 역할: status
+- 현재성: current implementation
+- 대상 독자: contributor
+- 다음으로 읽을 문서: [07. Parameter Lab 사용](../how-to/parameter_lab_ko.md)
 
 작성일: 2026-04-08
 

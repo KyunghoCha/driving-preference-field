@@ -3,7 +3,7 @@ from __future__ import annotations
 """Base field channels used by the tiny evaluator.
 
 The project-level formulas are documented in README.md and
-docs/reading/current_implementation_formula_reference_ko.md. This module keeps
+docs/reference/current_formula_reference_ko.md. This module keeps
 the three current base channels separate so base preference totals remain easy
 to inspect and compare.
 """

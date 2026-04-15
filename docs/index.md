@@ -1,81 +1,71 @@
 # 문서 인덱스
 
-이 워크스페이스는 문서 SSOT를 먼저 세우고, 그 위에 evaluator와 Parameter Lab을 단계적으로 구현하는 프로젝트다.
+이 문서는 `driving-preference-field`의 전체 문서 포털이다.
 
-현재 문서 상태는 `Phase 5 완료, Phase 6 준비 상태`다.
+- 현재 상태: `Phase 5 완료, Phase 6 준비 상태`
+- 목적: newcomer가 읽기 경로를 잃지 않게 하고, canonical / reading / status / internal 경계를 명확히 유지한다
 
-처음 보는 사람은 아래 순서로 읽는 것이 가장 빠르다.
+## Newcomer Spine
 
-1. [프로젝트 개요](./design/project_overview_ko.md)
-2. [운영 원칙](./design/engineering_operating_principles_ko.md)
-3. [Base Field 기초](./design/base_field_foundation_ko.md)
-4. [Source Adapter](./design/source_adapter_ko.md)
-5. [Runtime Evaluation Contract](./design/runtime_evaluation_contract_ko.md)
-6. [로드맵](./status/roadmap_ko.md)
+1. [00. 프로젝트 개요](./explanation/project_overview_ko.md)
+2. [01. 운영 원칙](./explanation/engineering_operating_principles_ko.md)
+3. [02. 연구 범위](./explanation/research_scope_ko.md)
+4. [03. Base Field 기초](./explanation/base_field_foundation_ko.md)
+5. [04. 입력 Semantics](./reference/input_semantics_ko.md)
+6. [05. Source Adapter](./reference/source_adapter_ko.md)
+7. [06. Runtime Contract](./reference/runtime_evaluation_contract_ko.md)
+8. [07. Parameter Lab 사용](./how-to/parameter_lab_ko.md)
+9. [08. 로드맵](./status/roadmap_ko.md)
 
-## Canonical
+## Explanation
 
-- [프로젝트 개요](./design/project_overview_ko.md)
-- [운영 원칙](./design/engineering_operating_principles_ko.md)
-- [연구 범위](./design/research_scope_ko.md)
-- [Base Field 기초](./design/base_field_foundation_ko.md)
-- [입력 Semantics](./design/input_semantics_ko.md)
-- [Source Adapter](./design/source_adapter_ko.md)
-- [Base Field 항](./design/base_field_terms_ko.md)
-- [Layer 조합](./design/layer_composition_ko.md)
-- [Runtime Evaluation Contract](./design/runtime_evaluation_contract_ko.md)
-- [Parameter Lab 설계](./design/parameter_lab_ko.md)
+| 문서 | canonical | 대상 독자 | 언제 읽는지 |
+| --- | --- | --- | --- |
+| [00. 프로젝트 개요](./explanation/project_overview_ko.md) | 예 | newcomer | 프로젝트가 무엇인지 처음 파악할 때 |
+| [01. 운영 원칙](./explanation/engineering_operating_principles_ko.md) | 예 | contributor, maintainer | 문서/코드/reading 경계를 잡을 때 |
+| [02. 연구 범위](./explanation/research_scope_ko.md) | 예 | newcomer, contributor | in/out of scope를 확인할 때 |
+| [03. Base Field 기초](./explanation/base_field_foundation_ko.md) | 예 | newcomer, contributor | whole-space field 개념을 이해할 때 |
 
-## Current Implementation / Status
+## Reference
 
-- [로드맵](./status/roadmap_ko.md)
-- [진행 상태](./status/project_status_ko.md)
-- [실험 계획](./status/experiment_plan_ko.md)
+| 문서 | canonical/current | 대상 독자 | 언제 읽는지 |
+| --- | --- | --- | --- |
+| [04. 입력 Semantics](./reference/input_semantics_ko.md) | canonical | contributor | semantic slot 정의를 확인할 때 |
+| [05. Source Adapter](./reference/source_adapter_ko.md) | canonical | contributor | adapter output contract를 확인할 때 |
+| [Base Field 항](./reference/base_field_terms_ko.md) | canonical | contributor | 용어와 항 구성을 볼 때 |
+| [Layer 조합](./reference/layer_composition_ko.md) | canonical | contributor | base/exception 조합 규칙을 볼 때 |
+| [06. Runtime Contract](./reference/runtime_evaluation_contract_ko.md) | canonical | contributor, maintainer | runtime API와 evaluator 계약을 볼 때 |
+| [Current Formula Reference](./reference/current_formula_reference_ko.md) | current implementation | contributor, maintainer | 현재 구현 수식을 대조할 때 |
 
-## 참고 원칙
+## How-to
 
-- canonical 문서는 현재 정의만 직접 설명한다
-- canonical progression field는 source-agnostic하다
-- newcomer overview도 canonical 문서로 취급한다
-- progression field는 local map 전체에서 longitudinal term과 transverse term을 함께 가진다
-- progression semantics와 drivable semantics는 구분해서 본다
-- field는 공간의 ordering을 알려주고, winner 방향 선택은 상위 layer가 한다
-- canonical score는 higher is better로 읽는다
-- archive와 source 예시는 `docs/reading/`에서만 다룬다
-- 구현은 문서 SSOT를 기준으로만 확장한다
-- Phase 5 current truth는 design SSOT에 있다
-- Phase 5 proposal은 reading/history로만 남긴다
+| 문서 | canonical/current | 대상 독자 | 언제 읽는지 |
+| --- | --- | --- | --- |
+| [07. Parameter Lab 사용](./how-to/parameter_lab_ko.md) | current implementation | newcomer, contributor | Lab을 실행하고 비교 실험할 때 |
 
-## 권장 읽기 순서
+## Status
 
-1. [프로젝트 개요](./design/project_overview_ko.md)
-2. [운영 원칙](./design/engineering_operating_principles_ko.md)
-3. [연구 범위](./design/research_scope_ko.md)
-4. [Base Field 기초](./design/base_field_foundation_ko.md)
-5. [입력 Semantics](./design/input_semantics_ko.md)
-6. [Source Adapter](./design/source_adapter_ko.md)
-7. [Base Field 항](./design/base_field_terms_ko.md)
-8. [Runtime Evaluation Contract](./design/runtime_evaluation_contract_ko.md)
-9. [Parameter Lab 설계](./design/parameter_lab_ko.md)
-10. [로드맵](./status/roadmap_ko.md)
-11. [진행 상태](./status/project_status_ko.md)
-12. [실험 계획](./status/experiment_plan_ko.md)
+| 문서 | 역할 | 대상 독자 | 언제 읽는지 |
+| --- | --- | --- | --- |
+| [08. 로드맵](./status/roadmap_ko.md) | phase truth | newcomer, contributor | 현재 phase와 다음 단계를 볼 때 |
+| [진행 상태](./status/project_status_ko.md) | current snapshot | contributor | 완료된 작업과 현재 focus를 볼 때 |
+| [실험 계획](./status/experiment_plan_ko.md) | experiment procedure | contributor | morphology 비교 절차를 볼 때 |
 
-## Reading / Proposal / History
+## Reading
 
-- [외부 참고 문헌 기록](./reading/external_references_ko.md)
-- [Current Implementation Formula Reference](./reading/current_implementation_formula_reference_ko.md)
-- [전체 수식 정리](./reading/all_formulas_ko.md)
-- [입력 Capability Tier](./reading/input_capability_tiers_ko.md)
-- [Semantic Support 조건 메모](./reading/semantic_support_conditions_ko.md)
-- [Phase 5 Adapter Proposal History](./reading/phase5_adapter_proposal_ko.md)
-- [Archive 참고 목록](./reading/archive_references_ko.md)
-- [SSC 입력 매핑](./reading/ssc_input_mapping_ko.md)
-- [Archive score field 메모](./reading/archive_score_field_notes_ko.md)
+| 문서 | canonical 여부 | 대상 독자 | 언제 읽는지 |
+| --- | --- | --- | --- |
+| [Input Reconstruction Notes](./reading/source/input_reconstruction_notes_ko.md) | 비-canonical | contributor | source/input 사례를 참고할 때 |
+| [Phase 5 Adapter Proposal History](./reading/history/phase5_adapter_proposal_ko.md) | 비-canonical | maintainer | proposal history를 볼 때 |
+| [External References](./reading/references/external_references_ko.md) | 비-canonical | contributor | 참고 문헌 근거를 추적할 때 |
+| [Archive References](./reading/history/archive/archive_references_ko.md) | 비-canonical | maintainer | archive 경로를 추적할 때 |
+| [Archive Score Field Notes](./reading/history/archive/archive_score_field_notes_ko.md) | 비-canonical | maintainer | 이전 실험 메모를 추적할 때 |
 
 ## Internal
 
-- [internal README](./internal/README.md)
-- [internal status](./internal/status.md)
-- [internal priorities](./internal/priorities.md)
-- [internal glossary](./internal/glossary.md)
+| 문서 | 역할 | 대상 독자 | 언제 읽는지 |
+| --- | --- | --- | --- |
+| [internal README](./internal/README.md) | internal policy | maintainer | internal docs 경계를 확인할 때 |
+| [internal status](./internal/status.md) | internal snapshot | maintainer | 내부 상태를 짧게 복기할 때 |
+| [internal priorities](./internal/priorities.md) | internal priorities | maintainer | 현재 유지 우선순위를 볼 때 |
+| [internal glossary](./internal/glossary.md) | internal terms | maintainer | working vocabulary를 맞출 때 |

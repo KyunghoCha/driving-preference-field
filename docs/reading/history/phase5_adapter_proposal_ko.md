@@ -1,4 +1,13 @@
-# Phase 5 Adapter Proposal 문서
+# Phase 5 Adapter Proposal History
+
+- 역할: reading
+- 현재성: non-canonical
+- 대상 독자: maintainer
+- 다음으로 읽을 문서: [05. Source Adapter](../../reference/source_adapter_ko.md)
+
+> 이 문서는 canonical truth가 아니다.
+> 현재 상태: reading / history / proposal
+> canonical 관련 문서: `docs/reference/source_adapter_ko.md`
 
 작성일: 2026-04-10
 
@@ -10,7 +19,7 @@
 
 현재 canonical 결정은 아래 design SSOT에 반영됐다.
 
-- `docs/design/source_adapter_ko.md`
+- `docs/reference/source_adapter_ko.md`
 
 이 문서는 이제 **proposal history / reading 기록**으로만 유지한다.
 

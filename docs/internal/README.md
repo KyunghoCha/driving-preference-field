@@ -1,5 +1,10 @@
 # Internal Docs Policy
 
+- 역할: internal
+- 현재성: non-canonical
+- 대상 독자: maintainer
+- 다음으로 읽을 문서: [internal status](./status.md)
+
 This directory contains English internal working notes for `driving-preference-field`.
 
 Purpose:
@@ -10,7 +15,7 @@ Purpose:
 
 Rules:
 
-- Korean docs under `docs/design/` and `docs/status/` remain the user-facing SSOT
+- Korean docs under `docs/explanation/`, `docs/reference/`, `docs/how-to/`, and `docs/status/` remain the user-facing SSOT
 - internal docs are working notes, prioritization, and glossary only
-- internal notes must not silently widen the paper or implementation claims beyond `docs/design/research_scope_ko.md`
+- internal notes must not silently widen the paper or implementation claims beyond `docs/explanation/research_scope_ko.md`
 - if an internal note changes architecture or scope, the corresponding Korean SSOT must be updated first

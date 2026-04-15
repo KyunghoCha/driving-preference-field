@@ -1,5 +1,10 @@
 # Internal Glossary
 
+- 역할: internal
+- 현재성: non-canonical
+- 대상 독자: maintainer
+- 다음으로 읽을 문서: [internal README](./README.md)
+
 ## base driving preference field
 
 A spatial preference structure that encodes ideal driving desirability before obstacle/rule exceptions are applied.

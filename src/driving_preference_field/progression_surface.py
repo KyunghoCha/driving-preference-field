@@ -11,7 +11,7 @@ score:
       = support_mod * alignment_mod * (T(n_hat) + gain * L(u))
 
 The exact formula here is a current implementation detail, not canonical truth.
-README and docs/reading/current_implementation_formula_reference_ko.md must move
+README and docs/reference/current_formula_reference_ko.md must move
 with this module when the implementation changes.
 """
 

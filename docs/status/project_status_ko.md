@@ -1,4 +1,9 @@
-# 프로젝트 진행 상태 문서
+# 진행 상태
+
+- 역할: status
+- 현재성: canonical
+- 대상 독자: contributor
+- 다음으로 읽을 문서: [실험 계획](./experiment_plan_ko.md)
 
 작성일: 2026-04-08
 
@@ -72,8 +77,8 @@
 
 Phase 5의 현재 canonical 결정은 design SSOT에 있고, proposal history는 reading 문서에 남긴다.
 
-- `docs/design/source_adapter_ko.md`
-- `docs/reading/phase5_adapter_proposal_ko.md`
+- `docs/reference/source_adapter_ko.md`
+- `docs/reading/history/phase5_adapter_proposal_ko.md`
 
 ## late Phase 4 acceptance lock
 

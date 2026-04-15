@@ -1,4 +1,9 @@
-# 연구 범위 문서
+# 02. 연구 범위
+
+- 역할: explanation
+- 현재성: canonical
+- 대상 독자: newcomer, contributor
+- 다음으로 읽을 문서: [03. Base Field 기초](./base_field_foundation_ko.md)
 
 작성일: 2026-04-08
 

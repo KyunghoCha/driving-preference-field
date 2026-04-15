@@ -1,5 +1,10 @@
 # Internal Status
 
+- 역할: internal
+- 현재성: non-canonical
+- 대상 독자: maintainer
+- 다음으로 읽을 문서: [internal priorities](./priorities.md)
+
 Date: 2026-04-08
 
 ## Project State

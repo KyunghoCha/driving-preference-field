@@ -1,5 +1,14 @@
 # Archive Score Field 메모
 
+- 역할: reading
+- 현재성: non-canonical
+- 대상 독자: maintainer
+- 다음으로 읽을 문서: [docs index](../../../index.md)
+
+> 이 문서는 canonical truth가 아니다.
+> 현재 상태: reading / history / archive
+> canonical 관련 문서: `docs/explanation/`, `docs/reference/`, `docs/how-to/`
+
 작성일: 2026-04-08
 
 ## 문서 목적
