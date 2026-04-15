@@ -1,25 +1,14 @@
 # Input Reconstruction Notes
 
-- 역할: reading
-- 현재성: non-canonical
-- 대상 독자: contributor, maintainer
-- 다음으로 읽을 문서: [04. 입력 Semantics](../../reference/input_semantics_ko.md)
+> 참고용 reading note다. canonical 정의는 `docs/reference/input_semantics_ko.md`와 `docs/reference/source_adapter_ko.md`를 기준으로 읽는다.
 
-> 이 문서는 canonical truth가 아니다.
-> 현재 상태: reading / source notes
-> canonical 관련 문서: `docs/reference/input_semantics_ko.md`, `docs/reference/source_adapter_ko.md`, `docs/explanation/project_overview_ko.md`
-
-이 문서는 input/source 쪽 reading 메모를 하나로 묶은 비정규 자료다.
-
-- semantic support conditions
-- input capability tiers
-- SSC mapping example
+input/source 쪽에서 확인한 사실, 아직 고정하지 않은 질문, 그리고 SSC를 source example로만 읽을 때 필요한 대응 정보를 묶어 둔다.
 
 ## 1. Semantic Support Conditions
 
 ### 현재 canonical 문서에서 이미 고정된 사실
 
-- canonical input은 raw source가 아니라 **semantic contract**다
+- canonical input은 raw source가 아니라 semantic contract다
 - canonical 입력의 최소 축은 `drivable semantics`와 `progression semantics`다
 - canonical은 특정 geometry primitive를 필수 형식으로 강제하지 않는다
 - canonical은 fixed source type이나 source-specific naming을 요구하지 않는다
@@ -31,7 +20,7 @@
 ### 현재 대화에서 확인된 정보
 
 - global path는 모든 적용 환경에서 항상 주어진다고 가정할 수 없다
-- 따라서 transverse 또는 longitudinal support scope를 global로 고정하는 것은 current canonical truth가 아니다
+- transverse 또는 longitudinal support scope를 global로 고정하는 것은 current canonical truth가 아니다
 - support scope는 source가 제공할 수 있는 progression support 형태에 따라 달라질 수 있다
 - discrete source input 자체는 금지 조건이 아니다
 - discrete nodes, edges, paths, polygons 같은 입력도 semantic support로 번역되면 사용할 수 있다
@@ -77,7 +66,7 @@
 
 ## 3. SSC Mapping Example
 
-이 절은 SSC를 canonical truth로 승격하지 않고, source example로만 남긴다.
+이 절은 SSC를 canonical truth로 승격하지 않고 source example로만 남긴다.
 
 | SSC raw source | 대응 가능한 canonical slot | 현재 수준 |
 | --- | --- | --- |
@@ -87,4 +76,4 @@
 | lane layer / lane pointcloud | drivable support, boundary / interior support | adapter 필요 |
 | local free-space shape | drivable support, boundary / interior support | adapter 필요 |
 
-SSC는 prototype input source로는 유용하지만, 최종 canonical 입력 구조를 그대로 대체하지는 않는다.
+SSC는 prototype input source로는 유용하지만, canonical 입력 구조를 그대로 대체하지는 않는다.

@@ -1,12 +1,5 @@
 # Internal Status
 
-- 역할: internal
-- 현재성: non-canonical
-- 대상 독자: maintainer
-- 다음으로 읽을 문서: [internal priorities](./priorities.md)
-
-Date: 2026-04-08
-
 ## Project State
 
 - canonical docs and code now align on a single source-agnostic progression field
@@ -33,7 +26,7 @@ The project is currently defining:
 - how exception layers remain separate
 - how runtime local evaluation should be interpreted
 - how config-driven comparison and preset-based experiments should work in the implemented lab
-- how newcomer-facing docs explain the current truth without promoting downstream specifics to canonical status
+- how docs explain the current truth without promoting downstream specifics to canonical status
 - how a generic external-like source is translated into the canonical snapshot/context contract
 
 ## Current Focus

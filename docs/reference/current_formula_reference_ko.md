@@ -1,15 +1,6 @@
 # Current Formula Reference
 
-- 역할: reference
-- 현재성: current implementation
-- 대상 독자: contributor, maintainer
-- 다음으로 읽을 문서: [06. Runtime Contract](./runtime_evaluation_contract_ko.md)
-
-이 문서는 `driving-preference-field`의 **현재 구현 수식**을 한 곳에 정리한 reference다.
-
-- canonical truth를 대신하지 않는다
-- 현재 구현과 runtime contract를 대조하는 용도다
-- exact formula가 바뀌면 이 문서와 관련 코드 주석, README를 함께 갱신한다
+이 문서는 현재 구현 수식을 한 곳에 모아 둔 reference다. canonical 정의를 대신하지 않고, runtime contract와 현재 구현을 대조할 때 사용한다.
 
 ## 공통 표기
 
@@ -27,10 +18,7 @@
 - `src/driving_preference_field/channels.py`
 - `src/driving_preference_field/field_runtime.py`
 
-현재 progression은 smooth skeleton anchor를 control point로 쓰는 Gaussian-blended coordinate field다.
-
-- visible guide endpoint는 semantic start/end가 아니라 virtual continuation으로 처리한다
-- support/alignment는 주형을 만들지 않는 weak secondary modulation이다
+현재 progression은 smooth skeleton anchor를 control point로 쓰는 Gaussian-blended coordinate field다. visible guide endpoint는 virtual continuation으로 처리하고, support/alignment는 weak secondary modulation으로 남긴다.
 
 ### Anchor local coordinates
 
@@ -154,10 +142,10 @@ T_{\text{pow}}(r)=\frac{1}{1+r^{\beta}}
 
 의도:
 
-- 같은 progression slice에서는 center-high transverse profile을 만든다
-- stronger longitudinal에서는 farther-ahead ordering을 만든다
-- branch guide도 같은 anchor pool로 읽어서 gap을 비우지 않는다
-- downstream consumer는 이 수식을 직접 복제하기보다 cached runtime query layer를 소비한다
+- 같은 progression slice에서는 center-high transverse profile을 만든다.
+- stronger longitudinal에서는 farther-ahead ordering을 만든다.
+- branch guide도 같은 anchor pool로 읽어서 gap을 비우지 않는다.
+- downstream consumer는 이 수식을 직접 복제하기보다 cached runtime query layer를 소비한다.
 
 ## Interior / Boundary
 

@@ -1,19 +1,14 @@
 # Internal Docs Policy
 
-- 역할: internal
-- 현재성: non-canonical
-- 대상 독자: maintainer
-- 다음으로 읽을 문서: [internal status](./status.md)
-
 This directory contains English internal working notes for `driving-preference-field`.
 
-Purpose:
+## Purpose
 
 - keep working notes in English
 - separate internal planning from user-facing Korean SSOT
 - keep the working language compact without widening the canonical scope
 
-Rules:
+## Rules
 
 - Korean docs under `docs/explanation/`, `docs/reference/`, `docs/how-to/`, and `docs/status/` remain the user-facing SSOT
 - internal docs are working notes, prioritization, and glossary only

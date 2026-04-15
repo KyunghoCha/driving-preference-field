@@ -1,105 +1,90 @@
-# 01. 운영 원칙
+# 운영 원칙
 
-- 역할: explanation
-- 현재성: canonical
-- 대상 독자: newcomer, contributor, maintainer
-- 다음으로 읽을 문서: [02. 연구 범위](./research_scope_ko.md)
-
-작성일: 2026-04-08
-
-## 문서 목적
-
-이 문서는 `driving-preference-field`에서 설계, 구현, 문서화, 실험을 진행할 때 지켜야 할 상위 운영 원칙을 고정한다.
-
-이 문서는 성격 메모가 아니라 프로젝트 SSOT다. README와 모든 설계 문서는 이 문서를 따른다.
+이 문서는 `driving-preference-field`에서 설계, 구현, 문서화, 실험을 진행할 때 따르는 상위 원칙을 고정한다. README와 canonical 설계 문서, 구현 정리는 모두 이 원칙을 기준으로 맞춘다.
 
 ## 핵심 원칙
 
 ### 1. 임시방편 금지
 
-- 눈앞의 현상만 가리는 patch를 넣지 않는다
-- 현재 증상이 어떤 개념 드리프트에서 왔는지 먼저 본다
-- 단기 workaround가 필요해도 본질 원인과 분리해 기록한다
+- 눈앞의 현상만 가리는 patch를 넣지 않는다.
+- 현재 증상이 어떤 개념 드리프트에서 왔는지 먼저 본다.
+- 단기 workaround가 필요해도 본질 원인과 분리해 기록한다.
 
 ### 2. 근본 원인 우선
 
-- 구현 전에 현재 문제를 모델 수준, layer 수준, runtime 수준으로 나눠 본다
-- 특정 수식 하나가 이상해 보여도 입력 semantics, composition, visualization을 같이 의심한다
-- 한 부분만 만져 해결된 것처럼 보이면 전체 계약을 다시 확인한다
+- 구현 전에 현재 문제를 모델 수준, layer 수준, runtime 수준으로 나눠 본다.
+- 특정 수식 하나가 이상해 보여도 입력 semantics, composition, visualization을 같이 의심한다.
+- 한 부분만 만져 해결된 것처럼 보이면 전체 계약을 다시 확인한다.
 
 ### 3. 한 곳에 매몰되지 않는 전체 관점
 
-- 특정 그림, 특정 수식, 특정 파일에 매몰되지 않는다
-- 항상 다음 경계를 같이 본다
-  - 연구 범위 SSOT
-  - 설계 SSOT
-  - 구현 SSOT
-  - internal working notes
-- 부분 수정으로 전체 contract가 흐려지면 잘못된 수정으로 본다
+- 특정 그림, 특정 수식, 특정 파일에 매몰되지 않는다.
+- 항상 연구 범위 SSOT, 설계 SSOT, 구현 SSOT, internal working notes의 경계를 같이 본다.
+- 부분 수정으로 전체 contract가 흐려지면 잘못된 수정으로 본다.
 
 ### 4. 근거 없는 추측 금지
 
-- 모르는 것은 추측으로 메우지 않는다
-- local truth가 있으면 먼저 읽는다
-- 그래도 불명확하면 검색하고 근거를 확보한다
-- 그래도 불명확하면 불확실성을 명시한다
+- 모르는 것은 추측으로 메우지 않는다.
+- local truth가 있으면 먼저 읽는다.
+- 그래도 불명확하면 검색하고 근거를 확보한다.
+- 그래도 불명확하면 불확실성을 명시한다.
 
 ### 5. 문서 우선
 
-- 구현 전에 문서 SSOT를 먼저 갱신한다
-- 설계가 바뀌면 관련 canonical 문서가 같이 움직여야 한다
-- 문서와 코드가 다르면 코드보다 먼저 문서 drift를 의심한다
+- 구현 전에 문서 SSOT를 먼저 갱신한다.
+- 설계가 바뀌면 관련 canonical 문서가 같이 움직여야 한다.
+- 문서와 코드가 다르면 코드보다 먼저 문서 drift를 의심한다.
 
 ### 6. 현재 정의를 독립적으로 쓴다
 
-- 문서와 코드 변경은 현재 truth를 직접 정의하는 방식으로 작성한다
-- canonical 문서는 특정 과거 문서, 특정 예시, 특정 구현체, 특정 프레이밍에 기대어 중심 개념을 설명하지 않는다
-- 코드와 주석도 비교 서술이나 해설보다 현재 계약, 현재 입력, 현재 의도를 직접 설명해야 한다
-- 역사적 맥락, 대안 비교, 구현체별 참고 사항이 필요하면 reading 자료나 별도 메모로 분리한다
-- 한 설명 방식이 익숙하더라도 그것이 전체 정의를 대신하지 않도록 문서 경계를 유지한다
+- 문서와 코드 변경은 현재 truth를 직접 정의하는 방식으로 작성한다.
+- canonical 문서는 특정 과거 문서, 특정 예시, 특정 구현체, 특정 프레이밍에 기대어 중심 개념을 설명하지 않는다.
+- 코드와 주석도 비교 서술이나 해설보다 현재 계약, 현재 입력, 현재 의도를 직접 설명해야 한다.
+- 역사적 맥락, 대안 비교, 구현체별 참고 사항이 필요하면 reading 자료나 별도 메모로 분리한다.
 
 ### 7. 의도는 문서와 주석으로 남긴다
 
 - 왜 이런 field를 정의하는지
 - 왜 layer를 분리하는지
 - 왜 runtime contract를 그렇게 두는지
-를 문서와 주석에 남긴다
+
+이 세 가지는 문서와 주석에 직접 남긴다.
 
 ### 8. Drift 방지
 
-- archive repo와 새 repo의 역할을 섞지 않는다
-- archive 실험 결과를 새 canonical truth로 승격하지 않는다
-- 한국어 user-facing 문서와 영어 internal note가 조용히 다른 의미를 가지지 않게 한다
+- archive repo와 새 repo의 역할을 섞지 않는다.
+- archive 실험 결과를 새 canonical truth로 승격하지 않는다.
+- 한국어 user-facing 문서와 영어 internal note가 조용히 다른 의미를 가지지 않게 한다.
 
 ### 9. 한 번에 다 하려 하지 않는다
 
-- 현재 단계에서 무엇을 하지 않을지도 명시한다
-- 구현 범위를 넘는 것은 next step으로 남기고 잘라낸다
-- 지금 질문이 base field 자체인지, optimizer 결합인지, UI/도구 문제인지 구분한다
+- 현재 단계에서 무엇을 하지 않을지도 명시한다.
+- 구현 범위를 넘는 것은 next step으로 남기고 잘라낸다.
+- 지금 질문이 base field 자체인지, optimizer 결합인지, UI/도구 문제인지 구분한다.
 
 ### 10. 연구용 비교는 config와 preset으로 한다
 
-- 연구용 파라미터 비교는 코드 분기 추가보다 config/preset 비교를 우선한다
-- 같은 case와 같은 semantic snapshot 위에서 baseline과 candidate를 비교하는 방식을 기본으로 둔다
-- 함수 family와 gain 실험은 코드 수정 반복보다 도구와 preset 기록을 통해 반복 가능하게 만든다
+- 연구용 파라미터 비교는 코드 분기 추가보다 config/preset 비교를 우선한다.
+- 같은 case와 같은 semantic snapshot 위에서 baseline과 candidate를 비교하는 방식을 기본으로 둔다.
+- 함수 family와 gain 실험은 코드 수정 반복보다 도구와 preset 기록을 통해 반복 가능하게 만든다.
 
 ### 11. 시각화는 해석 가능한 스케일을 기본으로 둔다
 
-- 시각화는 화면마다 다시 예쁘게 보이도록 값 범위를 바꾸는 것보다, 해석 가능한 표시 계약을 우선한다
-- 일반 채널 heatmap은 0을 절대 최소값으로 두는 채널별 고정 스케일을 기본으로 둔다
-- diff heatmap은 0 중심 대칭 스케일을 기본으로 둔다
-- 상대 정규화는 탐색용 보조 모드로만 제공하며, 현재 표시 범위와 단위를 함께 드러낸다
+- 시각화는 화면마다 다시 예쁘게 보이도록 값 범위를 바꾸는 것보다, 해석 가능한 표시 계약을 우선한다.
+- 일반 채널 heatmap은 0을 절대 최소값으로 두는 채널별 고정 스케일을 기본으로 둔다.
+- diff heatmap은 0 중심 대칭 스케일을 기본으로 둔다.
+- 상대 정규화는 탐색용 보조 모드로만 제공하며, 현재 표시 범위와 단위를 함께 드러낸다.
 
 ### 12. 다른 머신에서 한 작업도 같은 SSOT에 남긴다
 
-- Ubuntu, Windows, 다른 노트북, 다른 workstation에서 한 작업이라도 canonical 의미 변경은 같은 repo 문서 SSOT에 남긴다
-- 다른 머신에서 구현한 현재 수식, runtime contract, preset 의미 변경도 merge 전에 관련 문서를 같이 갱신한다
-- 머신 로컬 메모, 채팅 맥락, shell history에만 의도를 남기지 않는다
-- 문서만 읽어도 현재 canonical과 current implementation을 복원할 수 있어야 한다
+- Ubuntu, Windows, 다른 노트북, 다른 workstation에서 한 작업이라도 canonical 의미 변경은 같은 repo 문서 SSOT에 남긴다.
+- 다른 머신에서 구현한 현재 수식, runtime contract, preset 의미 변경도 merge 전에 관련 문서를 같이 갱신한다.
+- 머신 로컬 메모, 채팅 맥락, shell history에만 의도를 남기지 않는다.
+- 문서만 읽어도 현재 canonical과 current implementation을 복원할 수 있어야 한다.
 
 ### 13. 크로스플랫폼 차이는 의미가 아니라 재현 방식으로만 다룬다
 
-- 운영체제 차이로 field semantics, config semantics, preset semantics가 달라지면 안 된다
-- 플랫폼 차이는 환경 준비, line ending, 경로 처리, CI 구성 같은 재현 계층에서 해결한다
-- 특정 OS에서만 우연히 맞는 동작이나 렌더 결과를 canonical truth로 올리지 않는다
-- Windows에서 확인한 동작도 Ubuntu 기준 문서와 테스트에 다시 남겨 cross-platform drift를 줄인다
+- 운영체제 차이로 field semantics, config semantics, preset semantics가 달라지면 안 된다.
+- 플랫폼 차이는 환경 준비, line ending, 경로 처리, CI 구성 같은 재현 계층에서 해결한다.
+- 특정 OS에서만 우연히 맞는 동작이나 렌더 결과를 canonical truth로 올리지 않는다.
+- Windows에서 확인한 동작도 Ubuntu 기준 문서와 테스트에 다시 남겨 cross-platform drift를 줄인다.

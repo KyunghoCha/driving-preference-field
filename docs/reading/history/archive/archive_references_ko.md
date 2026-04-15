@@ -1,21 +1,8 @@
 # Archive 참고 목록
 
-- 역할: reading
-- 현재성: non-canonical
-- 대상 독자: maintainer
-- 다음으로 읽을 문서: [docs index](../../../index.md)
+> archive 경로를 모아 둔 reading note다. 현재 정의는 `docs/explanation/`, `docs/reference/`, `docs/how-to/` 문서를 기준으로 읽는다.
 
-> 이 문서는 canonical truth가 아니다.
-> 현재 상태: reading / history / archive
-> canonical 관련 문서: `docs/explanation/`, `docs/reference/`, `docs/how-to/`
-
-작성일: 2026-04-08
-
-이 문서는 canonical 설계 문서가 아닌 archive 참고 자료 위치만 정리한다.
-
-현재 canonical 정의는 `docs/explanation/`, `docs/reference/`, `docs/how-to/` 아래 문서를 기준으로 읽는다.
-
-외부 논문/글 reference log는 `./external_references_ko.md`에 따로 기록한다.
+canonical 설계 문서가 아닌 archive 참고 자료 위치만 정리한다. 외부 논문/글 reference log는 `../../references/external_references_ko.md`에 따로 기록한다.
 
 ## 참고 자료
 
