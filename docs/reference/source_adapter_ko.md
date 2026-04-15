@@ -1,6 +1,6 @@
 # Source Adapter
 
-이 문서는 raw source를 canonical semantic contract로 번역하는 source adapter의 출력 계약을 정리한다. canonical로 고정하는 것은 raw source 형식이 아니라 `SemanticInputSnapshot + QueryContext`라는 output contract다.
+이 문서는 raw source를 canonical semantic contract로 번역하는 source adapter의 출력 계약을 정리한다. canonical로 고정하는 것은 raw source 형식이 아니라 `SemanticInputSnapshot + QueryContext`라는 output contract다. 이 문서는 adapter가 무엇을 출력해야 하는지, 어떤 slot이 필수이고 어떤 slot이 optional인지, 그리고 무엇을 canonical로 올리지 않는지 lookup-first로 확인하게 만드는 reference다.
 
 ## 책임
 
@@ -27,8 +27,8 @@ adapter output은 다음 두 타입으로 고정한다.
 공간 의미 자체를 담는다.
 
 - 필수 slot:
-  - `drivable_support`
   - `progression_support`
+  - `drivable_support`
 - optional slot:
   - `boundary_interior_support`
   - `branch_continuity_support`
@@ -36,9 +36,13 @@ adapter output은 다음 두 타입으로 고정한다.
 
 추가 원칙:
 
+- `progression_support`는 base preference를 만드는 본체 support다.
+- `drivable_support`는 domain / support / reconstruction 재료다.
 - progression과 drivable은 분리된 semantic slot로 유지한다.
 - branch winner는 canonical snapshot이 직접 정하지 않는다.
 - support/confidence/branch prior 같은 값은 있더라도 weak prior metadata로만 다룬다.
+
+`boundary_interior_support`는 optional geometry prior다. `branch_continuity_support`는 optional continuation prior다. 둘 다 canonical base를 항상 구성하는 필수 slot이 아니다.
 
 ### QueryContext
 
@@ -51,6 +55,8 @@ field를 어디서 어떻게 평가하는지를 담는다.
   - optional `phase`
 
 `ego_pose`는 snapshot 본체 의미가 아니라 질의 문맥(`QueryContext`) 책임이다. `local_window`의 크기와 slicing policy는 canonical truth가 아니라 experiment 영역으로 남긴다.
+
+`QueryContext`는 field 의미 자체를 바꾸는 입력이 아니라, 같은 semantic snapshot을 어디서 어떻게 평가할지를 정하는 evaluation context다.
 
 ## Generic reference input schema
 
@@ -96,8 +102,8 @@ optional 항목이 없다고 canonical output이 invalid가 되지는 않는다.
 
 adapter는 progression과 drivable을 하나로 합치지 않는다.
 
-- `drivable_support`: 지금 local map에서 무엇이 움직일 수 있는 공간인가
 - `progression_support`: 무엇이 앞이고 뒤인지, intended progression continuity를 어떤 흐름이 더 잘 지지하는가
+- `drivable_support`: 지금 local map에서 무엇이 움직일 수 있는 공간인가, 그리고 progression support를 어떻게 지지하거나 복원할 수 있는가
 
 branch winner는 canonical에서 정하지 않는다. 여러 candidate continuation을 continuity support로 전달할 수 있고, optional `branch_prior`가 있으면 weak prior metadata로만 전달한다. support/confidence도 본체가 아니라 optional weak prior다.
 
@@ -127,6 +133,12 @@ SSC는 중요한 validation source지만 canonical 기준은 아니다.
 - SSC naming을 reference schema에 넣지 않는다.
 - SSC 자료구조를 canonical 타입에 직접 올리지 않는다.
 - SSC에서 나온 요구사항은 evidence로만 사용한다.
+
+즉 adapter는 SSC를 포함한 어떤 source라도 같은 output contract로 번역해야 한다. source-specific 구조를 canonical로 승격하지 않는다는 경계가 이 문서의 핵심이다.
+
+## Current Implementation
+
+Phase 5 v1 reference adapter는 generic local semantic map fixture를 `SemanticInputSnapshot + QueryContext`로 번역한다. 현재 runtime과 toy path는 같은 output contract를 공유하고, optional boundary / branch / exception support가 없어도 canonical output 전체를 invalid로 보지 않는다.
 
 ## 현재 기준
 

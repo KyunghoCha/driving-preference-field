@@ -1,13 +1,14 @@
 # Runtime Contract
 
-이 문서는 base field의 의미와 runtime 계산 방식을 분리해서 정리하고, 현재 repo가 제공하는 public runtime interface와 evaluator contract를 고정한다. canonical score는 `higher is better`로 읽는다.
+이 문서는 base field의 의미와 runtime 계산 방식을 분리해서 정리하고, 현재 repo가 제공하는 public runtime interface와 evaluator contract를 고정한다. canonical score는 `higher is better`로 읽는다. 여기서 고정하는 것은 public runtime contract와 layer split이며, current tiny evaluator의 구체 합성 규칙은 별도 `current implementation` 문단에서만 다룬다.
 
 ## 정의
 
-- field는 의미론적으로 진행 인지 포텐셜 장(`progression-aware potential field`)이다.
+- field는 의미론적으로 `whole-space preference field`이며, 진행 인지 포텐셜 장(`progression-aware potential field`)으로 읽는다.
 - runtime에서는 항상 전역 dense map을 만들 필요가 없다.
 - raster는 local map 위에서 연속 함수를 샘플링한 secondary visualization이다.
 - downstream consumer는 current formula를 복제하지 않고 runtime layer를 소비한다.
+- soft / hard burden은 base field와 별도 계층이다.
 
 ## Field semantics
 
@@ -21,21 +22,6 @@ field는 현재 local map 전체에서 어디가 더 바람직한지, progressio
 
 canonical은 exact 결합식을 고정하지 않는다. 문서 SSOT는 longitudinal / transverse / secondary gate의 역할만 고정하고, exact current formula는 별도 current implementation reference에서 관리한다.
 
-## Runtime evaluation
-
-runtime evaluator는 local map 전체를 analytic하게 평가할 수 있어야 한다.
-
-- 입력:
-  - canonical semantic contract snapshot
-  - evaluator config
-  - `QueryContext`
-- 기본형:
-  - ego-centric local frame
-  - local query window 전체를 대상으로 하는 analytic evaluator
-  - candidate state 또는 rollout state sequence 평가
-
-현재 구현은 smooth skeleton anchor들의 Gaussian elliptical blend로 local map 전체의 whole-fabric continuous function을 만든다. branch 사이도 별도 winner 없이 같은 함수 안에서 메우고, visible guide endpoint는 virtual continuation으로 처리한다. support와 alignment는 shape를 주도하지 않는 약한 보조 변조(`weak secondary modulation`)로 남긴다.
-
 ## Public runtime interface
 
 Phase 5 current public runtime interface는 다음과 같다.
@@ -48,6 +34,19 @@ Phase 5 current public runtime interface는 다음과 같다.
 - `FieldRuntime.query_progression_trajectories(trajectories_xy, heading_yaws=None)`
 
 toy loader output과 generic source adapter output은 모두 같은 canonical contract로 이 runtime interface에 들어온다.
+
+## Runtime evaluation
+
+runtime evaluator는 local map 전체를 analytic하게 평가할 수 있어야 한다.
+
+- 입력:
+  - canonical semantic contract snapshot
+  - evaluator config
+  - `QueryContext`
+- 기본형:
+  - ego-centric local frame
+  - local query window 전체를 대상으로 하는 analytic evaluator
+  - candidate state 또는 rollout state sequence 평가
 
 ## 보장해야 하는 성질
 
@@ -78,6 +77,20 @@ trajectory evaluator는 state evaluation의 누적으로 해석한다.
   - optional derived ordering key
 
 trajectory hard violation은 horizon 전체에서 하나라도 발생하면 유지된다. soft / base channel은 누적 또는 집계되며, 구체 가중 방식은 prototype에서 정한다.
+
+base field 채널과 soft / hard burden 채널은 문서상 분리해서 읽어야 한다. runtime layer가 둘을 한 payload에 싣더라도, canonical 해석은 “preference”와 “burden”을 같은 층으로 보지 않는다.
+
+## Current Implementation
+
+현재 구현은 smooth skeleton anchor들의 Gaussian elliptical blend로 local map 전체의 whole-fabric continuous function을 만든다. branch 사이도 별도 winner 없이 같은 함수 안에서 메우고, visible guide endpoint는 virtual continuation으로 처리한다. support와 alignment는 shape를 주도하지 않는 약한 보조 변조(`weak secondary modulation`)로 남긴다.
+
+현재 tiny evaluator는 다음 prototype composition을 사용한다.
+
+- `base_preference_total = progression_tilted + interior_boundary + continuity_branch`
+- `soft_exception_total = safety_soft + rule_soft + dynamic_soft`
+- trajectory ordering은 `(hard_count, soft_total, -base_total)`을 쓴다.
+
+여기서 `safety_soft`는 ordering에 실제로 들어가지만, 해석상으로는 costmap / exception 성격의 burden channel이다. canonical runtime semantics가 base field 본체에 이를 포함한다는 뜻은 아니다.
 
 ## Visualization
 
