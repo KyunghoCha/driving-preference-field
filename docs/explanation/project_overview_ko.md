@@ -1,6 +1,6 @@
 # 프로젝트 개요
 
-`driving-preference-field`는 왜 필요한가, 무엇을 만들고 있는가, 그리고 지금 어디까지 왔는가를 설명하는 문서다. 이 repo는 진행 의미(`progression semantics`)와 주행 가능 의미(`drivable semantics`)를 받아 현재 보이는 local map 전체에 대한 driving preference를 정의하고 실험한다. 여기서 말하는 field는 구현 편의용 점수 raster가 아니라, local map을 어떻게 읽어야 하는지에 대한 개념 모델이다.
+`driving-preference-field`는 왜 필요한가, 무엇을 만들고 있는가, 그리고 지금 어디까지 왔는가를 설명하는 문서다. 이 repo는 진행 의미(`progression semantics`)를 중심으로 현재 보이는 local map 전체의 driving preference를 정의하고 실험한다. 여기서 말하는 field는 구현 편의용 점수 raster가 아니라, local map을 어떻게 읽어야 하는지에 대한 개념 모델이다.
 
 단일 reference path만으로는 이상적인 주행 흐름을 충분히 설명하기 어렵다. 지금 가장 가까운 중심이나 가장 직접적인 선택이 항상 좋은 trajectory를 만들지는 않는다. planner나 optimizer가 자연스러운 trajectory를 만들게 하려면, discrete route보다 먼저 공간 전체의 선호 구조가 필요하다.
 
@@ -12,12 +12,16 @@
 
 이 프로젝트에서 progression은 단순한 ego heading이나 centerline 방향이 아니다. 직선에서는 무엇이 앞으로 이어지는지, bend와 split에서는 어떤 continuation이 progression과 양립하는지, 그리고 이 local place에서 무엇이 before이고 after인지 정해 주는 ordering이다. 즉 progression은 winner direction을 미리 고르는 discrete action이 아니라, local map 전체에 진행축과 횡방향 구조를 만드는 의미다.
 
-field의 역할도 여기서 정해진다. field는 같은 progression slice에서 중심이 더 나은지, 더 먼 progression gain이 가까운 중심 선호를 언제 이길 수 있는지, branch나 continuity ambiguity가 어떤 spatial ordering을 만드는지를 알려 준다. 반면 실제 방향 선택, winner 결정, control command는 상위 layer나 optimizer가 맡는다. field는 공간을 설명하지, 행동을 직접 결정하지 않는다.
+field의 역할도 여기서 정해진다. field는 같은 progression slice에서 중심이 더 나은지, 더 먼 progression gain이 가까운 중심 선호를 언제 이길 수 있는지, 어떤 continuation이 progression과 더 잘 양립하는지를 알려 준다. 반면 실제 방향 선택, winner 결정, control command는 상위 layer나 optimizer가 맡는다. field는 공간을 설명하지, 행동을 직접 결정하지 않는다.
 
 따라서 모든 contour를 없애는 것이 목표는 아니다. bend나 U-turn에서 생기는 대각선 contour, 2D heatmap에서 비틀린 면처럼 보이는 global 등고선은 허용할 수 있다. 제거 대상은 overlap 영역 ordering flip, branch 사이 hole, visible endpoint가 semantic start/end처럼 보이는 fake end-cap, active-set이나 neighborhood 처리 때문에 생기는 abrupt jump 같은 구현 artifact다.
+
+주행 가능 의미는 본체 preference를 직접 더하는 항이라기보다, field가 어디에서 정의될 수 있는지와 progression support를 어떻게 복원하거나 보조할지를 알려 주는 입력에 가깝다. branch도 field가 미리 winner를 정하는 대상이 아니라, progression support가 복수 continuation을 만들 수 있는 구조로 다루는 편이 이 프로젝트의 철학과 맞다.
 
 SSC는 이 아이디어를 실제로 검증하는 중요한 downstream validation source다. 하지만 SSC가 canonical truth는 아니다. SSC에서 얻은 요구사항과 관찰은 evidence로만 받아들이고, 이 repo는 끝까지 source-agnostic field와 contract를 정의하는 기준점으로 남는다.
 
 현재 이 repo는 `Phase 5 완료, Phase 6 준비 상태`다. canonical 문서, toy case와 evaluator, local raster visualization, Parameter Lab compare workflow, cached runtime query layer, generic source adapter SSOT와 reference adapter, debug component view와 profile inspection, semantic-first acceptance lock까지 정리돼 있다. Gazebo, RViz, MPPI hookup과 optimizer integration은 이 repo의 범위가 아니다.
+
+현재 구현은 이 철학을 향해 가는 tiny evaluator를 포함한다. 다만 현재 runtime에는 progression score 외에 geometry 보조 채널과 soft exception burden이 함께 남아 있다. 이들은 current implementation과 debug/composition을 위한 층으로 읽어야지, canonical 본체 정의와 곧바로 동일시하면 안 된다.
 
 한 문장으로 정리하면, `driving-preference-field`는 progression semantics와 drivable semantics를 받아 현재 보이는 local map 전체에 대한 whole-space preference field를 정의하고, 그 field가 공간의 ordering을 알려 주며 실제 방향 선택은 상위 layer가 맡게 만드는 프로젝트다.
