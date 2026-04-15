@@ -10,6 +10,7 @@ LINK_PATTERN = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 ACTIVE_DOCS = [
     "README.md",
     "docs/index.md",
+    "docs/design/index.md",
     "docs/explanation/project_overview_ko.md",
     "docs/explanation/engineering_operating_principles_ko.md",
     "docs/explanation/research_scope_ko.md",
@@ -67,10 +68,12 @@ def test_readme_stays_short_landing_page() -> None:
 
 def test_docs_index_stays_portal_with_newcomer_spine() -> None:
     docs_index = _read("docs/index.md")
+    design_index = _read("docs/design/index.md")
 
     assert "Phase 5 완료, Phase 6 준비 상태" in docs_index
     assert "## Newcomer Spine" in docs_index
     assert "1. [00. 프로젝트 개요]" in docs_index
+    assert "./design/index.md" in docs_index
     assert "./explanation/project_overview_ko.md" in docs_index
     assert "./reference/source_adapter_ko.md" in docs_index
     assert "./how-to/parameter_lab_ko.md" in docs_index
@@ -78,6 +81,9 @@ def test_docs_index_stays_portal_with_newcomer_spine() -> None:
     assert "./reading/history/phase5_adapter_proposal_ko.md" in docs_index
     assert "./reading/references/external_references_ko.md" in docs_index
     assert "| 문서 | canonical | 대상 독자 | 언제 읽는지 |" in docs_index
+    assert "../explanation/project_overview_ko.md" in design_index
+    assert "../reference/runtime_evaluation_contract_ko.md" in design_index
+    assert "../how-to/parameter_lab_ko.md" in design_index
 
 
 def test_active_docs_no_visible_metadata_blocks() -> None:
@@ -106,6 +112,7 @@ def test_key_truths_remain_after_rewrite() -> None:
     foundation = _read("docs/explanation/base_field_foundation_ko.md")
     source_adapter = _read("docs/reference/source_adapter_ko.md")
     runtime_contract = _read("docs/reference/runtime_evaluation_contract_ko.md")
+    formula_reference = _read("docs/reference/current_formula_reference_ko.md")
     project_status = _read("docs/status/project_status_ko.md")
 
     assert "whole-space preference field" in overview
@@ -116,6 +123,8 @@ def test_key_truths_remain_after_rewrite() -> None:
     assert "FieldRuntime.query_state(state)" in runtime_contract
     assert "toy loader output과 generic source adapter output" in runtime_contract
     assert "higher is better" in runtime_contract
+    assert "## 이 문서를 읽는 방법" in formula_reference
+    assert "왜 이 수식이 필요한가" in formula_reference
     assert "Phase 5 완료, Phase 6 준비 상태" in project_status
 
 

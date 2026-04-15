@@ -10,9 +10,9 @@ score:
     progression_tilted(p)
       = support_mod * alignment_mod * (T(n_hat) + gain * L(u))
 
-The exact formula here is a current implementation detail, not canonical truth.
-README and docs/reference/current_formula_reference_ko.md must move
-with this module when the implementation changes.
+The exact formula here is a current implementation detail, not the canonical
+design contract. README and docs/reference/current_formula_reference_ko.md must
+move with this module when the implementation changes.
 """
 
 import math

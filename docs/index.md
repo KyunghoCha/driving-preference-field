@@ -1,6 +1,6 @@
 # 문서 인덱스
 
-`driving-preference-field`의 전체 문서 포털이다. 현재 상태는 `Phase 5 완료, Phase 6 준비 상태`이며, 아래 순서로 읽으면 프로젝트의 핵심 개념과 현재 구현 계약을 빠르게 따라갈 수 있다.
+`driving-preference-field`의 전체 문서 포털이다. 현재 상태는 `Phase 5 완료, Phase 6 준비 상태`이며, 아래 순서로 읽으면 프로젝트의 핵심 개념과 현재 구현 계약을 빠르게 따라갈 수 있다. 예전 `docs/design/` 경로를 찾는 경우에는 [design 안내](./design/index.md)를 먼저 보면 된다.
 
 ## Newcomer Spine
 

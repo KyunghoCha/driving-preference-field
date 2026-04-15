@@ -4,7 +4,7 @@
 
 ## 정의
 
-- field는 의미론적으로 progression-aware potential field다.
+- field는 의미론적으로 진행 인지 포텐셜 장(`progression-aware potential field`)이다.
 - runtime에서는 항상 전역 dense map을 만들 필요가 없다.
 - raster는 local map 위에서 연속 함수를 샘플링한 secondary visualization이다.
 - downstream consumer는 current formula를 복제하지 않고 runtime layer를 소비한다.
@@ -34,7 +34,7 @@ runtime evaluator는 local map 전체를 analytic하게 평가할 수 있어야 
   - local query window 전체를 대상으로 하는 analytic evaluator
   - candidate state 또는 rollout state sequence 평가
 
-현재 구현은 smooth skeleton anchor들의 Gaussian elliptical blend로 local map 전체의 whole-fabric continuous function을 만든다. branch 사이도 별도 winner 없이 같은 함수 안에서 메우고, visible guide endpoint는 virtual continuation으로 처리한다. support와 alignment는 shape를 주도하지 않는 weak secondary modulation으로 남긴다.
+현재 구현은 smooth skeleton anchor들의 Gaussian elliptical blend로 local map 전체의 whole-fabric continuous function을 만든다. branch 사이도 별도 winner 없이 같은 함수 안에서 메우고, visible guide endpoint는 virtual continuation으로 처리한다. support와 alignment는 shape를 주도하지 않는 약한 보조 변조(`weak secondary modulation`)로 남긴다.
 
 ## Public runtime interface
 

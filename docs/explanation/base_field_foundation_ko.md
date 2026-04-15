@@ -1,12 +1,12 @@
 # Base Field 기초
 
-이 문서는 `base driving preference field`가 무엇인지, 어떤 성질을 가져야 하는지, 그리고 현재 구현이 그 개념을 어떻게 실현하고 있는지를 설명한다. 여기서 중요한 것은 exact formula를 고정하는 일이 아니라, 이 field가 어떤 개념 모델을 따라야 하는지 분명히 하는 것이다.
+이 문서는 기반 선호장(`base driving preference field`)이 무엇인지, 어떤 성질을 가져야 하는지, 그리고 현재 구현이 그 개념을 어떻게 실현하고 있는지를 설명한다. 여기서 중요한 것은 exact formula를 고정하는 일이 아니라, 이 field가 어떤 개념 모델을 따라야 하는지 분명히 하는 것이다.
 
 출발점은 간단하다. 특정한 한 줄의 reference만으로는 이상적인 주행 흐름을 충분히 표현하기 어렵고, 지금 당장 가장 직접적인 선택이 항상 좋은 주행선을 만들지도 않는다. 이상적인 trajectory는 더 먼 progression gain 때문에 현재 약간 돌아가는 선택을 포함할 수 있다. 그래서 base field는 단일 discrete path가 아니라 공간 전체의 선호 구조를 만들어야 한다. obstacle, rule, dynamic actor 같은 예외는 이 본체와 분리해서 다뤄야 한다.
 
-여기서 base driving preference field는 source-agnostic semantic input을 받아 현재 query context의 local map 전체에 대해 선호 분포를 생성하는 preference structure를 뜻한다. 입력 semantics를 그대로 라벨처럼 붙이는 것이 아니라, 그 입력을 바탕으로 어떤 상태와 trajectory가 더 바람직한지를 읽을 수 있는 공간 전체의 ordering을 만든다. field는 winner direction selector가 아니라 space ordering generator이며, progression semantics와 drivable semantics는 같은 뜻이 아니다.
+여기서 base driving preference field는 source-agnostic semantic input을 받아 현재 질의 문맥(`QueryContext`)의 local map 전체에 대해 선호 분포를 생성하는 preference structure를 뜻한다. 입력 semantics를 그대로 라벨처럼 붙이는 것이 아니라, 그 입력을 바탕으로 어떤 상태와 trajectory가 더 바람직한지를 읽을 수 있는 공간 전체의 ordering을 만든다. field는 winner direction selector가 아니라 space ordering generator이며, progression semantics와 drivable semantics는 같은 뜻이 아니다.
 
-이 field는 몇 가지 성질을 가져야 한다. 우선 canonical score는 `higher is better`로 읽는다. 3D surface를 뒤집어 그리거나 우물처럼 표현하는 것은 visualization 선택일 뿐, score의 의미는 바뀌지 않는다. 또 field는 progression axis를 따라 점수가 어떻게 변하는지와, progression axis에서 벗어날수록 점수가 어떻게 달라지는지를 함께 가져야 한다. longitudinal term과 transverse term은 서로 독립적인 함수 family와 파라미터를 가질 수 있고, progression axis는 field의 주축이지 항상 pointwise 최고점일 필요는 없다.
+이 field는 몇 가지 성질을 가져야 한다. 우선 canonical score는 `higher is better`로 읽는다. 3D surface를 뒤집어 그리거나 우물처럼 표현하는 것은 visualization 선택일 뿐, score의 의미는 바뀌지 않는다. 또 field는 progression axis를 따라 점수가 어떻게 변하는지와, progression axis에서 벗어날수록 점수가 어떻게 달라지는지를 함께 가져야 한다. 진행축 항(`longitudinal term`)과 횡방향 항(`transverse term`)은 서로 독립적인 함수 family와 파라미터를 가질 수 있고, progression axis는 field의 주축이지 항상 pointwise 최고점일 필요는 없다.
 
 가장 중요한 점은 이 field가 local map 전체를 덮는다는 사실이다. reference 근처의 좁은 띠 안에서만 작동하는 구조가 아니라, 현재 보이는 local map 전체의 각 점을 progression / longitudinal 좌표와 transverse 좌표로 읽고 하나의 preference surface를 만든다. 이때 progression semantics는 무엇이 before / after인지, 어떤 흐름이 intended progression과 양립하는지 알려주고, drivable semantics는 어떤 공간이 움직일 수 있는지 알려준다. 둘은 같이 필요하지만 같은 의미가 아니다.
 

@@ -57,8 +57,8 @@ def load_toy_snapshot(case_path: str | Path) -> tuple[SemanticInputSnapshot, Que
     """Load a prototype toy case into the canonical semantic contract.
 
     The toy YAML schema is a hand-authored prototype input case. It is not the
-    canonical truth of the project; it only fills the semantic slots needed by
-    the tiny analytic evaluator skeleton.
+    canonical design contract of the project; it only fills the semantic slots
+    needed by the tiny analytic evaluator skeleton.
     """
 
     path = Path(case_path)

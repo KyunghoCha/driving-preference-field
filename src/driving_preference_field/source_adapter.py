@@ -4,8 +4,8 @@ from __future__ import annotations
 
 This module defines a reference adapter that reads a generic local semantic map
 fixture and translates it into the canonical SemanticInputSnapshot +
-QueryContext contract. It is intentionally source-agnostic: the input shape is a
-generic external-like schema rather than a downstream-specific wire format.
+QueryContext contract. The input shape stays source-agnostic on purpose: it is
+a generic external-like schema rather than a downstream-specific wire format.
 """
 
 import json

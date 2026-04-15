@@ -50,7 +50,7 @@ field를 어디서 어떻게 평가하는지를 담는다.
   - optional `mode`
   - optional `phase`
 
-`ego_pose`는 snapshot 본체 의미가 아니라 QueryContext 책임이다. `local_window`의 크기와 slicing policy는 canonical truth가 아니라 experiment 영역으로 남긴다.
+`ego_pose`는 snapshot 본체 의미가 아니라 질의 문맥(`QueryContext`) 책임이다. `local_window`의 크기와 slicing policy는 canonical truth가 아니라 experiment 영역으로 남긴다.
 
 ## Generic reference input schema
 
