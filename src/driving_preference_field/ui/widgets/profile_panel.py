@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import os
-import sys
+import logging
 
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtGui import QPixmap
@@ -22,8 +21,10 @@ from driving_preference_field.contracts import QueryContext
 from driving_preference_field.profile_inspection import ComparisonProfileResult, ProfileSpec, profile_plot_png_bytes
 
 
-_PROFILE_PLOTS_ENABLED = os.environ.get("DPF_ENABLE_PROFILE_PLOTS") == "1" or sys.platform != "win32"
-_PROFILE_PLOTS_DISABLED_MESSAGE = "Windows profile preview is temporarily disabled."
+LOGGER = logging.getLogger(__name__)
+
+_PROFILE_PLOT_FAILURE_TEXT = "Profile preview unavailable.\nPlot rendering failed for this view."
+_PROFILE_IMAGE_DECODE_FAILURE_TEXT = "Profile preview unavailable.\nImage decoding failed."
 
 
 class _ProfileImageWidget(QWidget):
@@ -46,14 +47,21 @@ class _ProfileImageWidget(QWidget):
     def sizeHint(self) -> QSize:
         return QSize(220, 180)
 
+    def set_message(self, text: str, *, details: str | None = None) -> None:
+        self._label.setPixmap(QPixmap())
+        self._label.setText(text)
+        self._label.setToolTip(details or "")
+
     def set_png(self, payload: bytes | None, *, empty_text: str = "No profile result") -> None:
         if not payload:
-            self._label.setText(empty_text)
-            self._label.setPixmap(QPixmap())
+            self.set_message(empty_text)
+            return
+        pixmap = QPixmap()
+        if not pixmap.loadFromData(payload):
+            self.set_message(_PROFILE_IMAGE_DECODE_FAILURE_TEXT)
             return
         self._label.setText("")
-        pixmap = QPixmap()
-        pixmap.loadFromData(payload)
+        self._label.setToolTip("")
         self._label.setPixmap(pixmap)
         self._label.adjustSize()
 
@@ -114,6 +122,23 @@ class ProfilePanelWidget(QWidget):
             coordinate=float(self._coordinate_spin.value()),
         )
 
+    def _set_profile_view(
+        self,
+        target: _ProfileImageWidget,
+        *,
+        result: ComparisonProfileResult,
+        selected_channel: str,
+        view: str,
+    ) -> None:
+        try:
+            payload = profile_plot_png_bytes(result, selected_channel=selected_channel, view=view)
+        except Exception as exc:
+            LOGGER.exception("Failed to render profile preview for %s view", view)
+            details = f"{type(exc).__name__}: {exc}"
+            target.set_message(_PROFILE_PLOT_FAILURE_TEXT, details=details)
+            return
+        target.set_png(payload)
+
     def set_profile_result(self, result: ComparisonProfileResult | None, *, selected_channel: str) -> None:
         if result is None:
             self._line_label.setText("Line")
@@ -124,19 +149,23 @@ class ProfilePanelWidget(QWidget):
         self._line_label.setText(
             f"{result.spec.axis} line | {result.spec.coordinate_axis}={result.spec.coordinate:.3f} | selected={selected_channel}"
         )
-        if not _PROFILE_PLOTS_ENABLED:
-            self._baseline_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
-            self._candidate_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
-            self._diff_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
-            return
-        self._baseline_widget.set_png(
-            profile_plot_png_bytes(result, selected_channel=selected_channel, view="baseline")
+        self._set_profile_view(
+            self._baseline_widget,
+            result=result,
+            selected_channel=selected_channel,
+            view="baseline",
         )
-        self._candidate_widget.set_png(
-            profile_plot_png_bytes(result, selected_channel=selected_channel, view="candidate")
+        self._set_profile_view(
+            self._candidate_widget,
+            result=result,
+            selected_channel=selected_channel,
+            view="candidate",
         )
-        self._diff_widget.set_png(
-            profile_plot_png_bytes(result, selected_channel=selected_channel, view="diff")
+        self._set_profile_view(
+            self._diff_widget,
+            result=result,
+            selected_channel=selected_channel,
+            view="diff",
         )
 
     def _on_axis_changed(self) -> None:

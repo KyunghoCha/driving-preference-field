@@ -3,8 +3,13 @@ import json
 
 from PyQt6.QtCore import Qt
 
+import driving_preference_field.ui.widgets.profile_panel as profile_panel_module
+from driving_preference_field.profile_inspection import ProfileSpec, build_comparison_profile
+from driving_preference_field.raster import sample_local_raster
+from driving_preference_field.toy_loader import load_toy_snapshot
 from driving_preference_field.ui.parameter_guide import PANEL_NOTE_TEXT
 from driving_preference_field.ui.parameter_lab_window import PARAMETER_HELP_TEXT, ParameterLabWindow
+from driving_preference_field.ui.widgets.profile_panel import ProfilePanelWidget
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +18,18 @@ FIXTURES = ROOT / "fixtures/adapter"
 
 def _wait_for_result(qtbot, window: ParameterLabWindow) -> None:
     qtbot.waitUntil(lambda: window._comparison_result is not None, timeout=15000)
+
+
+def _build_profile_result(case_name: str = "straight_corridor.yaml"):
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy" / case_name)
+    raster = sample_local_raster(snapshot, context, x_samples=24, y_samples=20)
+    result = build_comparison_profile(
+        raster,
+        raster,
+        spec=ProfileSpec(axis="horizontal", coordinate=context.ego_pose.y),
+        selected_channel="progression_tilted",
+    )
+    return result, context
 
 
 def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
@@ -259,6 +276,28 @@ def test_case_controls_apply_updates_working_context_only_after_apply(qtbot) -> 
     assert window._default_context == original_context
 
     window.close()
+
+
+def test_profile_panel_degrades_gracefully_when_preview_rendering_fails(qtbot, monkeypatch) -> None:
+    result, context = _build_profile_result()
+    widget = ProfilePanelWidget()
+    widget.show()
+    qtbot.addWidget(widget)
+    widget.set_context(context)
+
+    def _raise_preview_error(*args, **kwargs):
+        raise RuntimeError("synthetic preview failure")
+
+    monkeypatch.setattr(profile_panel_module, "profile_plot_png_bytes", _raise_preview_error)
+
+    widget.set_profile_result(result, selected_channel="progression_tilted")
+
+    assert widget._baseline_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view."
+    assert widget._candidate_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view."
+    assert widget._diff_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view."
+    assert "synthetic preview failure" in widget._baseline_widget._label.toolTip()
+
+    widget.close()
 
 
 def test_case_controls_reset_restores_default_context(qtbot) -> None:
