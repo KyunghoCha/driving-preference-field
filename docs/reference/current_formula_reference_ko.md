@@ -37,17 +37,19 @@ progression surface는 local map 전체에 진행 좌표와 횡방향 좌표를 
 각 progression guide는 densified polyline으로 저장되고, query point는 이 guide 위 최근접 투영점으로 읽힌다. `s_hat`, `n_hat`, `t_hat`는 anchor weighted average가 아니라 이 투영 결과에서 직접 나온다.
 
 ```math
-\pi_g(p)=q_g^\*
+\pi_g(p)=q_g^{\ast}
 ```
 
 ```math
-\hat{s}_g(p)=s_g(q_g^\*)
+\hat{s}_g(p)=s_g(q_g^{\ast})
 ```
 
-\hat{n}_g(p)=\left\langle p-q_g^\*,\ n_g(q_g^\*) \right\rangle
+```math
+\hat{n}_g(p)=\left\langle p-q_g^{\ast},\ n_g(q_g^{\ast}) \right\rangle
+```
 
 ```math
-\hat{t}_g(p)=t_g(q_g^\*)
+\hat{t}_g(p)=t_g(q_g^{\ast})
 ```
 
 ### Guide-local Gaussian weights
