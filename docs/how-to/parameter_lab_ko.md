@@ -68,7 +68,7 @@ profile inspection export에는 다음이 포함된다.
 - profile inspection 탭
 - debug view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment component)
 
-현재 GUI는 canonical 전체를 다 노출하지는 않는다. progression frame, longitudinal, transverse, support ceiling 축을 직접 다루는 compare tool에 집중돼 있다. drivable boundary와 branch guide는 overlay로 읽고, safety / rule / dynamic burden은 costmap 성격의 별도 채널로만 본다.
+현재 GUI는 canonical 전체를 다 노출하지는 않는다. progression frame, longitudinal, transverse, support ceiling 축을 직접 다루는 compare tool에 집중돼 있다. drivable boundary와 branch guide는 overlay로 읽고, obstacle / rule / dynamic cost는 costmap 성격의 별도 채널로만 본다.
 
 ## 현재 제한사항
 

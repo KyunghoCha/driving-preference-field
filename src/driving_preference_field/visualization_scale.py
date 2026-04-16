@@ -62,19 +62,19 @@ CHANNEL_SCALE_SPECS = {
         diff_abs_max=0.1,
     ),
     "safety_soft": ChannelScaleSpec(
-        unit="burden score",
+        unit="cost score",
         fixed_min=0.0,
         fixed_max=2.0,
         diff_abs_max=2.0,
     ),
     "rule_soft": ChannelScaleSpec(
-        unit="burden score",
+        unit="cost score",
         fixed_min=0.0,
         fixed_max=2.0,
         diff_abs_max=2.0,
     ),
     "dynamic_soft": ChannelScaleSpec(
-        unit="burden score",
+        unit="cost score",
         fixed_min=0.0,
         fixed_max=2.0,
         diff_abs_max=2.0,
@@ -128,7 +128,11 @@ def resolve_display_range(
 
 def display_unit(channel_name: str, *, diff: bool = False) -> str:
     spec = scale_spec_for(channel_name)
-    return "binary delta" if diff and spec.unit == "binary" else ("score delta" if diff else spec.unit)
+    if diff and spec.unit == "binary":
+        return "binary delta"
+    if diff and spec.unit == "cost score":
+        return "cost delta"
+    return "score delta" if diff else spec.unit
 
 
 def format_display_range(

@@ -186,7 +186,7 @@ def test_selected_channel_change_updates_diff_summary(qtbot) -> None:
     assert '"selected_channel": "safety_soft"' in summary_text
     assert '"diff_meaning": "candidate - baseline"' in summary_text
     assert '"diff_raster_summary"' in summary_text
-    assert '"selected_channel_unit": "burden score"' in summary_text
+    assert '"selected_channel_unit": "cost score"' in summary_text
 
     window.close()
 

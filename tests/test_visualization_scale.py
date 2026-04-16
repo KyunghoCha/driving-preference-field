@@ -54,5 +54,5 @@ def test_display_range_text_includes_mode_and_unit() -> None:
     )
 
     assert "fixed" in text
-    assert "burden score" in text
-    assert display_unit("safety_soft", diff=True) == "score delta"
+    assert "cost score" in text
+    assert display_unit("safety_soft", diff=True) == "cost delta"

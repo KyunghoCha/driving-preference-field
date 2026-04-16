@@ -76,9 +76,9 @@ CHANNEL_OPTIONS = {
     "progression_transverse_component": ("Transverse Component", "cividis"),
     "progression_support_mod": ("Support Modulation", "inferno"),
     "progression_alignment_mod": ("Alignment Modulation", "inferno"),
-    "safety_soft": ("Safety Soft Burden", "inferno"),
-    "rule_soft": ("Rule Soft Burden", "magma"),
-    "dynamic_soft": ("Dynamic Soft Burden", "cividis"),
+    "safety_soft": ("Obstacle Cost", "inferno"),
+    "rule_soft": ("Rule Cost", "magma"),
+    "dynamic_soft": ("Dynamic Cost", "cividis"),
 }
 
 COMPARE_LAYOUT_OPTIONS = {
