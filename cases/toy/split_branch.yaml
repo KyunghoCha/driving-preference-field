@@ -27,13 +27,11 @@ progression_guides:
     points:
       - [0.0, 0.0]
       - [3.5, 0.0]
-      - [3.4, 0.0]
       - [5.8, 1.6]
   - id: lower_branch_path
     points:
       - [0.0, 0.0]
       - [3.5, 0.0]
-      - [3.4, 0.0]
       - [5.8, -1.6]
 boundaries:
   - id: upper_boundary
