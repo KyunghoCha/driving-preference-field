@@ -52,7 +52,7 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._reload_action.text() == "Reload Case"
     assert window._export_action.text() == "Export Comparison"
     assert window._reset_view_action.text() == "Reset View"
-    assert window._lab_help_action.text() == "Docs"
+    assert window._lab_help_action.text() == "Guide"
     assert window._reload_action.shortcut().toString() == "F5"
     assert window._export_action.shortcut().toString() == "Ctrl+Shift+E"
     assert window._reset_view_action.shortcut().toString() == "Ctrl+0"
@@ -473,10 +473,11 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert window._parameter_help_dialog.width() >= 800
     assert window._parameter_help_dialog.height() >= 680
     help_text = window._parameter_help_dialog._text.toPlainText()
-    assert "Parameter Guide" in help_text
-    assert "Current Truth" in help_text
-    assert "Quick Reference" in help_text
-    assert "Per-Parameter Details" in help_text
+    assert "Parameter Help" in help_text
+    assert "Start Here" in help_text
+    assert "Before You Touch a Knob" in help_text
+    assert "Main vs Advanced" in help_text
+    assert "Detailed Reference" in help_text
     assert "practical band" in help_text.lower()
     assert "technical range" in help_text.lower()
     assert "0.5 .. 3.0" in help_text
@@ -485,10 +486,8 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert "candidate - baseline" in help_text
     assert "progression_tilted" in help_text
     assert "`progression_tilted`" not in help_text
-    assert "local_absolute" in help_text
-    assert "ego_relative" in help_text
+    assert "Guide" in help_text
     assert "continuous function" in help_text.lower()
-    assert "whole-fabric" in help_text.lower()
     assert "raster" in help_text.lower()
     assert "longitudinal" in help_text.lower()
     assert "transverse" in help_text.lower()
@@ -515,12 +514,12 @@ def test_toolbar_docs_opens_parameter_lab_docs_browser(qtbot) -> None:
         timeout=15000,
     )
     assert window._lab_help_dialog is not None
-    assert window._lab_help_dialog.windowTitle() == "Parameter Lab Docs"
+    assert window._lab_help_dialog.windowTitle() == "Parameter Lab Guide"
     help_text = window._lab_help_dialog._text.toPlainText()
-    assert "Parameter Lab 사용" in help_text
-    assert "실행" in help_text
-    assert "현재 파라미터 배치" in help_text
-    assert "Docs와 Parameter Help는 역할이 다르다." in help_text
+    assert "Parameter Lab Guide" in help_text
+    assert "빠른 시작" in help_text
+    assert "화면 읽기" in help_text
+    assert "Guide와 Parameter Help의 차이" in help_text
 
     window._lab_help_dialog._text.setSource(QUrl("../explanation/parameter_exposure_policy_ko.md"))
     qtbot.waitUntil(
@@ -530,7 +529,7 @@ def test_toolbar_docs_opens_parameter_lab_docs_browser(qtbot) -> None:
     assert window._lab_help_dialog._text.isBackwardAvailable() is True
     window._lab_help_dialog._text.backward()
     qtbot.waitUntil(
-        lambda: "Parameter Lab 사용" in window._lab_help_dialog._text.toPlainText(),
+        lambda: "Parameter Lab Guide" in window._lab_help_dialog._text.toPlainText(),
         timeout=15000,
     )
 

@@ -18,18 +18,16 @@ class ParameterGuideEntry:
 
 
 PARAMETER_GUIDE_INTRO = (
-    "canonical score는 `higher is better`로 읽는다.\n"
-    "현재 GUI는 `progression_tilted`를 기준으로 Main + Advanced Surface 파라미터를 수정한다.\n"
+    "이 도움말은 우측 `Parameters` 패널의 knob를 설명한다.\n"
+    "도구 전체 사용 흐름은 `Guide`가 답하고, 여기서는 각 파라미터가 무엇을 바꾸는지에만 집중한다.\n"
+    "항상 `progression_tilted`를 `Fixed` scale로 먼저 읽는다.\n"
     "drivable boundary는 overlay로만 읽고 base heatmap에 더하지 않는다.\n"
     "obstacle / rule / dynamic 채널은 costmap 성격의 시각화로만 남긴다.\n"
-    "차이는 `progression_tilted` 채널에서 먼저 확인하는 것이 맞다.\n"
-    "Main은 longitudinal frame/term, transverse profile, support ceiling을 다루고, Advanced Surface는 discretization / kernel / modulation / handoff tuning을 다룬다.\n"
+    "Main은 field semantics를 직접 읽는 knob이고, Advanced Surface는 discretization / kernel / modulation / handoff tuning용이다.\n"
     "current implementation은 각 progression guide 안에서 local coordinate를 만들고, guide별 score 가운데 최대값을 최종 field로 읽는다.\n"
-    "보이는 guide 끝은 semantic start/end가 아니라 virtual continuation이 붙은 local patch로 읽는다.\n"
     "현재 exact formula는 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.\n"
     "support / alignment는 shape를 주도하지 않는 약한 secondary modulation이다.\n"
-    "같은 진행 slice에서는 중심이 가장 높고, longitudinal tilt가 충분히 강하면 더 먼 좋은 영역이 가까운 중심보다 더 높은 ordering을 만들 수 있다.\n"
-    "split/merge는 shared prefix/suffix를 가진 multiple progression guide로 표현하고, raster는 이 continuous function을 local map 위에서 샘플링한 시각화일 뿐이다."
+    "split/merge는 shared prefix/suffix를 가진 multiple progression guide로 표현하고, raster는 continuous function을 local map 위에서 샘플링한 결과다."
 )
 
 
@@ -346,27 +344,42 @@ def parameter_help_html() -> str:
             f"""
             <tr>
               <td><code>{entry.label}</code></td>
-              <td>{entry.practical_band}</td>
-              <td>{entry.technical_range}</td>
-              <td>{entry.tooltip}</td>
+              <td>{entry.meaning}</td>
+              <td>{entry.effect_up}</td>
+              <td><code>{entry.practical_band}</code></td>
             </tr>
             """
         )
 
-    advanced_rows = []
-    for _, keys in ADVANCED_PARAMETER_GROUPS:
+    advanced_sections = []
+    for group_name, keys in ADVANCED_PARAMETER_GROUPS:
+        rows = []
         for key in keys:
             entry = PROGRESSION_PARAMETER_GUIDE[key]
-            advanced_rows.append(
+            rows.append(
                 f"""
                 <tr>
                   <td><code>{entry.label}</code></td>
-                  <td>{entry.practical_band}</td>
-                  <td>{entry.technical_range}</td>
-                  <td>{entry.tooltip}</td>
+                  <td>{entry.meaning}</td>
+                  <td>{entry.effect_up}</td>
+                  <td><code>{entry.practical_band}</code></td>
                 </tr>
                 """
             )
+        advanced_sections.append(
+            f"""
+            <h3>{group_name}</h3>
+            <table class="summary-table">
+              <tr>
+                <th>Parameter</th>
+                <th>What it changes</th>
+                <th>Raise it when</th>
+                <th>Practical Band</th>
+              </tr>
+              {''.join(rows)}
+            </table>
+            """
+        )
 
     detail_sections = []
     for key in [*_main_keys(), *(key for _, keys in ADVANCED_PARAMETER_GROUPS for key in keys)]:
@@ -377,8 +390,7 @@ def parameter_help_html() -> str:
               <h3><code>{entry.label}</code></h3>
               <table class="detail-table">
                 <tr><th>Meaning</th><td>{entry.meaning}</td></tr>
-                <tr><th>Affects</th><td><code>progression_tilted</code> only</td></tr>
-                <tr><th>Higher</th><td>{entry.effect_up}</td></tr>
+                <tr><th>Raise</th><td>{entry.effect_up}</td></tr>
                 <tr><th>Lower</th><td>{entry.effect_down}</td></tr>
                 <tr><th>Practical Band</th><td><code>{entry.practical_band}</code></td></tr>
                 <tr><th>Technical Range</th><td><code>{entry.technical_range}</code></td></tr>
@@ -395,12 +407,13 @@ def parameter_help_html() -> str:
           body {{
             font-family: 'Noto Sans CJK KR', 'Noto Sans', 'Malgun Gothic', sans-serif;
             font-size: 14px;
-            line-height: 1.45;
+            line-height: 1.5;
             color: #202124;
           }}
           h1 {{ font-size: 28px; margin: 4px 0 12px 0; }}
           h2 {{ font-size: 20px; margin: 22px 0 10px 0; }}
-          h3 {{ font-size: 17px; margin: 0 0 8px 0; }}
+          h3 {{ font-size: 17px; margin: 16px 0 8px 0; }}
+          p {{ margin: 8px 0; }}
           code {{
             font-family: 'JetBrains Mono', 'Consolas', monospace;
             background: #f3f4f6;
@@ -437,53 +450,75 @@ def parameter_help_html() -> str:
             margin: 0 0 14px 0;
             background: #ffffff;
           }}
+          .decision-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 16px 0;
+          }}
+          .decision-table th, .decision-table td {{
+            border: 1px solid #d8dee6;
+            padding: 8px 10px;
+            vertical-align: top;
+          }}
+          .decision-table th {{
+            background: #f6f8fa;
+            text-align: left;
+            width: 24%;
+          }}
         </style>
       </head>
       <body>
-        <h1>Parameter Guide</h1>
+        <h1>Parameter Help</h1>
+
+        <p>이 도움말은 우측 <code>Parameters</code> 패널을 설명한다. 도구 전체를 어디서 시작하고 어떤 순서로 쓰는지는 <code>Guide</code>가 답하고, 여기서는 knob를 언제 만져야 하는지와 값을 올리거나 내리면 무엇이 달라지는지에만 집중한다.</p>
 
         <div class="callout">
-          <h2 style="margin-top:0;">Current Truth</h2>
-          <ul>{intro_items}</ul>
+          <h2 style="margin-top:0;">Start Here</h2>
+          <ol>
+            <li><code>progression_tilted</code>를 <code>Fixed</code> scale로 먼저 읽는다.</li>
+            <li><code>Main</code>에서 한 항목만 바꾸고 <code>Apply</code>를 누른다.</li>
+            <li>그래도 morphology artifact가 남을 때만 <code>Advanced Surface</code>를 연다.</li>
+            <li><code>Diff</code>는 항상 <code>candidate - baseline</code>으로 읽는다.</li>
+          </ol>
         </div>
 
-        <h2>Quick Reference</h2>
-        <h3>Main</h3>
+        <h2>Before You Touch a Knob</h2>
+        <ul>{intro_items}</ul>
+
+        <h2>Main vs Advanced</h2>
+        <table class="decision-table">
+          <tr><th>Main</th><td>field semantics를 바로 읽는 knob다. longitudinal frame/family, gain, transverse profile, support ceiling을 먼저 본다.</td></tr>
+          <tr><th>Advanced Surface</th><td>discretization, kernel, modulation, handoff 같은 구현 품질 tuning이다. split/merge, bend, locality artifact를 다룰 때만 연다.</td></tr>
+          <tr><th>Do Not Start Here</th><td>Advanced Surface를 먼저 만지면 semantics보다 implementation artifact를 바꾸기 쉽다. baseline/candidate 비교에서는 Main을 먼저 고정하는 편이 낫다.</td></tr>
+        </table>
+
+        <h2>Main Parameters</h2>
         <table class="summary-table">
           <tr>
             <th>Parameter</th>
+            <th>What it changes</th>
+            <th>Raise it when</th>
             <th>Practical Band</th>
-            <th>Technical Range</th>
-            <th>Quick Meaning</th>
           </tr>
           {''.join(main_rows)}
         </table>
 
-        <h3>Advanced Surface</h3>
-        <table class="summary-table">
-          <tr>
-            <th>Parameter</th>
-            <th>Practical Band</th>
-            <th>Technical Range</th>
-            <th>Quick Meaning</th>
-          </tr>
-          {''.join(advanced_rows)}
-        </table>
+        <h2>Advanced Surface</h2>
+        <p>이 섹션은 current implementation morphology와 성능을 다듬는다. split/merge handoff, bend locality, guide discretization 같은 문제를 건드릴 때만 쓴다.</p>
+        {''.join(advanced_sections)}
 
-        <h2>Per-Parameter Details</h2>
+        <h2>Interpretation Rules</h2>
+        <ul>
+          <li><code>higher is better</code>는 score sign 자체다.</li>
+          <li><code>Fixed</code>는 해석 기준이고, <code>Normalized</code>는 탐색용 보조 모드다.</li>
+          <li><code>drivable boundary</code>는 overlay다. base heatmap에 더하지 않는다.</li>
+          <li><code>Obstacle / Rule / Dynamic</code>는 costmap 시각화다. base preference와 같은 층이 아니다.</li>
+          <li><code>Raster</code>는 field 본체가 아니라 local map 위에서 샘플링한 결과다.</li>
+        </ul>
+
+        <h2>Detailed Reference</h2>
+        <p>아래 표는 각 knob를 하나씩 만질 때 참고하는 lookup section이다. 값의 범위와 올리고 내릴 때의 효과만 빠르게 확인하면 된다.</p>
         {''.join(detail_sections)}
-
-        <div class="callout">
-          <h2 style="margin-top:0;">Scale Reading</h2>
-          <ul>
-            <li><code>Fixed</code>: 해석 기준. 같은 채널이면 baseline/candidate가 같은 색-값 대응을 공유한다.</li>
-            <li><code>Normalized</code>: 탐색용. 현재 화면 값 범위를 다시 매핑한다.</li>
-            <li><code>Diff</code>: 항상 <code>candidate - baseline</code>이다.</li>
-            <li><code>Score sign</code>: canonical은 항상 <code>higher is better</code>로 읽는다.</li>
-            <li><code>Current implementation</code>: smooth skeleton anchor를 좌표 control point로 쓰는 Gaussian-blended whole-fabric field다.</li>
-            <li><code>Raster</code>: PNG/GUI heatmap은 field 본체가 아니라 local map 위에서 함수를 샘플링한 결과다.</li>
-          </ul>
-        </div>
       </body>
     </html>
     """

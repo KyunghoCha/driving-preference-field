@@ -35,15 +35,22 @@ canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
 
 ## 3. Microsoft Writing Style Guide
 
-- 출처: `https://learn.microsoft.com/en-us/style-guide/welcome/`
+- 출처:
+  - `https://learn.microsoft.com/en-us/style-guide/welcome/`
+  - `https://learn.microsoft.com/en-us/style-guide/procedures-instructions/`
+  - `https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions`
+  - `https://learn.microsoft.com/en-us/style-guide/checklists/procedures-and-instructions-checklist`
 - 참고한 핵심 원칙:
   - simple, straightforward style
   - crisp and clear wording
   - terminology consistency
+  - procedure는 task-first여야 하고, heading은 사용자가 무엇을 할 수 있는지 바로 보여줘야 한다
+  - step은 짧고 완결된 문장으로 쓰고, UI 안에서 어디서 행동하는지 먼저 알려 주는 편이 좋다
 - 우리 repo 적용 포인트:
   - 핵심 용어는 첫 등장만 한국어+영문 병기하고, 그 뒤에는 더 짧은 표기로 통일한다
   - user-facing 문장과 internal working term이 조용히 다른 의미로 흐르지 않게 glossary와 docs를 맞춘다
   - 문서가 메타 설명으로 길어지지 않게 직접 정의하는 문장을 우선한다
+  - in-app `Guide`는 “지금 무엇을 해야 하는가”를 먼저 답하고, `Parameter Help`는 knob reference를 담당하도록 역할을 분리한다
 
 ## 4. Kubernetes Documentation Style Guide
 

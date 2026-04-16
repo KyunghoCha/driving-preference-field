@@ -143,14 +143,13 @@ def test_key_truths_remain_after_rewrite() -> None:
 def test_parameter_lab_doc_is_procedural() -> None:
     parameter_lab = _read("docs/how-to/parameter_lab_ko.md")
 
-    assert "## Prerequisite" in parameter_lab
-    assert "## 실행" in parameter_lab
-    assert "## baseline/candidate 비교 절차" in parameter_lab
-    assert "## Export 결과물" in parameter_lab
+    assert "## 빠른 시작" in parameter_lab
+    assert "## 화면 읽기" in parameter_lab
+    assert "## 자주 하는 작업" in parameter_lab
+    assert "## Export로 남는 것" in parameter_lab
     assert "## 현재 제한사항" in parameter_lab
-    assert "## 현재 파라미터 배치" in parameter_lab
-    assert "## Overlay와 Guide 읽기" in parameter_lab
-    assert "## Profile 탭 읽기" in parameter_lab
+    assert "## 먼저 무엇을 봐야 하나" in parameter_lab
+    assert "## Guide와 Parameter Help의 차이" in parameter_lab
     assert "geometry 편집" in parameter_lab
     assert "Apply" in parameter_lab
     assert "Main" in parameter_lab
