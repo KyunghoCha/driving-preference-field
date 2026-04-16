@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import html
+import re
 from dataclasses import dataclass
 
 
@@ -333,6 +335,10 @@ def _main_keys() -> list[str]:
 
 
 def parameter_help_html() -> str:
+    def _inline_code_html(text: str) -> str:
+        escaped = html.escape(text)
+        return re.sub(r"`([^`]+)`", r"<code>\1</code>", escaped)
+
     main_rows = []
     for key in _main_keys():
         entry = PROGRESSION_PARAMETER_GUIDE[key]
@@ -381,7 +387,7 @@ def parameter_help_html() -> str:
             """
         )
 
-    intro_items = "".join(f"<li>{line}</li>" for line in PARAMETER_GUIDE_INTRO.splitlines())
+    intro_items = "".join(f"<li>{_inline_code_html(line)}</li>" for line in PARAMETER_GUIDE_INTRO.splitlines())
     return f"""
     <html>
       <head>

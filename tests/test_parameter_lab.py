@@ -52,8 +52,11 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._reload_action.text() == "Reload Case"
     assert window._export_action.text() == "Export Comparison"
     assert window._reset_view_action.text() == "Reset View"
+    assert window._lab_help_action.text() == "Lab Help"
     assert window._reload_action.shortcut().toString() == "F5"
     assert window._export_action.shortcut().toString() == "Ctrl+Shift+E"
+    assert window._reset_view_action.shortcut().toString() == "Ctrl+0"
+    assert window._lab_help_action.shortcut().toString() == "F1"
     assert window._reset_view_action.shortcut().toString() == "Ctrl+0"
     assert window._baseline_state.preset_name == "baseline__balanced_field"
     assert window._candidate_state.preset_name == "candidate__strong_longitudinal"
@@ -481,6 +484,7 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert "anchor spacing" in help_text
     assert "candidate - baseline" in help_text
     assert "progression_tilted" in help_text
+    assert "`progression_tilted`" not in help_text
     assert "local_absolute" in help_text
     assert "ego_relative" in help_text
     assert "continuous function" in help_text.lower()
@@ -494,6 +498,28 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert window._baseline_panel._note_label.text() == PANEL_NOTE_TEXT
     assert "추천 0.5..3.0" in window._baseline_panel._controls["longitudinal_gain"].toolTip()
     assert "Range:" in window._baseline_panel._controls["transverse_family"].toolTip()
+
+    window.close()
+
+
+def test_toolbar_lab_help_opens_parameter_lab_guide(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    window._lab_help_action.trigger()
+
+    qtbot.waitUntil(
+        lambda: window._lab_help_dialog is not None and window._lab_help_dialog.isVisible(),
+        timeout=15000,
+    )
+    assert window._lab_help_dialog is not None
+    assert window._lab_help_dialog.windowTitle() == "Parameter Lab Guide"
+    help_text = window._lab_help_dialog._text.toPlainText()
+    assert "Parameter Lab 사용" in help_text
+    assert "실행" in help_text
+    assert "현재 파라미터 배치" in help_text
 
     window.close()
 
