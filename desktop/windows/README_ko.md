@@ -16,6 +16,16 @@ Windows 실행기 안내
 - `../../assets/parameter_lab_launcher.ico`
   Windows 바로가기에서 사용하는 공용 아이콘 파일
 
+환경 probe
+
+- launcher는 GUI를 띄우기 전에 아래 import를 먼저 확인함
+  - `numpy`
+  - `matplotlib`
+  - `PyQt6`
+  - `driving_preference_field`
+- probe 결과는 바탕화면 로그에 UTF-8로 남음
+- 현재 Windows known-good NumPy는 `1.26.4`로 본다
+
 권장 구조
 
 - repo 안 실행 파일
@@ -83,6 +93,7 @@ Windows 실행기 안내
 - 바탕화면 로그 파일
   - `Driving Preference Field Lab.log`
 - 먼저 확인할 항목
+  - `PROBE_NUMPY`, `PROBE_MPL` 버전이 어떻게 찍히는지
   - Python 경로가 실제 존재하는지
   - case 파일 경로가 실제 존재하는지
   - `PROBE_OK`가 로그에 찍혔는지

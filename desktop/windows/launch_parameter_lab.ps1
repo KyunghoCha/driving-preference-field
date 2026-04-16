@@ -11,7 +11,7 @@ $logPath = Join-Path $desktop "Driving Preference Field Lab.log"
 function Write-Log {
     param([string]$Message)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Add-Content -LiteralPath $logPath -Value "[$timestamp] $Message"
+    Add-Content -LiteralPath $logPath -Value "[$timestamp] $Message" -Encoding UTF8
 }
 
 function Show-LaunchError {
@@ -107,7 +107,7 @@ function Start-DetachedProcess {
 }
 
 try {
-    Set-Content -LiteralPath $logPath -Value "" -Encoding ASCII
+    Set-Content -LiteralPath $logPath -Value "" -Encoding UTF8
     Write-Log "Launcher start"
     Write-Log "PROJECT_ROOT=$projectRoot"
     Write-Log "PYTHON_EXE=$pythonExe"
@@ -128,6 +128,9 @@ try {
     $pythonPath = Join-Path $projectRoot "src"
     $environmentOverrides = @{
         "PYTHONPATH" = $pythonPath
+        "PYTHONUTF8" = "1"
+        "PYTHONIOENCODING" = "utf-8"
+        "MPLBACKEND" = "Agg"
     }
 
     Write-Log "PYTHONPATH=$pythonPath"
@@ -137,11 +140,16 @@ try {
     $probeScript = @"
 import sys
 sys.path.insert(0, r"$pythonPath")
+import matplotlib
+import numpy
 from PyQt6.QtWidgets import QApplication
 import driving_preference_field
+print(f"PROBE_PYTHON={sys.version.split()[0]}")
+print(f"PROBE_NUMPY={numpy.__version__}")
+print(f"PROBE_MPL={matplotlib.__version__}")
 print("PROBE_OK")
 "@
-    Set-Content -LiteralPath $probePath -Value $probeScript -Encoding ASCII
+    Set-Content -LiteralPath $probePath -Value $probeScript -Encoding UTF8
 
     $probeResult = Invoke-Process `
         -FilePath $pythonExe `
@@ -166,7 +174,7 @@ print("PROBE_OK")
     }
 
     if ($probeResult.ExitCode -ne 0) {
-        throw "파이썬 초기 확인이 실패했습니다. 종료 코드: $($probeResult.ExitCode)"
+        throw "환경 probe가 실패했습니다. numpy/matplotlib/PyQt6/project import를 확인하세요. Windows known-good NumPy: 1.26.4. 종료 코드: $($probeResult.ExitCode)"
     }
 
     if ($probeResult.StdOut -notmatch "PROBE_OK") {

@@ -4,7 +4,7 @@ channels:
 dependencies:
   - python=3.11
   - pip
-  - numpy
+  - numpy=1.26.4
   - matplotlib
   - pyyaml
   - pytest

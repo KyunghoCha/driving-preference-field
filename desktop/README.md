@@ -34,6 +34,9 @@ Notes
 - Override the Python executable on Windows with `DPF_PYTHON_EXE` if needed
 - Profile preview is optional tooling. If plotting dependencies fail, Parameter
   Lab should still launch and degrade the preview pane instead of crashing.
+- Windows launcher runs an import probe for `numpy`, `matplotlib`, `PyQt6`,
+  and `driving_preference_field` before opening the UI
+- The current Windows known-good NumPy version is `1.26.4`
 
 Windows
 
