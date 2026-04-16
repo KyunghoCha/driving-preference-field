@@ -93,15 +93,17 @@ SSC는 prototype input source로는 유용하지만, canonical 입력 구조를 
 
 반대로 단순 multi-lane corridor는 현재 toy-case 집합에 추가할 수 있다. 이 경우 핵심은 “차선 여러 개가 있는 직선/곡선 공간에서 progression guide를 여러 개 둘 수 있는가”를 보는 것이지, 교차로 의미를 한 번에 해결하는 것이 아니다.
 
-## 5. Current Guide-Blend Observations
+## 5. Current Surface Quality Notes
 
-현재 `progression_surface.py`의 guide blending은 다음 관찰을 남긴다. 이 항목은 아직 canonical 판단이 아니라, 다음 transverse / guide 재설계 배치에서 다시 확인할 working note다.
+현재 `progression_surface.py`는 projection-based guide-local coordinate와 hard max envelope를 사용한다. Gaussian anchor는 support field를 만들고, exported transverse만 handoff 근처에서 스무딩한다. 이전에 남아 있던 “whole-fabric coordinate blend가 lane valley를 지우고 bend ridge를 흔든다”는 관찰은 이 구현으로 상당 부분 줄었다.
+
+현재 남은 질문은 coordinate drift 자체보다 morphology tuning 쪽에 가깝다.
 
 - `two_lane_straight`:
-  - 평행한 progression guide 두 개를 넣었을 때 lane 사이 중심이 별도 저점으로 내려가지 않고, 넓은 high transverse band처럼 남는다.
+  - lane center 두 개와 그 사이 valley는 현재 구현에서도 나온다.
 - `left_bend`:
-  - curved guide 중심을 따라가도 transverse ridge가 위치에 따라 완전히 일정하지 않다.
-- `split_branch`:
-  - shared prefix를 가진 multiple progression guide를 넣어도 split 부근에서 saddle / bridge 같은 비균일한 transverse shape가 생긴다.
+  - center ridge 안정성은 좋아졌지만, 곡률이 큰 구간에서 transverse profile이 얼마나 더 일정해야 하는지는 여전히 quality tuning 항목이다.
+- `split_branch` / `merge_like_patch`:
+  - hard max envelope와 guide handoff가 만드는 morphology가 현재 semantics와는 일관되지만, split/merge 내부와 바깥쪽 경계를 얼마나 더 자연스럽게 만들지는 추가 검토가 필요하다.
 
-이 세 관찰은 따로 보지 않고 함께 다룬다. 다음 배치에서는 branch semantics 자체보다 먼저, guide blending이 `n_hat`과 transverse component를 어떻게 만들고 있는지부터 다시 본다.
+즉 다음 품질 배치에서 볼 핵심은 “guide-local coordinate를 어떻게 만들 것인가”보다, “현재 projection-based coordinate 위에서 split/merge handoff morphology를 어디까지 더 다듬을 것인가”다.

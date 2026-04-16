@@ -169,7 +169,7 @@ def test_strong_longitudinal_can_outweigh_near_center_preference() -> None:
     )
 
 
-def test_longitudinal_frame_choice_changes_point_ordering() -> None:
+def test_ego_relative_longitudinal_frame_strengthens_ahead_bias() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
     local_absolute = _canonical_config(
         longitudinal_frame="local_absolute",
@@ -191,18 +191,14 @@ def test_longitudinal_frame_choice_changes_point_ordering() -> None:
     behind_center = StateSample(x=0.2, y=0.0, yaw=0.0)
     slightly_ahead_off_axis = StateSample(x=2.0, y=0.2, yaw=0.0)
 
-    assert progression_tilted(snapshot, context, behind_center, config=local_absolute) > progression_tilted(
-        snapshot,
-        context,
-        slightly_ahead_off_axis,
-        config=local_absolute,
-    )
-    assert progression_tilted(snapshot, context, slightly_ahead_off_axis, config=ego_relative) > progression_tilted(
-        snapshot,
-        context,
-        behind_center,
-        config=ego_relative,
-    )
+    local_behind = progression_tilted(snapshot, context, behind_center, config=local_absolute)
+    local_ahead = progression_tilted(snapshot, context, slightly_ahead_off_axis, config=local_absolute)
+    ego_behind = progression_tilted(snapshot, context, behind_center, config=ego_relative)
+    ego_ahead = progression_tilted(snapshot, context, slightly_ahead_off_axis, config=ego_relative)
+
+    assert local_ahead > local_behind
+    assert ego_ahead > ego_behind
+    assert (ego_ahead - ego_behind) > (local_ahead - local_behind)
 
 
 def test_progression_bend_line_stays_continuous_without_hard_reset() -> None:
@@ -232,6 +228,82 @@ def test_progression_merge_midline_is_nonzero_continuous_surface() -> None:
     assert progression_tilted(snapshot, context, midline, config=config) > 0.0
     assert progression_tilted(snapshot, context, upper, config=config) > 0.0
     assert progression_tilted(snapshot, context, lower, config=config) > 0.0
+
+
+def test_left_bend_projection_coordinates_keep_centerline_transverse_stable() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    config = _canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0)
+    center_samples = (
+        StateSample(x=3.0, y=0.0, yaw=0.0),
+        StateSample(x=4.6, y=1.6, yaw=1.1),
+        StateSample(x=5.0, y=3.5, yaw=1.57),
+    )
+    outer_samples = (
+        StateSample(x=3.0, y=-0.8, yaw=0.0),
+        StateSample(x=5.1, y=0.9, yaw=1.1),
+        StateSample(x=5.8, y=3.5, yaw=1.57),
+    )
+
+    center_transverse = []
+    for center_state, outer_state in zip(center_samples, outer_samples, strict=True):
+        center_details = progression_tilted_details(snapshot, context, center_state, config=config)
+        outer_details = progression_tilted_details(snapshot, context, outer_state, config=config)
+        center_transverse.append(center_details["transverse_component"])
+        assert center_details["score"] > outer_details["score"]
+
+    assert max(center_transverse) - min(center_transverse) <= 0.18
+
+
+def test_split_branch_centers_beat_midpoint_after_divergence() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
+    config = _canonical_config()
+    upper_branch = StateSample(x=5.2, y=1.4, yaw=0.55)
+    lower_branch = StateSample(x=5.2, y=-1.4, yaw=-0.55)
+    midpoint = StateSample(x=5.2, y=0.0, yaw=0.0)
+    divergence_onset = StateSample(x=3.8, y=0.0, yaw=0.0)
+
+    upper_score = progression_tilted(snapshot, context, upper_branch, config=config)
+    lower_score = progression_tilted(snapshot, context, lower_branch, config=config)
+    midpoint_score = progression_tilted(snapshot, context, midpoint, config=config)
+
+    assert upper_score - midpoint_score >= 0.15
+    assert lower_score - midpoint_score >= 0.15
+    assert progression_tilted(snapshot, context, divergence_onset, config=config) > 0.0
+
+
+def test_merge_like_patch_exterior_transverse_handoff_is_smooth() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/merge_like_patch.yaml")
+    config = _canonical_config()
+    shared_suffix = progression_tilted_details(
+        snapshot,
+        context,
+        StateSample(x=4.2, y=0.0, yaw=0.0),
+        config=config,
+    )
+    assert shared_suffix["score"] > 0.0
+
+    upper_exterior = (
+        StateSample(x=1.2, y=1.35, yaw=-0.35),
+        StateSample(x=2.2, y=0.95, yaw=-0.25),
+        StateSample(x=3.2, y=0.55, yaw=-0.15),
+    )
+    lower_exterior = tuple(
+        StateSample(x=state.x, y=-state.y, yaw=-state.yaw) for state in upper_exterior
+    )
+
+    upper_transverse = [
+        progression_tilted_details(snapshot, context, state, config=config)["transverse_component"]
+        for state in upper_exterior
+    ]
+    lower_transverse = [
+        progression_tilted_details(snapshot, context, state, config=config)["transverse_component"]
+        for state in lower_exterior
+    ]
+
+    for first, second in zip(upper_transverse, upper_transverse[1:]):
+        assert abs(second - first) <= 0.18
+    for first, second in zip(lower_transverse, lower_transverse[1:]):
+        assert abs(second - first) <= 0.18
 
 
 def test_progression_u_turn_keeps_hairpin_continuity_and_center_high_return_leg() -> None:

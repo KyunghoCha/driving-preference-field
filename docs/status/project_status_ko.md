@@ -20,7 +20,7 @@
 - case-level ego/window control과 working context 분리 추가
 - channel scale mode (`Fixed` / `Normalized`)와 range/unit 표시 추가
 - Parameter Help와 summary 정리
-- smooth skeleton anchor blend 기반 fabric surface current implementation 정리
+- projection-based guide-local coordinates + hard max envelope current implementation 정리
 - cached field runtime query layer 추가
 - public batched progression runtime query 추가
 - progression debug component view 추가
@@ -40,7 +40,7 @@
 - progression field는 특정 source 예시에 종속되지 않는다.
 - runtime은 현재 보이는 local map 전체를 analytic하게 평가할 수 있어야 한다.
 - progression field는 최소한 longitudinal term과 transverse term을 가져야 하며, 이 둘은 독립적으로 조정 가능해야 한다.
-- current implementation은 smooth skeleton anchor를 좌표 control point로 쓰는 Gaussian-blended local-map-wide whole-fabric field를 사용한다.
+- current implementation은 projection-based guide-local coordinates와 hard max envelope를 사용하고, Gaussian anchor는 support field를 만드는 보조 성분으로만 둔다.
 - current implementation exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.
 - visible guide endpoint는 virtual continuation으로 처리한다.
 - support / alignment는 weak secondary modulation으로만 유지한다.

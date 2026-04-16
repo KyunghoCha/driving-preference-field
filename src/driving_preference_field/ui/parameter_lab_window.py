@@ -847,7 +847,7 @@ class ParameterLabWindow(QMainWindow):
             "scale_mode": self._scale_mode,
             "score_sign": "higher is better",
             "diff_meaning": "candidate - baseline",
-            "progression_surface_kind": "whole-fabric blended coordinate field",
+            "progression_surface_kind": "projection-based guide-local coordinates with hard max envelope",
             "raster_role": "visualization only",
             **self._effective_context_payload(),
             "baseline_preset_name": self._baseline_state.preset_name,
@@ -939,7 +939,7 @@ class ParameterLabWindow(QMainWindow):
         return {
             "scale_mode": self._scale_mode,
             "score_sign": "higher is better",
-            "progression_surface_kind": "whole-fabric blended coordinate field",
+            "progression_surface_kind": "projection-based guide-local coordinates with hard max envelope",
             "raster_role": "visualization only",
             "selected_channel_unit": display_unit(self._selected_channel),
             "diff_unit": display_unit(self._selected_channel, diff=True),

@@ -76,7 +76,7 @@ costmap / exception burden은 raster와 rendering 경로에서만 남긴다. pub
 
 ## Current Implementation
 
-현재 구현은 smooth skeleton anchor들의 Gaussian elliptical blend로 local map 전체의 whole-fabric continuous function을 만든다. branch 사이도 별도 winner 없이 같은 함수 안에서 메우고, visible guide endpoint는 virtual continuation으로 처리한다. support와 alignment는 shape를 주도하지 않는 약한 보조 변조(`weak secondary modulation`)로 남긴다.
+현재 구현은 progression guide마다 projection-based guide-local coordinate를 계산한 뒤, guide-local score를 만들고 guide 간 hard max envelope를 취한다. Gaussian anchor는 좌표장을 직접 섞지 않고 support/confidence를 만드는 데만 남긴다. exported `transverse_component`만 handoff candidate guide 사이에서 부드럽게 섞고, score와 나머지 debug coordinate는 dominant guide 기준 값을 유지한다.
 
 현재 tiny evaluator는 `base_preference_total = progression_tilted`로 읽는다. trajectory ordering도 progression total만 기준으로 한 prototype을 사용한다. `safety_soft`, `rule_soft`, `dynamic_soft`, hard mask는 visualization / costmap 성격의 burden channel로만 남고 public runtime payload에는 싣지 않는다.
 

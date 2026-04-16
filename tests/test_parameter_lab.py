@@ -357,7 +357,10 @@ def test_preset_copy_and_export_workflow(qtbot, tmp_path, monkeypatch) -> None:
     assert session["candidate_preset"]["metadata"]["unsaved"] is True
     assert session["selected_channel"] == window._selected_channel
     assert "raster" in session["diff_summary"]
-    assert session["diff_summary"]["visualization"]["progression_surface_kind"] == "whole-fabric blended coordinate field"
+    assert (
+        session["diff_summary"]["visualization"]["progression_surface_kind"]
+        == "projection-based guide-local coordinates with hard max envelope"
+    )
     assert session["diff_summary"]["visualization"]["raster_role"] == "visualization only"
     assert session["diff_summary"]["visualization"]["score_sign"] == "higher is better"
     assert session["profile_summary"]["selected_channel"] == window._selected_channel
