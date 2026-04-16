@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+import sys
+
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
@@ -17,6 +20,10 @@ from PyQt6.QtWidgets import (
 
 from driving_preference_field.contracts import QueryContext
 from driving_preference_field.profile_inspection import ComparisonProfileResult, ProfileSpec, profile_plot_png_bytes
+
+
+_PROFILE_PLOTS_ENABLED = os.environ.get("DPF_ENABLE_PROFILE_PLOTS") == "1" or sys.platform != "win32"
+_PROFILE_PLOTS_DISABLED_MESSAGE = "Windows profile preview is temporarily disabled."
 
 
 class _ProfileImageWidget(QWidget):
@@ -39,11 +46,12 @@ class _ProfileImageWidget(QWidget):
     def sizeHint(self) -> QSize:
         return QSize(220, 180)
 
-    def set_png(self, payload: bytes | None) -> None:
+    def set_png(self, payload: bytes | None, *, empty_text: str = "No profile result") -> None:
         if not payload:
-            self._label.setText("No profile result")
+            self._label.setText(empty_text)
             self._label.setPixmap(QPixmap())
             return
+        self._label.setText("")
         pixmap = QPixmap()
         pixmap.loadFromData(payload)
         self._label.setPixmap(pixmap)
@@ -116,6 +124,11 @@ class ProfilePanelWidget(QWidget):
         self._line_label.setText(
             f"{result.spec.axis} line | {result.spec.coordinate_axis}={result.spec.coordinate:.3f} | selected={selected_channel}"
         )
+        if not _PROFILE_PLOTS_ENABLED:
+            self._baseline_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
+            self._candidate_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
+            self._diff_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
+            return
         self._baseline_widget.set_png(
             profile_plot_png_bytes(result, selected_channel=selected_channel, view="baseline")
         )
