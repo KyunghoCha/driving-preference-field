@@ -49,6 +49,12 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._scale_selector.currentData() == "fixed"
     assert window._selected_channel == "progression_tilted"
     assert window._channel_selector.currentData() == "progression_tilted"
+    assert window._reload_action.text() == "Reload Case"
+    assert window._export_action.text() == "Export Comparison"
+    assert window._reset_view_action.text() == "Reset View"
+    assert window._reload_action.shortcut().toString() == "F5"
+    assert window._export_action.shortcut().toString() == "Ctrl+Shift+E"
+    assert window._reset_view_action.shortcut().toString() == "Ctrl+0"
     assert window._baseline_state.preset_name == "baseline__balanced_field"
     assert window._candidate_state.preset_name == "candidate__strong_longitudinal"
     assert window._baseline_state.unsaved is False
