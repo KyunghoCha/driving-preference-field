@@ -45,7 +45,7 @@ class FieldRuntime:
         self.progression_runtime: ProgressionSurfaceRuntime = build_progression_surface_runtime(
             snapshot,
             context,
-            config=self.config.progression,
+            config=self.config,
         )
 
     def query_state(self, state: StateSample) -> FieldStateQueryResult:

@@ -17,11 +17,11 @@ class ParameterGuideEntry:
 
 PARAMETER_GUIDE_INTRO = (
     "canonical score는 `higher is better`로 읽는다.\n"
-    "현재 GUI는 `progression_tilted`만 직접 수정한다.\n"
+    "현재 GUI는 `progression_tilted`를 기준으로 Main + Advanced Surface 파라미터를 수정한다.\n"
     "drivable boundary는 overlay로만 읽고 base heatmap에 더하지 않는다.\n"
     "obstacle / rule / dynamic 채널은 costmap 성격의 시각화로만 남긴다.\n"
     "차이는 `progression_tilted` 채널에서 먼저 확인하는 것이 맞다.\n"
-    "현재 progression 파라미터는 longitudinal frame/term, transverse profile, support ceiling을 다룬다.\n"
+    "Main은 longitudinal frame/term, transverse profile, support ceiling을 다루고, Advanced Surface는 discretization / kernel / modulation / handoff tuning을 다룬다.\n"
     "current implementation은 각 progression guide 안에서 local coordinate를 만들고, guide별 score 가운데 최대값을 최종 field로 읽는다.\n"
     "보이는 guide 끝은 semantic start/end가 아니라 virtual continuation이 붙은 local patch로 읽는다.\n"
     "현재 exact formula는 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.\n"
@@ -122,16 +122,203 @@ PROGRESSION_PARAMETER_GUIDE: dict[str, ParameterGuideEntry] = {
         technical_range="0.0 .. 1000.0",
         tooltip="guide support 상한. 추천 0.25..1.0",
     ),
+    "anchor_spacing_m": ParameterGuideEntry(
+        key="anchor_spacing_m",
+        label="anchor spacing",
+        meaning="guide anchor를 몇 m 간격으로 배치할지 정한다.",
+        effect_up="anchor가 성기어져 계산량은 줄지만 local coordinate와 support field가 더 거칠어질 수 있다.",
+        effect_down="anchor가 촘촘해져 shape는 더 안정적일 수 있지만 계산량이 늘어난다.",
+        practical_band="0.05 .. 2.0",
+        technical_range="0.05 .. 2.0",
+        tooltip="anchor 간격",
+    ),
+    "spline_sample_density_m": ParameterGuideEntry(
+        key="spline_sample_density_m",
+        label="spline density",
+        meaning="guide polyline을 densify할 때 세그먼트를 얼마나 촘촘히 샘플링할지 정한다.",
+        effect_up="샘플이 성기어져 계산량은 줄지만 곡선의 smooth resampling 품질이 낮아질 수 있다.",
+        effect_down="샘플이 촘촘해져 곡선 fidelity는 좋아질 수 있지만 계산량이 늘어난다.",
+        practical_band="0.01 .. 1.0",
+        technical_range="0.01 .. 1.0",
+        tooltip="spline densification 간격",
+    ),
+    "spline_min_subdivisions": ParameterGuideEntry(
+        key="spline_min_subdivisions",
+        label="min subdivisions",
+        meaning="짧은 세그먼트에서도 유지할 최소 subdivision 수다.",
+        effect_up="짧은 구간도 더 많이 쪼개 곡선 fidelity가 올라갈 수 있지만 계산량이 늘어난다.",
+        effect_down="짧은 세그먼트의 resampling이 더 거칠어질 수 있다.",
+        practical_band="1 .. 64",
+        technical_range="1 .. 64",
+        tooltip="최소 subdivision 수",
+    ),
+    "end_extension_m": ParameterGuideEntry(
+        key="end_extension_m",
+        label="end extension",
+        meaning="guide 끝에 virtual continuation anchor를 얼마나 연장할지 정한다.",
+        effect_up="visible endpoint 근처 end-cap artifact를 줄이고 끝 이후 continuation을 더 길게 허용한다.",
+        effect_down="guide 끝 influence가 더 빨리 사라진다.",
+        practical_band="0.0 .. 10.0",
+        technical_range="0.0 .. 10.0",
+        tooltip="guide 끝 연장 길이",
+    ),
+    "min_sigma_t": ParameterGuideEntry(
+        key="min_sigma_t",
+        label="min sigma_t",
+        meaning="longitudinal Gaussian support의 최소 폭이다.",
+        effect_up="guide 축 방향 influence가 더 넓게 퍼진다.",
+        effect_down="guide 축 방향 support가 더 빠르게 줄어든다.",
+        practical_band="0.05 .. 5.0",
+        technical_range="0.05 .. 5.0",
+        tooltip="longitudinal support 최소 폭",
+    ),
+    "min_sigma_n": ParameterGuideEntry(
+        key="min_sigma_n",
+        label="min sigma_n",
+        meaning="lateral Gaussian support의 최소 폭이다.",
+        effect_up="축 밖 support가 더 넓게 퍼진다.",
+        effect_down="축 밖 support가 더 빨리 줄어든다.",
+        practical_band="0.05 .. 5.0",
+        technical_range="0.05 .. 5.0",
+        tooltip="lateral support 최소 폭",
+    ),
+    "sigma_t_scale": ParameterGuideEntry(
+        key="sigma_t_scale",
+        label="sigma_t scale",
+        meaning="guide length와 lookahead를 longitudinal sigma로 바꾸는 scale이다.",
+        effect_up="longitudinal blending span이 길어져 guide-local coordinate가 더 멀리 섞인다.",
+        effect_down="longitudinal locality가 강해진다.",
+        practical_band="0.05 .. 5.0",
+        technical_range="0.05 .. 5.0",
+        tooltip="longitudinal sigma scale",
+    ),
+    "sigma_n_scale": ParameterGuideEntry(
+        key="sigma_n_scale",
+        label="sigma_n scale",
+        meaning="transverse_scale을 lateral sigma로 바꾸는 scale이다.",
+        effect_up="lateral blending span이 넓어져 ridge가 더 퍼질 수 있다.",
+        effect_down="lateral locality가 강해진다.",
+        practical_band="0.05 .. 5.0",
+        technical_range="0.05 .. 5.0",
+        tooltip="lateral sigma scale",
+    ),
+    "support_base": ParameterGuideEntry(
+        key="support_base",
+        label="support base",
+        meaning="support modulation의 바닥값이다.",
+        effect_up="support가 낮아도 score가 덜 꺼진다.",
+        effect_down="support quality가 낮을 때 score가 더 많이 줄어든다.",
+        practical_band="0.0 .. 1.0",
+        technical_range="0.0 .. 1.0",
+        tooltip="support modulation 바닥값",
+    ),
+    "support_range": ParameterGuideEntry(
+        key="support_range",
+        label="support range",
+        meaning="support quality가 modulation에 줄 수 있는 변화량이다.",
+        effect_up="support quality의 영향이 더 커진다.",
+        effect_down="support modulation이 더 평평해진다.",
+        practical_band="0.0 .. 1.0",
+        technical_range="0.0 .. 1.0",
+        tooltip="support modulation 변화량",
+    ),
+    "alignment_base": ParameterGuideEntry(
+        key="alignment_base",
+        label="alignment base",
+        meaning="heading alignment modulation의 바닥값이다.",
+        effect_up="heading이 어긋나도 score가 덜 깎인다.",
+        effect_down="heading mismatch penalty가 더 강해진다.",
+        practical_band="0.0 .. 1.0",
+        technical_range="0.0 .. 1.0",
+        tooltip="alignment modulation 바닥값",
+    ),
+    "alignment_range": ParameterGuideEntry(
+        key="alignment_range",
+        label="alignment range",
+        meaning="heading alignment quality가 modulation에 줄 수 있는 변화량이다.",
+        effect_up="heading alignment의 영향이 더 커진다.",
+        effect_down="alignment modulation이 더 평평해진다.",
+        practical_band="0.0 .. 1.0",
+        technical_range="0.0 .. 1.0",
+        tooltip="alignment modulation 변화량",
+    ),
+    "transverse_handoff_support_ratio": ParameterGuideEntry(
+        key="transverse_handoff_support_ratio",
+        label="handoff support ratio",
+        meaning="transverse handoff candidate guide를 고를 때 dominant support 대비 최소 비율이다.",
+        effect_up="candidate guide가 더 엄격하게 걸러져 handoff가 더 hard해진다.",
+        effect_down="더 많은 guide가 handoff smoothing에 참여한다.",
+        practical_band="0.0 .. 1.0",
+        technical_range="0.0 .. 1.0",
+        tooltip="handoff candidate 최소 support 비율",
+    ),
+    "transverse_handoff_score_delta": ParameterGuideEntry(
+        key="transverse_handoff_score_delta",
+        label="handoff score delta",
+        meaning="transverse handoff candidate guide를 고를 때 dominant score와 허용 차이다.",
+        effect_up="더 많은 근접 guide가 candidate로 남는다.",
+        effect_down="candidate guide가 더 엄격하게 줄어든다.",
+        practical_band="0.0 .. 2.0",
+        technical_range="0.0 .. 2.0",
+        tooltip="handoff candidate score 허용 차",
+    ),
+    "transverse_handoff_temperature": ParameterGuideEntry(
+        key="transverse_handoff_temperature",
+        label="handoff temperature",
+        meaning="candidate guide 사이 transverse blending의 soft weighting temperature다.",
+        effect_up="guide handoff가 더 부드럽게 퍼진다.",
+        effect_down="guide handoff가 dominant guide 쪽으로 더 hard하게 수렴한다.",
+        practical_band="0.01 .. 1.0",
+        technical_range="0.01 .. 1.0",
+        tooltip="handoff smoothing temperature",
+    ),
 }
 
+ADVANCED_PARAMETER_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    (
+        "Discretization",
+        (
+            "anchor_spacing_m",
+            "spline_sample_density_m",
+            "spline_min_subdivisions",
+            "end_extension_m",
+        ),
+    ),
+    (
+        "Support Kernel",
+        (
+            "min_sigma_t",
+            "min_sigma_n",
+            "sigma_t_scale",
+            "sigma_n_scale",
+        ),
+    ),
+    (
+        "Modulation",
+        (
+            "support_base",
+            "support_range",
+            "alignment_base",
+            "alignment_range",
+        ),
+    ),
+    (
+        "Handoff",
+        (
+            "transverse_handoff_support_ratio",
+            "transverse_handoff_score_delta",
+            "transverse_handoff_temperature",
+        ),
+    ),
+)
 
 PANEL_NOTE_TEXT = (
-    "Current GUI edits `progression_tilted` only.\n"
+    "Current GUI edits `progression_tilted` through Main + Advanced Surface controls.\n"
     "Read drivable boundary as overlay and obstacle/rule/dynamic as costmap."
 )
 
 
-def _ordered_keys() -> list[str]:
+def _main_keys() -> list[str]:
     return [
         "longitudinal_frame",
         "longitudinal_family",
@@ -146,10 +333,10 @@ def _ordered_keys() -> list[str]:
 
 
 def parameter_help_html() -> str:
-    rows = []
-    for key in _ordered_keys():
+    main_rows = []
+    for key in _main_keys():
         entry = PROGRESSION_PARAMETER_GUIDE[key]
-        rows.append(
+        main_rows.append(
             f"""
             <tr>
               <td><code>{entry.label}</code></td>
@@ -160,8 +347,23 @@ def parameter_help_html() -> str:
             """
         )
 
+    advanced_rows = []
+    for _, keys in ADVANCED_PARAMETER_GROUPS:
+        for key in keys:
+            entry = PROGRESSION_PARAMETER_GUIDE[key]
+            advanced_rows.append(
+                f"""
+                <tr>
+                  <td><code>{entry.label}</code></td>
+                  <td>{entry.practical_band}</td>
+                  <td>{entry.technical_range}</td>
+                  <td>{entry.tooltip}</td>
+                </tr>
+                """
+            )
+
     detail_sections = []
-    for key in _ordered_keys():
+    for key in [*_main_keys(), *(key for _, keys in ADVANCED_PARAMETER_GROUPS for key in keys)]:
         entry = PROGRESSION_PARAMETER_GUIDE[key]
         detail_sections.append(
             f"""
@@ -240,6 +442,7 @@ def parameter_help_html() -> str:
         </div>
 
         <h2>Quick Reference</h2>
+        <h3>Main</h3>
         <table class="summary-table">
           <tr>
             <th>Parameter</th>
@@ -247,7 +450,18 @@ def parameter_help_html() -> str:
             <th>Technical Range</th>
             <th>Quick Meaning</th>
           </tr>
-          {''.join(rows)}
+          {''.join(main_rows)}
+        </table>
+
+        <h3>Advanced Surface</h3>
+        <table class="summary-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Practical Band</th>
+            <th>Technical Range</th>
+            <th>Quick Meaning</th>
+          </tr>
+          {''.join(advanced_rows)}
         </table>
 
         <h2>Per-Parameter Details</h2>

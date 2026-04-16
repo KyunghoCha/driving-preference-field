@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from driving_preference_field.config import FieldConfig, ProgressionConfig
+from driving_preference_field.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
 from driving_preference_field.channels import (
     progression_tilted,
     progression_tilted_details,
@@ -13,7 +13,7 @@ from driving_preference_field.toy_loader import load_toy_snapshot
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _canonical_config(**kwargs) -> FieldConfig:
+def _canonical_config(*, surface_tuning: SurfaceTuningConfig | None = None, **kwargs) -> FieldConfig:
     payload = {
         "longitudinal_frame": "local_absolute",
         "longitudinal_family": "linear",
@@ -27,7 +27,7 @@ def _canonical_config(**kwargs) -> FieldConfig:
     }
     payload.update(kwargs)
     progression = ProgressionConfig(**payload)
-    return FieldConfig(progression=progression)
+    return FieldConfig(progression=progression, surface_tuning=surface_tuning or SurfaceTuningConfig())
 
 
 def test_progression_tilted_prefers_forward_alignment() -> None:
@@ -232,6 +232,27 @@ def test_progression_merge_midline_is_nonzero_continuous_surface() -> None:
     assert progression_tilted(snapshot, context, midline, config=config) > 0.0
     assert progression_tilted(snapshot, context, upper, config=config) > 0.0
     assert progression_tilted(snapshot, context, lower, config=config) > 0.0
+
+
+def test_surface_tuning_changes_transverse_handoff_without_changing_public_channel_contract() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/merge_like_patch.yaml")
+    state = StateSample(x=2.6, y=-0.1, yaw=0.2)
+    baseline = progression_tilted_details(snapshot, context, state, config=_canonical_config())
+    tuned = progression_tilted_details(
+        snapshot,
+        context,
+        state,
+        config=_canonical_config(
+            surface_tuning=SurfaceTuningConfig(
+                transverse_handoff_support_ratio=0.1,
+                transverse_handoff_score_delta=0.5,
+                transverse_handoff_temperature=0.2,
+            )
+        ),
+    )
+
+    assert set(tuned) == set(baseline)
+    assert tuned["transverse_component"] != baseline["transverse_component"]
 
 
 

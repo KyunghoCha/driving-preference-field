@@ -25,7 +25,7 @@ def progression_tilted_details(
         snapshot,
         context,
         state,
-        config=field_config.progression,
+        config=field_config,
     )
 
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
@@ -11,15 +11,37 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QSpinBox,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
 
 from driving_preference_field.config import FieldConfig
 from driving_preference_field.ui.parameter_guide import (
+    ADVANCED_PARAMETER_GROUPS,
     PANEL_NOTE_TEXT,
     PROGRESSION_PARAMETER_GUIDE,
 )
+
+
+ADVANCED_PARAMETER_RANGES: dict[str, tuple[float, float]] = {
+    "anchor_spacing_m": (0.05, 2.0),
+    "spline_sample_density_m": (0.01, 1.0),
+    "spline_min_subdivisions": (1, 64),
+    "min_sigma_t": (0.05, 5.0),
+    "min_sigma_n": (0.05, 5.0),
+    "sigma_t_scale": (0.05, 5.0),
+    "sigma_n_scale": (0.05, 5.0),
+    "end_extension_m": (0.0, 10.0),
+    "support_base": (0.0, 1.0),
+    "support_range": (0.0, 1.0),
+    "alignment_base": (0.0, 1.0),
+    "alignment_range": (0.0, 1.0),
+    "transverse_handoff_support_ratio": (0.0, 1.0),
+    "transverse_handoff_score_delta": (0.0, 2.0),
+    "transverse_handoff_temperature": (0.01, 1.0),
+}
 
 
 class ProgressionParameterPanelWidget(QWidget):
@@ -123,6 +145,28 @@ class ProgressionParameterPanelWidget(QWidget):
         root_layout.addWidget(longitudinal_group)
         root_layout.addWidget(transverse_group)
         root_layout.addWidget(support_group)
+        self._advanced_toggle = QToolButton()
+        self._advanced_toggle.setText("Advanced Surface")
+        self._advanced_toggle.setCheckable(True)
+        self._advanced_toggle.setChecked(False)
+        self._advanced_toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self._advanced_toggle.setArrowType(Qt.ArrowType.RightArrow)
+        self._advanced_toggle.toggled.connect(self._set_advanced_visible)
+        root_layout.addWidget(self._advanced_toggle)
+        self._advanced_content = QWidget()
+        self._advanced_content_layout = QVBoxLayout(self._advanced_content)
+        self._advanced_content_layout.setContentsMargins(0, 0, 0, 0)
+        self._advanced_content_layout.setSpacing(8)
+        for title, keys in ADVANCED_PARAMETER_GROUPS:
+            group, form = self._build_section(title)
+            for key in keys:
+                control = self._build_advanced_control(key)
+                self._controls[key] = control
+                form.addRow(self._make_label(key), control)
+            self._advanced_content_layout.addWidget(group)
+        self._advanced_content_layout.addStretch(1)
+        self._advanced_content.setVisible(False)
+        root_layout.addWidget(self._advanced_content)
         self._note_label = QLabel(PANEL_NOTE_TEXT)
         self._note_label.setWordWrap(True)
         self._note_label.setStyleSheet("color: #555; font-size: 11px;")
@@ -167,6 +211,33 @@ class ProgressionParameterPanelWidget(QWidget):
         )
         return label
 
+    def _build_advanced_control(self, key: str) -> QWidget:
+        guide = PROGRESSION_PARAMETER_GUIDE[key]
+        lower, upper = ADVANCED_PARAMETER_RANGES[key]
+        if key == "spline_min_subdivisions":
+            spin = QSpinBox()
+            spin.setRange(int(lower), int(upper))
+            spin.setSingleStep(1)
+        else:
+            spin = QDoubleSpinBox()
+            spin.setDecimals(4)
+            spin.setRange(float(lower), float(upper))
+            spin.setSingleStep(0.01 if upper <= 1.0 else 0.05)
+        spin.setMinimumWidth(120)
+        spin.valueChanged.connect(self._on_changed)
+        spin.setToolTip(
+            f"{guide.tooltip}\n"
+            f"Practical band: {guide.practical_band}\n"
+            f"Technical range: {guide.technical_range}"
+        )
+        return spin
+
+    def _set_advanced_visible(self, visible: bool) -> None:
+        self._advanced_content.setVisible(visible)
+        self._advanced_toggle.setArrowType(
+            Qt.ArrowType.DownArrow if visible else Qt.ArrowType.RightArrow
+        )
+
     def config(self) -> FieldConfig:
         return self._config
 
@@ -190,7 +261,11 @@ class ProgressionParameterPanelWidget(QWidget):
             if key in {"longitudinal_frame", "longitudinal_family", "transverse_family"}:
                 continue
             control.blockSignals(True)
-            control.setValue(float(getattr(progression, key)))
+            if hasattr(progression, key):
+                value = getattr(progression, key)
+            else:
+                value = getattr(config.surface_tuning, key)
+            control.setValue(int(value) if key == "spline_min_subdivisions" else float(value))
             control.blockSignals(False)
         self._apply_button.setEnabled(False)
         self._reset_button.setEnabled(False)
@@ -217,6 +292,7 @@ class ProgressionParameterPanelWidget(QWidget):
 
     def _build_config_from_controls(self) -> FieldConfig:
         progression = self._config.progression
+        surface_tuning = self._config.surface_tuning
         updated = replace(
             progression,
             longitudinal_frame=self._longitudinal_frame.currentText(),
@@ -229,4 +305,22 @@ class ProgressionParameterPanelWidget(QWidget):
             transverse_shape=self._controls["transverse_shape"].value(),
             support_ceiling=self._controls["support_ceiling"].value(),
         )
-        return replace(self._config, progression=updated)
+        updated_surface_tuning = replace(
+            surface_tuning,
+            anchor_spacing_m=self._controls["anchor_spacing_m"].value(),
+            spline_sample_density_m=self._controls["spline_sample_density_m"].value(),
+            spline_min_subdivisions=int(self._controls["spline_min_subdivisions"].value()),
+            min_sigma_t=self._controls["min_sigma_t"].value(),
+            min_sigma_n=self._controls["min_sigma_n"].value(),
+            sigma_t_scale=self._controls["sigma_t_scale"].value(),
+            sigma_n_scale=self._controls["sigma_n_scale"].value(),
+            end_extension_m=self._controls["end_extension_m"].value(),
+            support_base=self._controls["support_base"].value(),
+            support_range=self._controls["support_range"].value(),
+            alignment_base=self._controls["alignment_base"].value(),
+            alignment_range=self._controls["alignment_range"].value(),
+            transverse_handoff_support_ratio=self._controls["transverse_handoff_support_ratio"].value(),
+            transverse_handoff_score_delta=self._controls["transverse_handoff_score_delta"].value(),
+            transverse_handoff_temperature=self._controls["transverse_handoff_temperature"].value(),
+        )
+        return replace(self._config, progression=updated, surface_tuning=updated_surface_tuning)

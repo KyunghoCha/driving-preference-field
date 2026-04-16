@@ -62,6 +62,10 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert "longitudinal_family" in window._baseline_panel._controls
     assert "transverse_family" in window._baseline_panel._controls
     assert "transverse_scale" in window._baseline_panel._controls
+    assert "anchor_spacing_m" in window._baseline_panel._controls
+    assert "transverse_handoff_temperature" in window._baseline_panel._controls
+    assert window._baseline_panel._advanced_toggle.isChecked() is False
+    assert window._baseline_panel._advanced_content.isVisible() is False
     assert window._channel_selector.findData("progression_s_hat") != -1
     assert window._channel_selector.findData("progression_transverse_component") != -1
     window._tabs.setCurrentIndex(1)
@@ -347,10 +351,17 @@ def test_preset_copy_and_export_workflow(qtbot, tmp_path, monkeypatch) -> None:
     assert window._candidate_config == window._baseline_config
 
     window._baseline_panel._controls["longitudinal_gain"].setValue(1.75)
+    window._baseline_panel._advanced_toggle.click()
+    window._baseline_panel._controls["anchor_spacing_m"].setValue(0.3)
     assert abs(window._baseline_config.progression.longitudinal_gain - 1.75) > 1e-6
+    assert abs(window._baseline_config.surface_tuning.anchor_spacing_m - 0.3) > 1e-6
     window._baseline_panel._apply_button.click()
     qtbot.waitUntil(
         lambda: abs(window._baseline_config.progression.longitudinal_gain - 1.75) < 1e-6,
+        timeout=15000,
+    )
+    qtbot.waitUntil(
+        lambda: abs(window._baseline_config.surface_tuning.anchor_spacing_m - 0.3) < 1e-6,
         timeout=15000,
     )
     window._copy_side("baseline", "candidate")
@@ -398,12 +409,16 @@ def test_preset_copy_and_export_workflow(qtbot, tmp_path, monkeypatch) -> None:
     assert session["effective_local_window"]["y_min"] == window._working_context.local_window.y_min
     baseline_progression = session["baseline_preset"]["field_config"]["progression"]
     candidate_progression = session["candidate_preset"]["field_config"]["progression"]
+    baseline_surface = session["baseline_preset"]["field_config"]["surface_tuning"]
+    candidate_surface = session["candidate_preset"]["field_config"]["surface_tuning"]
     assert "model" not in baseline_progression
     assert "transverse" + "_penalty_weight" not in candidate_progression
     assert baseline_progression["longitudinal_frame"] in {"local_absolute", "ego_relative"}
     assert candidate_progression["longitudinal_frame"] in {"local_absolute", "ego_relative"}
     assert "longitudinal_family" in baseline_progression
     assert "transverse_family" in candidate_progression
+    assert baseline_surface["anchor_spacing_m"] == 0.3
+    assert candidate_surface["anchor_spacing_m"] == 0.3
 
     window.close()
 
@@ -456,6 +471,8 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert "practical band" in help_text.lower()
     assert "technical range" in help_text.lower()
     assert "0.5 .. 3.0" in help_text
+    assert "Advanced Surface" in help_text
+    assert "anchor spacing" in help_text
     assert "candidate - baseline" in help_text
     assert "progression_tilted" in help_text
     assert "local_absolute" in help_text
@@ -471,6 +488,45 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert window._baseline_panel._note_label.text() == PANEL_NOTE_TEXT
     assert "추천 0.5..3.0" in window._baseline_panel._controls["longitudinal_gain"].toolTip()
     assert "Range:" in window._baseline_panel._controls["transverse_family"].toolTip()
+
+    window.close()
+
+
+def test_advanced_surface_controls_apply_reset_and_reload(qtbot, tmp_path) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    panel = window._baseline_panel
+    panel._advanced_toggle.click()
+    assert panel._advanced_toggle.isChecked() is True
+    assert panel._advanced_content.isVisible() is True
+
+    original = window._baseline_config.surface_tuning.anchor_spacing_m
+    panel._controls["anchor_spacing_m"].setValue(0.3)
+    panel._controls["spline_min_subdivisions"].setValue(12)
+    assert panel._apply_button.isEnabled() is True
+    panel._reset_button.click()
+    assert panel._controls["anchor_spacing_m"].value() == original
+    assert panel._apply_button.isEnabled() is False
+
+    panel._controls["anchor_spacing_m"].setValue(0.3)
+    panel._controls["transverse_handoff_temperature"].setValue(0.08)
+    panel._apply_button.click()
+    qtbot.waitUntil(
+        lambda: abs(window._baseline_config.surface_tuning.anchor_spacing_m - 0.3) < 1e-6,
+        timeout=15000,
+    )
+    assert abs(window._baseline_config.surface_tuning.transverse_handoff_temperature - 0.08) < 1e-6
+
+    window._preset_root = tmp_path / "presets"
+    window._preset_root.mkdir(parents=True, exist_ok=True)
+    window._save_preset_from_side("baseline", "advanced_surface")
+    window._load_preset_into_side("candidate", str(window._preset_root / "advanced_surface.yaml"))
+
+    assert abs(window._candidate_config.surface_tuning.anchor_spacing_m - 0.3) < 1e-6
+    assert abs(window._candidate_config.surface_tuning.transverse_handoff_temperature - 0.08) < 1e-6
 
     window.close()
 

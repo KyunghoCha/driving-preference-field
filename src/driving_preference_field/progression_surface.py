@@ -22,26 +22,11 @@ from functools import lru_cache
 
 import numpy as np
 
-from .config import ProgressionConfig
+from .config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
 from .contracts import Point2, QueryContext, SemanticInputSnapshot, StateSample
 from .geometry import clamp, polyline_length
 
-_ANCHOR_SPACING_M = 0.20
-_SPLINE_SAMPLE_DENSITY_M = 0.05
-_SPLINE_MIN_SUBDIVISIONS = 8
-_MIN_SIGMA_T = 0.40
-_MIN_SIGMA_N = 0.35
-_SIGMA_T_SCALE = 0.35
-_SIGMA_N_SCALE = 1.50
-_END_EXTENSION_M = 2.0
 _QUERY_BATCH_SIZE = 4096
-_SUPPORT_BASE = 0.95
-_SUPPORT_RANGE = 0.05
-_ALIGNMENT_BASE = 0.95
-_ALIGNMENT_RANGE = 0.05
-_TRANSVERSE_HANDOFF_SUPPORT_RATIO = 0.25
-_TRANSVERSE_HANDOFF_SCORE_DELTA = 0.20
-_TRANSVERSE_HANDOFF_TEMPERATURE = 0.05
 _EFFECTIVE_ANCHOR_WEIGHT_EPS = 1e-3
 _EPS = 1e-9
 
@@ -100,15 +85,17 @@ class ProgressionSurfaceRuntime:
         snapshot: SemanticInputSnapshot,
         context: QueryContext,
         *,
-        config: ProgressionConfig,
+        config: FieldConfig,
     ) -> None:
         self._snapshot = snapshot
         self._context = context
-        self._config = config
-        self._surface = _surface_index(snapshot)
+        self._field_config = config
+        self._config = config.progression
+        self._surface_tuning = config.surface_tuning
+        self._surface = _surface_index(snapshot, self._surface_tuning)
         self._ego_s_hat_by_guide = (
-            _ego_s_hat_by_guide(self._surface, context, config)
-            if config.longitudinal_frame == "ego_relative"
+            _ego_s_hat_by_guide(self._surface, context, self._config, self._surface_tuning)
+            if self._config.longitudinal_frame == "ego_relative"
             else None
         )
 
@@ -119,6 +106,14 @@ class ProgressionSurfaceRuntime:
     @property
     def config(self) -> ProgressionConfig:
         return self._config
+
+    @property
+    def field_config(self) -> FieldConfig:
+        return self._field_config
+
+    @property
+    def surface_tuning(self) -> SurfaceTuningConfig:
+        return self._surface_tuning
 
     def query_state(self, state: StateSample) -> dict[str, object]:
         if self._config.support_ceiling <= 0.0 or self._surface.anchor_points.size == 0:
@@ -295,9 +290,10 @@ class ProgressionSurfaceRuntime:
                 y_values[start:stop],
                 heading_yaws[start:stop],
                 config=self._config,
+                tuning=self._surface_tuning,
                 ego_s_hat_by_guide=self._ego_s_hat_by_guide,
             )
-            selected = _select_dominant_guide(guide_results)
+            selected = _select_dominant_guide(guide_results, tuning=self._surface_tuning)
             chunks["score"].append(selected["score"])
             chunks["s_hat"].append(selected["s_hat"])
             chunks["n_hat"].append(selected["n_hat"])
@@ -322,7 +318,7 @@ def build_progression_surface_runtime(
     snapshot: SemanticInputSnapshot,
     context: QueryContext,
     *,
-    config: ProgressionConfig,
+    config: FieldConfig,
 ) -> ProgressionSurfaceRuntime:
     return ProgressionSurfaceRuntime(snapshot, context, config=config)
 
@@ -332,9 +328,9 @@ def progression_surface_details(
     context: QueryContext,
     state: StateSample,
     *,
-    config: ProgressionConfig,
+    config: FieldConfig,
 ) -> dict[str, object]:
-    if config.support_ceiling <= 0.0:
+    if config.progression.support_ceiling <= 0.0:
         return {
             "score": 0.0,
             "anchor_count": 0,
@@ -347,7 +343,7 @@ def progression_surface_details(
             "n_hat": 0.0,
             "blended_progress": 0.0,
             "dominant_guides": (),
-            "longitudinal_frame": config.longitudinal_frame,
+            "longitudinal_frame": config.progression.longitudinal_frame,
         }
     runtime = build_progression_surface_runtime(snapshot, context, config=config)
     return runtime.query_state(state)
@@ -357,7 +353,7 @@ def progression_surface_grid(
     snapshot: SemanticInputSnapshot,
     context: QueryContext,
     *,
-    config: ProgressionConfig,
+    config: FieldConfig,
     x_coords: np.ndarray,
     y_coords: np.ndarray,
 ) -> np.ndarray:
@@ -369,7 +365,7 @@ def progression_surface_grid_details(
     snapshot: SemanticInputSnapshot,
     context: QueryContext,
     *,
-    config: ProgressionConfig,
+    config: FieldConfig,
     x_coords: np.ndarray,
     y_coords: np.ndarray,
 ) -> dict[str, np.ndarray]:
@@ -384,6 +380,7 @@ def _guide_local_results(
     heading_yaws: np.ndarray,
     *,
     config: ProgressionConfig,
+    tuning: SurfaceTuningConfig,
     ego_s_hat_by_guide: tuple[float, ...] | None,
 ) -> tuple[GuideBlendResult, ...]:
     return tuple(
@@ -394,6 +391,7 @@ def _guide_local_results(
             y_values,
             heading_yaws,
             config=config,
+            tuning=tuning,
             ego_s_hat=None if ego_s_hat_by_guide is None else ego_s_hat_by_guide[guide_index],
         )
         for guide_index in range(len(surface.guides))
@@ -408,6 +406,7 @@ def _guide_local_result(
     heading_yaws: np.ndarray,
     *,
     config: ProgressionConfig,
+    tuning: SurfaceTuningConfig,
     ego_s_hat: float | None,
 ) -> GuideBlendResult:
     guide = surface.guides[guide_index]
@@ -449,8 +448,8 @@ def _guide_local_result(
     tau = dx * tangent_x + dy * tangent_y
     nu = dx * normal_x + dy * normal_y
 
-    sigma_t = np.maximum(_MIN_SIGMA_T, guide_lengths * config.lookahead_scale * _SIGMA_T_SCALE)
-    sigma_n = max(_MIN_SIGMA_N, config.transverse_scale * _SIGMA_N_SCALE)
+    sigma_t = np.maximum(tuning.min_sigma_t, guide_lengths * config.lookahead_scale * tuning.sigma_t_scale)
+    sigma_n = max(tuning.min_sigma_n, config.transverse_scale * tuning.sigma_n_scale)
     raw_weights = guide_weights * confidences * np.exp(
         -0.5 * (((tau / sigma_t) ** 2) + ((nu / sigma_n) ** 2))
     )
@@ -476,7 +475,7 @@ def _guide_local_result(
     if config.longitudinal_frame == "local_absolute":
         u_value = np.clip((s_hat - guide_min_progress_extent) / progress_span, 0.0, 1.0)
     else:
-        lookahead = max(_ego_relative_lookahead(progress_span, config), _EPS)
+        lookahead = max(_ego_relative_lookahead(progress_span, config, tuning), _EPS)
         reference_s = float(ego_s_hat or 0.0)
         u_value = np.clip(np.maximum(0.0, s_hat - reference_s) / lookahead, 0.0, 1.0)
 
@@ -490,11 +489,11 @@ def _guide_local_result(
         0.0,
         heading_x * tangent_hat[:, 0] + heading_y * tangent_hat[:, 1],
     )
-    alignment_mod = _ALIGNMENT_BASE + _ALIGNMENT_RANGE * alignment_quality
+    alignment_mod = tuning.alignment_base + tuning.alignment_range * alignment_quality
 
     clipped_confidence = np.minimum(confidences, max(config.support_ceiling, _EPS))
     support_quality = np.sum(blend_weights * clipped_confidence, axis=0) / max(config.support_ceiling, _EPS)
-    support_mod = _SUPPORT_BASE + _SUPPORT_RANGE * np.clip(support_quality, 0.0, 1.0)
+    support_mod = tuning.support_base + tuning.support_range * np.clip(support_quality, 0.0, 1.0)
 
     score = support_mod * alignment_mod * (
         transverse_component + config.longitudinal_gain * longitudinal_component
@@ -521,7 +520,11 @@ def _guide_local_result(
     )
 
 
-def _select_dominant_guide(guide_results: tuple[GuideBlendResult, ...]) -> dict[str, np.ndarray]:
+def _select_dominant_guide(
+    guide_results: tuple[GuideBlendResult, ...],
+    *,
+    tuning: SurfaceTuningConfig,
+) -> dict[str, np.ndarray]:
     if not guide_results:
         zeros = np.zeros((0,), dtype=float)
         return {
@@ -566,13 +569,13 @@ def _select_dominant_guide(guide_results: tuple[GuideBlendResult, ...]) -> dict[
     dominant_weight = np.zeros_like(guide_scores)
     dominant_weight[best_indices, positions] = 1.0
     candidate_mask = (
-        guide_support_sums >= (_TRANSVERSE_HANDOFF_SUPPORT_RATIO * best_support[None, :])
+        guide_support_sums >= (tuning.transverse_handoff_support_ratio * best_support[None, :])
     ) & (
-        guide_scores >= (best_scores[None, :] - _TRANSVERSE_HANDOFF_SCORE_DELTA)
+        guide_scores >= (best_scores[None, :] - tuning.transverse_handoff_score_delta)
     )
     candidate_mask[best_indices, positions] = True
     scaled_score_delta = np.clip(
-        (guide_scores - best_scores[None, :]) / _TRANSVERSE_HANDOFF_TEMPERATURE,
+        (guide_scores - best_scores[None, :]) / tuning.transverse_handoff_temperature,
         -60.0,
         0.0,
     )
@@ -621,6 +624,7 @@ def _ego_s_hat_by_guide(
     surface: SurfaceIndex,
     context: QueryContext,
     config: ProgressionConfig,
+    tuning: SurfaceTuningConfig,
 ) -> tuple[float, ...]:
     return tuple(
         float(
@@ -631,14 +635,19 @@ def _ego_s_hat_by_guide(
                 np.asarray([context.ego_pose.y], dtype=float),
                 np.asarray([context.ego_pose.yaw], dtype=float),
                 config=config,
+                tuning=tuning,
                 ego_s_hat=None,
             ).s_hat[0]
         )
         for guide_index in range(len(surface.guides))
     )
 
-def _ego_relative_lookahead(progress_span: float, config: ProgressionConfig) -> float:
-    return max(_MIN_SIGMA_T, progress_span * config.lookahead_scale)
+def _ego_relative_lookahead(
+    progress_span: float,
+    config: ProgressionConfig,
+    tuning: SurfaceTuningConfig,
+) -> float:
+    return max(tuning.min_sigma_t, progress_span * config.lookahead_scale)
 
 
 def _longitudinal_value_array(u_value: np.ndarray, config: ProgressionConfig) -> np.ndarray:
@@ -664,12 +673,22 @@ def _transverse_value_array(ratio: np.ndarray, config: ProgressionConfig) -> np.
     return np.exp(-shape * ratio)
 
 
-def _surface_index(snapshot: SemanticInputSnapshot) -> SurfaceIndex:
-    return _surface_index_from_signature(_surface_signature(snapshot))
+def _surface_index(snapshot: SemanticInputSnapshot, tuning: SurfaceTuningConfig) -> SurfaceIndex:
+    return _surface_index_from_signature(_surface_signature(snapshot, tuning))
 
 
-def _surface_signature(snapshot: SemanticInputSnapshot) -> tuple[tuple[object, ...], ...]:
-    return tuple(
+def _surface_signature(
+    snapshot: SemanticInputSnapshot,
+    tuning: SurfaceTuningConfig,
+) -> tuple[tuple[object, ...], ...]:
+    tuning_signature = (
+        "__surface_tuning__",
+        round(tuning.anchor_spacing_m, 6),
+        round(tuning.spline_sample_density_m, 6),
+        int(tuning.spline_min_subdivisions),
+        round(tuning.end_extension_m, 6),
+    )
+    guide_signature = tuple(
         (
             guide.guide_id,
             tuple((round(point[0], 6), round(point[1], 6)) for point in guide.points),
@@ -678,6 +697,7 @@ def _surface_signature(snapshot: SemanticInputSnapshot) -> tuple[tuple[object, .
         )
         for guide in snapshot.progression_support.guides
     )
+    return (tuning_signature, *guide_signature)
 
 
 @lru_cache(maxsize=32)
@@ -696,9 +716,19 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
     anchor_guide_indices: list[int] = []
     guide_anchor_ranges: list[tuple[int, int]] = []
 
-    for guide_id, points_payload, weight, confidence in signature:
+    tuning_marker = signature[0]
+    if not tuning_marker or tuning_marker[0] != "__surface_tuning__":
+        raise ValueError("surface signature must include tuning header")
+    tuning = SurfaceTuningConfig(
+        anchor_spacing_m=float(tuning_marker[1]),
+        spline_sample_density_m=float(tuning_marker[2]),
+        spline_min_subdivisions=int(tuning_marker[3]),
+        end_extension_m=float(tuning_marker[4]),
+    )
+
+    for guide_id, points_payload, weight, confidence in signature[1:]:
         points = tuple((float(x), float(y)) for x, y in points_payload)
-        smooth_points = _smooth_resampled_points(points)
+        smooth_points = _smooth_resampled_points(points, tuning)
         guide_length = polyline_length(smooth_points)
         if guide_length <= _EPS:
             continue
@@ -716,7 +746,8 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         guide_anchor_start = len(anchor_points)
         for cumulative_s, point, tangent in _anchor_points_with_continuation(
             smooth_points,
-            extension_length=_END_EXTENSION_M,
+            extension_length=tuning.end_extension_m,
+            spacing=tuning.anchor_spacing_m,
         ):
             normal = (-tangent[1], tangent[0])
             anchor_points.append(point)
@@ -770,25 +801,25 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
     )
 
 
-def _smooth_resampled_points(points: tuple[Point2, ...]) -> tuple[Point2, ...]:
+def _smooth_resampled_points(points: tuple[Point2, ...], tuning: SurfaceTuningConfig) -> tuple[Point2, ...]:
     if len(points) < 2:
         return points
     if len(points) == 2:
-        return _arc_length_resample(points, spacing=_ANCHOR_SPACING_M)
+        return _arc_length_resample(points, spacing=tuning.anchor_spacing_m)
 
     dense: list[Point2] = []
     padded = (_reflect_endpoint(points[0], points[1]),) + points + (_reflect_endpoint(points[-1], points[-2]),)
     for index in range(1, len(padded) - 2):
         p0, p1, p2, p3 = padded[index - 1], padded[index], padded[index + 1], padded[index + 2]
         subdivisions = max(
-            _SPLINE_MIN_SUBDIVISIONS,
-            int(math.ceil(max(_distance(p1, p2), _EPS) / _SPLINE_SAMPLE_DENSITY_M)),
+            tuning.spline_min_subdivisions,
+            int(math.ceil(max(_distance(p1, p2), _EPS) / tuning.spline_sample_density_m)),
         )
         for step in range(subdivisions):
             u_value = step / subdivisions
             dense.append(_centripetal_catmull_rom_point(p0, p1, p2, p3, u_value))
     dense.append(points[-1])
-    return _arc_length_resample(tuple(dense), spacing=_ANCHOR_SPACING_M)
+    return _arc_length_resample(tuple(dense), spacing=tuning.anchor_spacing_m)
 
 
 def _reflect_endpoint(endpoint: Point2, neighbor: Point2) -> Point2:
@@ -888,6 +919,7 @@ def _anchor_points_with_continuation(
     points: tuple[Point2, ...],
     *,
     extension_length: float,
+    spacing: float,
 ) -> tuple[tuple[float, Point2, Point2], ...]:
     anchors = list(_anchor_points(points))
     if not anchors:
@@ -896,7 +928,7 @@ def _anchor_points_with_continuation(
     end_s, end_point, end_tangent = anchors[-1]
 
     start_extension: list[tuple[float, Point2, Point2]] = []
-    distance_cursor = _ANCHOR_SPACING_M
+    distance_cursor = spacing
     while distance_cursor <= extension_length + _EPS:
         start_extension.append(
             (
@@ -908,9 +940,9 @@ def _anchor_points_with_continuation(
                 start_tangent,
             )
         )
-        distance_cursor += _ANCHOR_SPACING_M
+        distance_cursor += spacing
     end_extension: list[tuple[float, Point2, Point2]] = []
-    distance_cursor = _ANCHOR_SPACING_M
+    distance_cursor = spacing
     while distance_cursor <= extension_length + _EPS:
         end_extension.append(
             (
@@ -922,7 +954,7 @@ def _anchor_points_with_continuation(
                 end_tangent,
             )
         )
-        distance_cursor += _ANCHOR_SPACING_M
+        distance_cursor += spacing
     return tuple(reversed(start_extension)) + tuple(anchors) + tuple(end_extension)
 
 

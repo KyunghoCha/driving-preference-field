@@ -1,11 +1,13 @@
 from pathlib import Path
 
+from driving_preference_field.config import ComparisonPreset, FieldConfig, SurfaceTuningConfig
 from driving_preference_field.presets import (
     can_overwrite_preset,
     default_preset_path,
     indexed_presets,
     load_preset,
     presets_for_role,
+    save_preset,
 )
 
 
@@ -33,6 +35,7 @@ def test_reference_preset_pack_is_loadable_and_has_standard_metadata() -> None:
             set(preset.metadata)
         )
         assert preset.field_config.progression.longitudinal_frame in {"local_absolute", "ego_relative"}
+        assert preset.field_config.surface_tuning == SurfaceTuningConfig()
 
 
 def test_role_filtered_preset_index_separates_reference_presets() -> None:
@@ -69,3 +72,23 @@ def test_indexed_presets_include_reference_flags() -> None:
 
     assert names["baseline__balanced_field"].is_reference is True
     assert names["candidate__strong_longitudinal"].origin == "reference"
+
+
+def test_saved_preset_roundtrip_preserves_surface_tuning(tmp_path) -> None:
+    path = tmp_path / "advanced_surface.yaml"
+    preset = ComparisonPreset(
+        preset_name="advanced_surface",
+        field_config=FieldConfig(
+            surface_tuning=SurfaceTuningConfig(
+                anchor_spacing_m=0.3,
+                spline_min_subdivisions=16,
+                transverse_handoff_temperature=0.08,
+            )
+        ),
+        metadata={"role": "baseline"},
+    )
+
+    saved = save_preset(preset, path)
+    loaded = load_preset(saved)
+
+    assert loaded == preset

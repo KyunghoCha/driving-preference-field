@@ -5,6 +5,7 @@ from driving_preference_field.config import (
     ComparisonPreset,
     FieldConfig,
     ProgressionConfig,
+    SurfaceTuningConfig,
 )
 from driving_preference_field.evaluator import evaluate_state
 from driving_preference_field.presets import load_preset, save_preset
@@ -65,6 +66,36 @@ def test_legacy_field_config_payload_ignores_removed_geometry_keys() -> None:
     assert config.progression.longitudinal_gain == 2.0
     assert "interior_boundary" not in config.to_dict()
     assert "continuity_branch" not in config.to_dict()
+    assert config.surface_tuning == SurfaceTuningConfig()
+
+
+def test_field_config_roundtrip_preserves_surface_tuning() -> None:
+    config = FieldConfig(
+        progression=ProgressionConfig(longitudinal_gain=1.7),
+        surface_tuning=SurfaceTuningConfig(
+            anchor_spacing_m=0.35,
+            spline_sample_density_m=0.08,
+            spline_min_subdivisions=12,
+            min_sigma_t=0.55,
+            min_sigma_n=0.45,
+            sigma_t_scale=0.5,
+            sigma_n_scale=1.8,
+            end_extension_m=3.0,
+            support_base=0.9,
+            support_range=0.1,
+            alignment_base=0.85,
+            alignment_range=0.15,
+            transverse_handoff_support_ratio=0.3,
+            transverse_handoff_score_delta=0.25,
+            transverse_handoff_temperature=0.08,
+        ),
+    )
+
+    payload = config.to_dict()
+
+    assert FieldConfig.from_dict(payload) == config
+    assert payload["surface_tuning"]["anchor_spacing_m"] == 0.35
+    assert payload["surface_tuning"]["spline_min_subdivisions"] == 12
 
 
 def test_comparison_preset_roundtrip(tmp_path) -> None:
@@ -82,6 +113,7 @@ def test_comparison_preset_roundtrip(tmp_path) -> None:
                 transverse_shape=1.75,
                 support_ceiling=0.8,
             ),
+            surface_tuning=SurfaceTuningConfig(anchor_spacing_m=0.3, end_extension_m=2.5),
         ),
         note="roundtrip",
         metadata={"tag": "test"},

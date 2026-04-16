@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from driving_preference_field.config import FieldConfig, ProgressionConfig
+from driving_preference_field.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
 from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample, TrajectorySample
 from driving_preference_field.evaluator import evaluate_state, evaluate_trajectory
 from driving_preference_field.field_runtime import FieldRuntime, build_field_runtime
@@ -13,7 +13,7 @@ from driving_preference_field.toy_loader import load_toy_snapshot
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _canonical_config(**kwargs) -> FieldConfig:
+def _canonical_config(*, surface_tuning: SurfaceTuningConfig | None = None, **kwargs) -> FieldConfig:
     payload = {
         "longitudinal_frame": "local_absolute",
         "longitudinal_family": "linear",
@@ -26,7 +26,10 @@ def _canonical_config(**kwargs) -> FieldConfig:
         "support_ceiling": 1.0,
     }
     payload.update(kwargs)
-    return FieldConfig(progression=ProgressionConfig(**payload))
+    return FieldConfig(
+        progression=ProgressionConfig(**payload),
+        surface_tuning=surface_tuning or SurfaceTuningConfig(),
+    )
 
 
 def test_field_runtime_state_query_matches_evaluator_semantics() -> None:
@@ -247,3 +250,43 @@ def test_field_runtime_respects_zero_progression_support_ceiling() -> None:
     state = StateSample(x=4.0, y=0.0, yaw=0.0)
 
     assert runtime.query_state(state).base_channels["progression_tilted"] == 0.0
+
+
+def test_field_runtime_default_surface_tuning_matches_implicit_default() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    runtime = build_field_runtime(snapshot, context)
+    explicit = build_field_runtime(snapshot, context, config=FieldConfig())
+    state = StateSample(x=4.7, y=2.0, yaw=1.0)
+
+    implicit_payload = runtime.query_state(state)
+    explicit_payload = explicit.query_state(state)
+
+    assert implicit_payload.base_channels == explicit_payload.base_channels
+    assert implicit_payload.diagnostics["progression_transverse_component"] == pytest.approx(
+        explicit_payload.diagnostics["progression_transverse_component"]
+    )
+
+
+def test_field_runtime_surface_tuning_change_propagates_into_surface_output() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
+    state = StateSample(x=3.4, y=0.1, yaw=0.55)
+    baseline = build_field_runtime(snapshot, context, config=_canonical_config())
+    candidate = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(
+            surface_tuning=SurfaceTuningConfig(
+                transverse_handoff_support_ratio=0.6,
+                transverse_handoff_score_delta=0.4,
+                transverse_handoff_temperature=0.12,
+            )
+        ),
+    )
+
+    baseline_payload = baseline.query_state(state)
+    candidate_payload = candidate.query_state(state)
+
+    assert candidate_payload.diagnostics["field_config"]["surface_tuning"]["transverse_handoff_temperature"] == 0.12
+    assert candidate_payload.diagnostics["progression_transverse_component"] != pytest.approx(
+        baseline_payload.diagnostics["progression_transverse_component"]
+    )

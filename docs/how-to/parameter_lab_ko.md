@@ -68,15 +68,15 @@ profile inspection export에는 다음이 포함된다.
 - profile inspection 탭
 - debug view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment component)
 
-현재 GUI는 canonical 전체를 다 노출하지는 않는다. progression frame, longitudinal, transverse, support ceiling 축을 직접 다루는 compare tool에 집중돼 있다. drivable boundary는 overlay로 읽고, obstacle / rule / dynamic cost는 costmap 성격의 별도 채널로만 본다.
+현재 GUI는 canonical 전체를 다 노출하지는 않지만, `progression_tilted`를 읽는 데 필요한 `Main`과 current implementation morphology를 다듬는 `Advanced Surface`를 함께 노출한다. drivable boundary는 overlay로 읽고, obstacle / rule / dynamic cost는 costmap 성격의 별도 채널로만 본다.
 
 ## 현재 파라미터 배치
 
-현재 우측 `Parameters` 도크는 `Main`만 다룬다. 여기에는 `ProgressionConfig`의 9개 항목만 들어 있고, field semantics를 바로 읽는 비교 실험에 필요한 knob만 남겨 둔다.
+현재 우측 `Parameters` 도크는 `Main`과 접이식 `Advanced Surface`를 함께 다룬다. `Main`에는 `ProgressionConfig`의 9개 항목이 들어 있고, field semantics를 바로 읽는 비교 실험에 필요한 knob를 담당한다.
 
-`Advanced` 후보는 아직 GUI에 올리지 않는다. anchor spacing, spline density, sigma min/scale, end extension, support/alignment modulation, transverse handoff smoothing 같은 항목은 구현 품질과 성능에 영향을 주지만, 기본 실험 루프에서는 곧바로 만질 필요가 없기 때문이다.
+`Advanced Surface`에는 anchor spacing, spline density, sigma min/scale, end extension, support/alignment modulation, transverse handoff smoothing 같은 항목이 들어간다. 이 항목들은 구현 품질과 성능에 영향을 주므로 기본적으로 접힌 상태로 두고, 연구용으로 필요할 때만 펼쳐서 조정하는 것이 맞다.
 
-좌측 `Workspace`는 `Presets`, `Summary`, `Profile`, `Layers`처럼 결과를 읽는 공간으로 유지한다. 나중에 `Advanced`를 노출하더라도 좌측 탭에 넣기보다 우측 `Parameters` 도크 하단 접이식 섹션으로 두는 쪽이 맞다.
+좌측 `Workspace`는 `Presets`, `Summary`, `Profile`, `Layers`처럼 결과를 읽는 공간으로 유지한다. `Advanced Surface`도 좌측 탭에 넣지 않고 우측 `Parameters` 도크 하단 접이식 섹션으로 둔다.
 
 파라미터 분류와 hidden tunable 목록은 [파라미터 노출 정책](../explanation/parameter_exposure_policy_ko.md)과 [파라미터 카탈로그](../reference/parameter_catalog_ko.md)에서 canonical/current 기준으로 확인한다.
 
