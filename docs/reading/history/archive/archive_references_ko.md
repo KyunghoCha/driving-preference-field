@@ -9,7 +9,7 @@ canonical 설계 문서가 아닌 archive 참고 자료 위치만 정리한다. 
 - `~/docs/score_field/`
 - `~/docs/archive/score_field_design_reflective_20260322_ko.md`
 - `~/docs/archive/score_field_design_canonical_20260330_ko.md`
-- `/home/ckh/Projects/local-objective-lab`
+- `~/Projects/local-objective-lab`
 - `../../source/input_reconstruction_notes_ko.md`
 - `./archive_score_field_notes_ko.md`
 

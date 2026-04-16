@@ -11,13 +11,20 @@ Structure
 - `desktop/windows/launch_parameter_lab.cmd`
   Windows shortcut entrypoint that calls the PowerShell launcher
 - `desktop/windows/install_desktop_shortcut.ps1`
-  Helper script that creates a desktop shortcut on Windows
+  Helper script that creates desktop and repo-local `.lnk` files on Windows
 - `desktop/windows/README_ko.md`
   Korean guide for the Windows launcher layout
 - `desktop/linux/launch_parameter_lab.sh`
   Repo-managed Linux launcher for Parameter Lab
-- `desktop/linux/driving-preference-field-parameter-lab.desktop`
-  Linux desktop entry for this machine and repo layout
+- `desktop/linux/install_desktop_entry.sh`
+  Helper script that renders an installed Linux desktop entry for the current
+  repo location
+- `desktop/linux/driving-preference-field-parameter-lab.desktop.in`
+  Linux desktop entry template with placeholders
+- `assets/parameter_lab_launcher.svg`
+  Shared launcher icon source for Linux
+- `assets/parameter_lab_launcher.ico`
+  Shared launcher icon for Windows shortcuts
 
 Notes
 
@@ -44,5 +51,9 @@ Run the repo-managed launcher directly
 
 `./desktop/linux/launch_parameter_lab.sh`
 
-The desktop entry in `desktop/linux/` is intended for the current Linux path
-layout and can be copied into `~/.local/share/applications/` if desired.
+Create an installed desktop entry for the current repo path
+
+`./desktop/linux/install_desktop_entry.sh`
+
+The Linux desktop entry is generated at install time so the repo does not carry
+machine-specific absolute paths.

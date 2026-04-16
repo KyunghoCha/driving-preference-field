@@ -17,8 +17,10 @@
 ### Supporting files
 
 - `scripts/launch_parameter_lab.sh`
-- `desktop/driving-preference-field-parameter-lab.desktop`
+- `desktop/linux/driving-preference-field-parameter-lab.desktop.in`
+- `desktop/linux/install_desktop_entry.sh`
 - `assets/parameter_lab_launcher.svg`
+- `assets/parameter_lab_launcher.ico`
 - `cases/toy/*.yaml` 8개
 - `fixtures/adapter/*` 4개
 - `presets/lab/*.yaml` 12개

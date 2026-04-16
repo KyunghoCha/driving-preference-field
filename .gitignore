@@ -17,3 +17,5 @@ artifacts/
 
 .DS_Store
 Thumbs.db
+# Generated desktop shortcut artifacts
+desktop/windows/Driving Preference Field Lab.lnk

@@ -11,26 +11,25 @@ Windows 실행기 안내
   실제 Windows 실행 로직이 들어 있는 PowerShell 스크립트
 - `launch_parameter_lab.cmd`
   바탕화면 바로가기가 직접 가리키는 진입점
-- `Driving Preference Field Lab.ico`
-  Windows 바로가기에서 사용하는 아이콘 파일
-- `Driving Preference Field Lab.lnk`
-  현재 머신에서 바로 복사해 사용할 수 있도록 repo 안에 함께 두는 바로가기 파일
 - `install_desktop_shortcut.ps1`
   repo 안 바로가기와 바탕화면 바로가기를 함께 다시 생성하거나 갱신하는 설치 스크립트
+- `../../assets/parameter_lab_launcher.ico`
+  Windows 바로가기에서 사용하는 공용 아이콘 파일
 
 권장 구조
 
 - repo 안 실행 파일
   - `desktop/windows/launch_parameter_lab.ps1`
   - `desktop/windows/launch_parameter_lab.cmd`
-  - `desktop/windows/Driving Preference Field Lab.ico`
-  - `desktop/windows/Driving Preference Field Lab.lnk`
   - `desktop/windows/install_desktop_shortcut.ps1`
+  - `assets/parameter_lab_launcher.ico`
 - 바탕화면
   - `Driving Preference Field Lab.lnk`
+- 필요하면 repo 안 생성물
+  - `desktop/windows/Driving Preference Field Lab.lnk`
 
 즉 바탕화면에는 `.lnk`만 남기고 실행 로직은 repo 안에서만 관리하는 구조임
-- repo 안의 `.lnk`는 복사용 기준 파일 역할도 함께 함
+- `.lnk`는 설치 스크립트가 현재 머신 경로로 다시 생성하는 generated artifact임
 
 실행 방식
 
@@ -63,7 +62,7 @@ Windows 실행기 안내
 주의
 
 - `.lnk`는 Windows 바로가기 파일이라 현재 머신의 경로를 기준으로 만들어짐
-- 즉 repo 안에 두더라도 완전히 범용 템플릿은 아니고 현재 Windows 환경에 맞춘 reproduction asset임
+- 따라서 tracked repo에는 `.lnk`를 source asset으로 두지 않고, 설치 스크립트가 현재 머신 기준으로 생성함
 
 환경 변수
 
@@ -93,4 +92,5 @@ Windows 실행기 안내
 정리
 
 - 앞으로 Windows 실행기 수정은 `desktop/windows/` 안에서만 하면 됨
+- 아이콘은 `assets/parameter_lab_launcher.ico` 하나를 Windows와 공용으로 참조함
 - 바탕화면에는 바로가기만 있으면 됨

@@ -5,7 +5,7 @@ $desktop = [Environment]::GetFolderPath("Desktop")
 $shortcutPath = Join-Path $desktop "Driving Preference Field Lab.lnk"
 $repoLauncherPath = Join-Path $repoRoot "desktop\windows\launch_parameter_lab.cmd"
 $repoShortcutPath = Join-Path $PSScriptRoot "Driving Preference Field Lab.lnk"
-$repoIconPath = Join-Path $PSScriptRoot "Driving Preference Field Lab.ico"
+$repoIconPath = Join-Path $repoRoot "assets\parameter_lab_launcher.ico"
 
 if (-not (Test-Path -LiteralPath $repoLauncherPath)) {
     throw "Repo launcher not found: $repoLauncherPath"
