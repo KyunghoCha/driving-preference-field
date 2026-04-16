@@ -70,6 +70,28 @@ profile inspection export에는 다음이 포함된다.
 
 현재 GUI는 canonical 전체를 다 노출하지는 않는다. progression frame, longitudinal, transverse, support ceiling 축을 직접 다루는 compare tool에 집중돼 있다. drivable boundary는 overlay로 읽고, obstacle / rule / dynamic cost는 costmap 성격의 별도 채널로만 본다.
 
+## 현재 파라미터 배치
+
+현재 우측 `Parameters` 도크는 `Main`만 다룬다. 여기에는 `ProgressionConfig`의 9개 항목만 들어 있고, field semantics를 바로 읽는 비교 실험에 필요한 knob만 남겨 둔다.
+
+`Advanced` 후보는 아직 GUI에 올리지 않는다. anchor spacing, spline density, sigma min/scale, end extension, support/alignment modulation, transverse handoff smoothing 같은 항목은 구현 품질과 성능에 영향을 주지만, 기본 실험 루프에서는 곧바로 만질 필요가 없기 때문이다.
+
+좌측 `Workspace`는 `Presets`, `Summary`, `Profile`, `Layers`처럼 결과를 읽는 공간으로 유지한다. 나중에 `Advanced`를 노출하더라도 좌측 탭에 넣기보다 우측 `Parameters` 도크 하단 접이식 섹션으로 두는 쪽이 맞다.
+
+파라미터 분류와 hidden tunable 목록은 [파라미터 노출 정책](../explanation/parameter_exposure_policy_ko.md)과 [파라미터 카탈로그](../reference/parameter_catalog_ko.md)에서 canonical/current 기준으로 확인한다.
+
+## Overlay와 Guide 읽기
+
+cyan progression guide overlay는 current field가 아니라 raw input polyline을 그대로 그린다. 예를 들어 `sensor_patch_open`의 progression guide가 살짝 위로 기울어져 보이는 것은 렌더링 오류가 아니라 case 입력이 `[-0.5, 0.0] -> [2.5, 0.15]`로 정의돼 있기 때문이다.
+
+따라서 guide overlay는 “입력이 무엇이었는가”를 보여주고, heatmap은 “그 입력으로부터 현재 field가 어떻게 읽혔는가”를 보여준다. 둘이 완전히 같은 모양일 필요는 없다.
+
+## Profile 탭 읽기
+
+`Profile` 탭은 baseline, candidate, diff를 각각 PNG preview와 line-cut 데이터로 보여준다. 그래프가 viewport보다 크면 스크롤로 확인하고, placeholder 상태에서는 텍스트만 보인다.
+
+이 탭은 tuning panel이 아니라 inspection panel이다. profile line spec은 여기서 바꾸지만, field semantics를 바꾸는 parameter knob는 우측 `Parameters` 도크에만 둔다.
+
 ## 현재 제한사항
 
 다음은 현재 Parameter Lab 범위에 포함하지 않는다.

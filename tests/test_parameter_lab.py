@@ -1,7 +1,8 @@
 from pathlib import Path
 import json
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, Qt
+from PyQt6.QtGui import QColor, QImage
 
 from driving_preference_field.ui.parameter_guide import PANEL_NOTE_TEXT
 from driving_preference_field.ui.parameter_lab_window import PARAMETER_HELP_TEXT, ParameterLabWindow
@@ -13,6 +14,16 @@ FIXTURES = ROOT / "fixtures/adapter"
 
 def _wait_for_result(qtbot, window: ParameterLabWindow) -> None:
     qtbot.waitUntil(lambda: window._comparison_result is not None, timeout=15000)
+
+
+def _png_bytes(width: int, height: int) -> bytes:
+    image = QImage(width, height, QImage.Format.Format_ARGB32)
+    image.fill(QColor("#336699"))
+    payload = QByteArray()
+    buffer = QBuffer(payload)
+    buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+    assert image.save(buffer, "PNG")
+    return bytes(payload)
 
 
 def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
@@ -443,5 +454,45 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert window._baseline_panel._note_label.text() == PANEL_NOTE_TEXT
     assert "추천 0.5..3.0" in window._baseline_panel._controls["longitudinal_gain"].toolTip()
     assert "Range:" in window._baseline_panel._controls["transverse_family"].toolTip()
+
+    window.close()
+
+
+def test_profile_panel_scrollbars_activate_for_large_preview_and_reset_on_placeholder(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    window._left_tabs.setCurrentIndex(2)
+    payload = _png_bytes(2200, 1600)
+    tab_specs = (
+        ("Baseline", window._profile_panel._baseline_widget),
+        ("Candidate", window._profile_panel._candidate_widget),
+        ("Diff", window._profile_panel._diff_widget),
+    )
+    for _, widget in tab_specs:
+        widget.set_png(payload)
+
+    for tab_name, widget in tab_specs:
+        window._profile_panel._tabs.setCurrentIndex(window._profile_panel._tabs.indexOf(widget))
+        qtbot.waitUntil(
+            lambda: widget._scroll.horizontalScrollBar().maximum() > 0
+            and widget._scroll.verticalScrollBar().maximum() > 0,
+            timeout=15000,
+        )
+        assert window._profile_panel._tabs.tabText(window._profile_panel._tabs.currentIndex()) == tab_name
+
+    for _, widget in tab_specs:
+        widget.set_png(None)
+
+    for _, widget in tab_specs:
+        window._profile_panel._tabs.setCurrentIndex(window._profile_panel._tabs.indexOf(widget))
+        qtbot.waitUntil(
+            lambda: widget._scroll.horizontalScrollBar().maximum() == 0
+            and widget._scroll.verticalScrollBar().maximum() == 0,
+            timeout=15000,
+        )
+    assert window._left_stack_dock.minimumWidth() < 300
 
     window.close()

@@ -21,6 +21,7 @@
 | [프로젝트 개요](./explanation/project_overview_ko.md) | 예 | newcomer | 프로젝트가 무엇인지 처음 파악할 때 |
 | [운영 원칙](./explanation/engineering_operating_principles_ko.md) | 예 | contributor, maintainer | 문서/코드/reading 경계를 잡을 때 |
 | [문서 작성 원칙](./explanation/documentation_writing_principles_ko.md) | 예 | contributor, maintainer | 글쓰기와 문서 설계 판단 기준이 필요할 때 |
+| [파라미터 노출 정책](./explanation/parameter_exposure_policy_ko.md) | 예 | contributor, maintainer | 어떤 knob를 어디까지 노출할지 판단할 때 |
 | [연구 범위](./explanation/research_scope_ko.md) | 예 | newcomer, contributor | in/out of scope를 확인할 때 |
 | [Base Field 기초](./explanation/base_field_foundation_ko.md) | 예 | newcomer, contributor | whole-space field 개념을 이해할 때 |
 
@@ -33,6 +34,7 @@
 | [Base Field 항](./reference/base_field_terms_ko.md) | canonical | contributor | 용어와 항 구성을 볼 때 |
 | [Layer 조합](./reference/layer_composition_ko.md) | canonical | contributor | base/exception 조합 규칙을 볼 때 |
 | [Runtime Contract](./reference/runtime_evaluation_contract_ko.md) | canonical | contributor, maintainer | runtime API와 evaluator 계약을 볼 때 |
+| [파라미터 카탈로그](./reference/parameter_catalog_ko.md) | canonical/current | contributor, maintainer | 노출된 knob와 hidden tunable을 확인할 때 |
 | [Current Formula Reference](./reference/current_formula_reference_ko.md) | current implementation | contributor, maintainer | 현재 구현 수식을 대조할 때 |
 
 ## How-to

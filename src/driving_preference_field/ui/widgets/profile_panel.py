@@ -29,18 +29,19 @@ _PROFILE_PLOTS_DISABLED_MESSAGE = "Windows profile preview is temporarily disabl
 class _ProfileImageWidget(QWidget):
     def __init__(self) -> None:
         super().__init__()
+        self._has_pixmap = False
         self._label = QLabel("No profile result")
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._label.setMinimumSize(0, 0)
-        self._label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
-        scroll = QScrollArea()
-        scroll.setWidget(self._label)
-        scroll.setWidgetResizable(True)
-        scroll.setMinimumWidth(0)
-        scroll.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
+        self._label.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        self._scroll = QScrollArea()
+        self._scroll.setWidget(self._label)
+        self._scroll.setWidgetResizable(False)
+        self._scroll.setMinimumWidth(0)
+        self._scroll.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(scroll)
+        layout.addWidget(self._scroll)
 
     def minimumSizeHint(self) -> QSize:
         return QSize(120, 120)
@@ -48,15 +49,38 @@ class _ProfileImageWidget(QWidget):
     def sizeHint(self) -> QSize:
         return QSize(220, 180)
 
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        if not self._has_pixmap:
+            self._resize_placeholder_to_viewport()
+
     def set_png(self, payload: bytes | None, *, empty_text: str = "No profile result") -> None:
         if not payload:
+            self._has_pixmap = False
             self._label.setText(empty_text)
             self._label.setPixmap(QPixmap())
+            self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self._label.setMinimumSize(0, 0)
+            self._resize_placeholder_to_viewport()
             return
         self._label.setText("")
         pixmap = QPixmap()
         pixmap.loadFromData(payload)
+        self._has_pixmap = True
         self._label.setPixmap(pixmap)
+        self._label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        self._label.setMinimumSize(pixmap.size())
+        self._label.setMaximumSize(pixmap.size())
+        self._label.resize(pixmap.size())
+
+    def _resize_placeholder_to_viewport(self) -> None:
+        viewport_size = self._scroll.viewport().size()
+        width = max(1, viewport_size.width())
+        height = max(1, viewport_size.height())
+        placeholder_size = QSize(width, height)
+        self._label.setMinimumSize(placeholder_size)
+        self._label.setMaximumSize(placeholder_size)
+        self._label.resize(placeholder_size)
 
 
 class ProfilePanelWidget(QWidget):

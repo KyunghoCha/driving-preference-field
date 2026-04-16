@@ -14,12 +14,14 @@ ACTIVE_DOCS = [
     "docs/explanation/project_overview_ko.md",
     "docs/explanation/engineering_operating_principles_ko.md",
     "docs/explanation/documentation_writing_principles_ko.md",
+    "docs/explanation/parameter_exposure_policy_ko.md",
     "docs/explanation/research_scope_ko.md",
     "docs/explanation/base_field_foundation_ko.md",
     "docs/reference/input_semantics_ko.md",
     "docs/reference/source_adapter_ko.md",
     "docs/reference/base_field_terms_ko.md",
     "docs/reference/layer_composition_ko.md",
+    "docs/reference/parameter_catalog_ko.md",
     "docs/reference/runtime_evaluation_contract_ko.md",
     "docs/reference/current_formula_reference_ko.md",
     "docs/how-to/parameter_lab_ko.md",
@@ -39,10 +41,12 @@ TITLE_DOCS = [
     "docs/explanation/project_overview_ko.md",
     "docs/explanation/engineering_operating_principles_ko.md",
     "docs/explanation/documentation_writing_principles_ko.md",
+    "docs/explanation/parameter_exposure_policy_ko.md",
     "docs/explanation/research_scope_ko.md",
     "docs/explanation/base_field_foundation_ko.md",
     "docs/reference/input_semantics_ko.md",
     "docs/reference/source_adapter_ko.md",
+    "docs/reference/parameter_catalog_ko.md",
     "docs/reference/runtime_evaluation_contract_ko.md",
     "docs/how-to/parameter_lab_ko.md",
     "docs/status/roadmap_ko.md",
@@ -78,7 +82,9 @@ def test_docs_index_stays_portal_with_newcomer_spine() -> None:
     assert "./design/index.md" in docs_index
     assert "./explanation/project_overview_ko.md" in docs_index
     assert "./explanation/documentation_writing_principles_ko.md" in docs_index
+    assert "./explanation/parameter_exposure_policy_ko.md" in docs_index
     assert "./reference/source_adapter_ko.md" in docs_index
+    assert "./reference/parameter_catalog_ko.md" in docs_index
     assert "./how-to/parameter_lab_ko.md" in docs_index
     assert "./reading/source/input_reconstruction_notes_ko.md" in docs_index
     assert "./reading/history/phase5_adapter_proposal_ko.md" in docs_index
@@ -142,8 +148,14 @@ def test_parameter_lab_doc_is_procedural() -> None:
     assert "## baseline/candidate 비교 절차" in parameter_lab
     assert "## Export 결과물" in parameter_lab
     assert "## 현재 제한사항" in parameter_lab
+    assert "## 현재 파라미터 배치" in parameter_lab
+    assert "## Overlay와 Guide 읽기" in parameter_lab
+    assert "## Profile 탭 읽기" in parameter_lab
     assert "geometry 편집" in parameter_lab
     assert "Apply" in parameter_lab
+    assert "Main" in parameter_lab
+    assert "Advanced" in parameter_lab
+    assert "sensor_patch_open" in parameter_lab
 
 
 def test_reading_docs_keep_short_non_canonical_banner() -> None:

@@ -18,6 +18,28 @@ def test_documentation_writing_principles_doc_exists_and_links_official_referenc
     assert "docs/reading/references/documentation_style_references_ko.md" in body
 
 
+def test_parameter_exposure_policy_doc_exists_and_defines_tiers() -> None:
+    body = _read("docs/explanation/parameter_exposure_policy_ko.md")
+
+    assert "파라미터 노출 정책" in body
+    assert "`Main`" in body
+    assert "`Advanced`" in body
+    assert "`Internal`" in body
+    assert "Workspace" in body
+    assert "Parameters" in body
+
+
+def test_parameter_catalog_doc_exists_and_lists_main_and_hidden_tunables() -> None:
+    body = _read("docs/reference/parameter_catalog_ko.md")
+
+    assert "파라미터 카탈로그" in body
+    assert "ProgressionConfig" in body
+    assert "_ANCHOR_SPACING_M" in body
+    assert "_TRANSVERSE_HANDOFF_TEMPERATURE" in body
+    assert "overlay visibility" in body
+    assert "_EPS" in body
+
+
 def test_documentation_style_references_doc_exists_with_official_sources() -> None:
     body = _read("docs/reading/references/documentation_style_references_ko.md")
 
