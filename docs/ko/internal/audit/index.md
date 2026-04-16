@@ -1,4 +1,4 @@
-# Documentation Audit Index
+# 문서 감사 인덱스
 
 이번 감사는 `git ls-files` 기준 tracked 파일 전부를 대상으로 했다.
 목표는 문서 본문을 다시 쓰기 전에, 어떤 파일군이 어떤 역할을 하고 있고 어디서 drift나 가독성 문제가 생기는지 먼저 고정하는 것이다.

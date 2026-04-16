@@ -1,4 +1,4 @@
-# Docs Audit
+# 문서 감사
 
 이 감사는 `git ls-files 'docs/ko/**'` 기준 tracked 문서 26개를 확인한 결과를 정리한다.
 범위는 `docs/ko/index.md`, `docs/ko/design/`, `docs/ko/explanation/`, `docs/ko/reference/`, `docs/ko/how-to/`, `docs/ko/status/`, `docs/ko/reading/`, `docs/ko/internal/` 전체다.
@@ -71,7 +71,7 @@
 
 ### 2. reference 문서의 설명 밀도 편차
 
-- `input_semantics.md`, `source_adapter.md`, `runtime_evaluation_contract.md`는 lookup-first 구조를 지키는 편이다.
+- `input_semantics.md`, `source_adapter.md`, `runtime_evaluation_contract.md`는 찾아보기 중심 구조를 지키는 편이다.
 - `current_formula_reference.md`는 필요한 설명이 늘어난 대신, reference가 아니라 해설 문서처럼 길어지는 구간이 있다.
 - `base_field_terms.md`와 `layer_composition.md`는 현재 reference이지만 일부 설명을 explanation 쪽으로 보내도 된다.
 
@@ -85,7 +85,7 @@
 
 ### 4. internal 문서는 목적이 분명하지만 audit 부재
 
-- `docs/ko/internal/*`는 working vocabulary와 우선순위를 잘 유지하고 있다.
+- `docs/ko/internal/*`는 작업 용어와 우선순위를 잘 유지하고 있다.
 - 다만 이번 감사 전까지는 “전수 감사 결과”를 남기는 고정 경로가 없었다.
 
 ## 유지할 것
@@ -102,7 +102,7 @@
 - explanation 문서,
   특히 `base_field_foundation.md`의 문단 밀도와 용어 도입 방식을 다시 손봐야 한다.
 - `current_formula_reference.md`는 수식 해설을 유지하되,
-  lookup-first 구조를 더 선명히 할 필요가 있다.
+  찾아보기 중심 구조를 더 선명히 할 필요가 있다.
 - `docs/ko/index.md`는 포털 역할을 유지하되,
   한 화면에 겹치는 안내 문장을 더 줄일 여지가 있다.
 - `reading/math/README.md`는 현재 상태를 더 분명히 설명하거나,

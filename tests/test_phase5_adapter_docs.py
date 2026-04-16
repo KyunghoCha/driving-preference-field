@@ -34,7 +34,7 @@ def test_readmes_cross_link_and_point_to_language_portals() -> None:
     assert "./docs/en/index.md" in readme_ko
     assert "./docs/ko/index.md" in readme_ko
     assert "Phase 5 complete, Phase 6 preparation" in readme_en
-    assert "Phase 5 완료, Phase 6 준비 상태" in readme_ko
+    assert "Phase 5 완료, Phase 6 준비" in readme_ko
 
 
 def test_docs_index_is_language_landing_page() -> None:
@@ -66,7 +66,7 @@ def test_language_portals_expose_same_spine() -> None:
         assert target in en_index
         assert target in ko_index
     assert "Newcomer Spine" in en_index
-    assert "Newcomer Spine" in ko_index
+    assert "처음 읽는 순서" in ko_index
 
 
 def test_key_truths_survive_in_both_languages() -> None:
@@ -84,7 +84,7 @@ def test_key_truths_survive_in_both_languages() -> None:
     assert "Quick start" in guide_en
     assert "빠른 시작" in guide_ko
     assert "Guide vs Parameter Help" in guide_en
-    assert "Guide와 Parameter Help의 차이" in guide_ko
+    assert "`Guide`와 `Parameter Help`의 차이" in guide_ko
     assert "higher is better" in runtime_en
     assert "higher is better" in runtime_ko
 

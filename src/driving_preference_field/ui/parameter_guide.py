@@ -28,28 +28,28 @@ class _ParameterStatic:
 
 PARAMETER_GUIDE_INTRO = {
     LANG_EN: (
-        "This help explains the knobs in the right-hand `Parameters` dock.\n"
-        "`Guide` answers how to use the tool end-to-end; this page focuses on what each knob changes.\n"
+        "This page explains the controls in the right-hand `Parameters` dock.\n"
+        "`Guide` explains the workflow. This page explains what each control changes.\n"
         "Always start from `progression_tilted` with `Fixed` scale.\n"
         "Read the drivable boundary as an overlay only; do not read it as an additive base score.\n"
         "Treat obstacle / rule / dynamic channels as costmap visualization only.\n"
-        "Main knobs change field semantics directly. Advanced Surface is for discretization, kernel, modulation, and handoff tuning.\n"
+        "`Main` changes field semantics directly. `Advanced Surface` is for discretization, kernel, modulation, and handoff tuning.\n"
         "The current implementation builds guide-local coordinates and then reads the final field through the maximum guide score.\n"
         "The exact current formula is `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`.\n"
         "Support and alignment are weak secondary modulation terms. They should not dominate morphology.\n"
-        "Split and merge are expressed as multiple progression guides with shared prefix/suffix. The raster is only a local-map sample of the continuous function."
+        "Split and merge are expressed as multiple progression guides with shared prefix/suffix. The raster is only a local-map sample of the continuous field."
     ),
     LANG_KO: (
-        "이 도움말은 우측 `Parameters` 패널의 knob를 설명한다.\n"
-        "도구 전체 사용 흐름은 `Guide`가 답하고, 여기서는 각 파라미터가 무엇을 바꾸는지에만 집중한다.\n"
-        "항상 `progression_tilted`를 `Fixed` scale로 먼저 읽는다.\n"
+        "이 도움말은 오른쪽 `Parameters` 패널의 조정 항목을 설명한다.\n"
+        "`Guide`는 도구를 어떤 순서로 읽고 써야 하는지 설명하고, 여기서는 각 항목이 무엇을 바꾸는지에만 집중한다.\n"
+        "항상 `progression_tilted`를 `Fixed` scale에서 먼저 읽는다.\n"
         "drivable boundary는 overlay로만 읽고 base heatmap에 더하지 않는다.\n"
-        "obstacle / rule / dynamic 채널은 costmap 성격의 시각화로만 남긴다.\n"
-        "Main은 field semantics를 직접 읽는 knob이고, Advanced Surface는 discretization / kernel / modulation / handoff tuning용이다.\n"
-        "current implementation은 각 progression guide 안에서 local coordinate를 만들고, guide별 score 가운데 최대값을 최종 field로 읽는다.\n"
-        "현재 exact formula는 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.\n"
-        "support / alignment는 shape를 주도하지 않는 약한 secondary modulation이다.\n"
-        "split/merge는 shared prefix/suffix를 가진 multiple progression guide로 표현하고, raster는 continuous function을 local map 위에서 샘플링한 결과다."
+        "obstacle / rule / dynamic 채널은 costmap 시각화로만 읽는다.\n"
+        "`Main`은 field semantics를 직접 바꾸고, `Advanced Surface`는 discretization, kernel, modulation, handoff 품질을 조정한다.\n"
+        "현재 구현은 progression guide 안에서 guide-local coordinate를 만들고, guide별 score 가운데 가장 큰 값을 최종 field로 읽는다.\n"
+        "현재 수식은 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.\n"
+        "support와 alignment는 shape를 지배하지 않는 약한 보조 modulation이다.\n"
+        "split과 merge는 shared prefix/suffix를 가진 multiple progression guides로 표현하고, raster는 continuous field를 local map 위에서 샘플링한 결과다."
     ),
 }
 
@@ -84,8 +84,8 @@ PANEL_NOTE_TEXT = {
         "Read the drivable boundary as overlay and obstacle/rule/dynamic as costmap."
     ),
     LANG_KO: (
-        "현재 GUI는 Main + Advanced Surface controls로 `progression_tilted`를 조정한다.\n"
-        "Drivable boundary는 overlay로 읽고 obstacle/rule/dynamic은 costmap으로 읽는다."
+        "이 패널은 `Main`과 `Advanced Surface`로 `progression_tilted`를 조정한다.\n"
+        "Drivable boundary는 overlay로 읽고, obstacle/rule/dynamic은 costmap으로 읽는다."
     ),
 }
 
@@ -620,8 +620,8 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
     if lang == LANG_EN:
         title = "Parameter Help"
         intro_paragraph = (
-            "This page explains the knobs in the right-hand <code>Parameters</code> dock. "
-            "<code>Guide</code> explains how to use the tool end-to-end; here we focus on when to touch a knob and what changes when the value moves."
+            "This page explains the controls in the right-hand <code>Parameters</code> dock. "
+            "<code>Guide</code> covers the workflow; this page focuses on when to touch a control and what changes when the value moves."
         )
         start_here = "Start Here"
         start_steps = [
@@ -654,41 +654,41 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
         detail_title = "Detailed Reference"
         detail_intro = "Use the lookup cards below when you need to decide whether to push a knob up or down."
     else:
-        title = "파라미터 도움말"
+        title = "Parameter Help"
         intro_paragraph = (
-            "이 도움말은 우측 <code>Parameters</code> 패널을 설명한다. 도구 전체를 어디서 시작하고 어떤 순서로 쓰는지는 "
-            "<code>Guide</code>가 답하고, 여기서는 knob를 언제 만져야 하는지와 값을 올리거나 내리면 무엇이 달라지는지에만 집중한다."
+            "이 도움말은 오른쪽 <code>Parameters</code> 패널을 설명한다. 도구를 어디서 시작하고 어떤 순서로 써야 하는지는 "
+            "<code>Guide</code>가 답하고, 여기서는 각 항목을 언제 조정해야 하는지와 값을 올리거나 내리면 무엇이 달라지는지에만 집중한다."
         )
-        start_here = "Start Here"
+        start_here = "먼저 볼 것"
         start_steps = [
-            "<code>progression_tilted</code>를 <code>Fixed</code> scale로 먼저 읽는다.",
+            "<code>progression_tilted</code>를 <code>Fixed</code> scale에서 먼저 읽는다.",
             "<code>Main</code>에서 한 항목만 바꾸고 <code>Apply</code>를 누른다.",
             "semantics가 먼저 잡히기 전에는 <code>Advanced Surface</code>를 열지 않는다.",
             "<code>Diff</code>는 항상 <code>candidate - baseline</code>으로 읽는다.",
         ]
-        before_title = "Before You Touch a Knob"
-        main_vs_advanced = "Main vs Advanced"
+        before_title = "파라미터를 만지기 전에"
+        main_vs_advanced = "`Main`과 `Advanced Surface`"
         decision_rows = [
-            ("Main", "field semantics를 바로 읽는 knob다. frame, family, gain, transverse profile, support ceiling을 먼저 본다."),
+            ("Main", "field semantics를 바로 읽는 항목이다. frame, family, gain, transverse profile, support ceiling을 먼저 본다."),
             ("Advanced Surface", "discretization, kernel width, modulation, split/merge handoff 품질을 다룰 때만 쓴다."),
-            ("Do Not Start Here", "Advanced Surface부터 만지면 semantics보다 implementation artifact를 먼저 바꾸기 쉽다."),
+            ("주의", "`Advanced Surface`부터 만지면 semantics보다 implementation artifact를 먼저 바꾸기 쉽다."),
         ]
-        main_title = "Main Parameters"
+        main_title = "Main"
         advanced_title = "Advanced Surface"
         advanced_intro = (
             "이 섹션은 canonical 의미보다 morphology 품질과 비용을 다듬는다. "
             "split/merge handoff, bend locality, discretization 거동을 만질 때만 쓴다."
         )
-        interpretation_title = "Interpretation Rules"
+        interpretation_title = "읽는 규칙"
         interpretation_items = [
             "<code>higher is better</code>는 score sign 자체다.",
-            "<code>Fixed</code>는 해석 기준이고, <code>Normalized</code>는 탐색용 보조 모드다.",
+            "<code>Fixed</code>는 읽는 기준이고, <code>Normalized</code>는 탐색용 보조 모드다.",
             "<code>drivable boundary</code>는 overlay다. base heatmap에 더하지 않는다.",
             "<code>Obstacle / Rule / Dynamic</code>는 costmap 시각화다. base preference와 같은 층이 아니다.",
             "<code>Raster</code>는 continuous field를 local map 위에서 샘플링한 시각화다.",
         ]
-        detail_title = "Detailed Reference"
-        detail_intro = "아래 lookup card는 knob를 올리거나 내릴지 빠르게 판단할 때 쓴다."
+        detail_title = "세부 참고"
+        detail_intro = "아래 lookup card는 값을 올리거나 내릴지 빠르게 판단할 때 쓴다."
 
     decision_html = "".join(
         f"<tr><th>{html.escape(left)}</th><td>{right}</td></tr>" for left, right in decision_rows

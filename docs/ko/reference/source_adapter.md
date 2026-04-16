@@ -1,6 +1,6 @@
-# Source Adapter
+# 소스 어댑터
 
-이 문서는 raw source를 canonical semantic contract로 번역하는 source adapter의 출력 계약을 정리한다. canonical로 고정하는 것은 raw source 형식이 아니라 `SemanticInputSnapshot + QueryContext`라는 output contract다. 이 문서는 adapter가 무엇을 출력해야 하는지, 어떤 slot이 필수이고 어떤 slot이 optional인지, 그리고 무엇을 canonical로 올리지 않는지 lookup-first로 확인하게 만드는 reference다.
+이 문서는 raw source를 canonical semantic contract로 번역하는 source adapter의 출력 계약을 정리한다. canonical로 고정하는 것은 raw source 형식이 아니라 `SemanticInputSnapshot + QueryContext`라는 output contract다. 이 문서는 adapter가 무엇을 출력해야 하는지, 어떤 slot이 필수이고 어떤 slot이 optional인지, 그리고 무엇을 canonical로 올리지 않는지 찾아보기 중심으로 정리하는 reference다.
 
 ## 책임
 
@@ -15,7 +15,7 @@ adapter는 의미 번역기만 한다.
   - optimizer tuning
   - Gazebo / RViz / MPPI integration
 
-## Canonical output
+## 출력 계약
 
 adapter output은 다음 두 타입으로 고정한다.
 
@@ -57,7 +57,7 @@ field를 어디서 어떻게 평가하는지를 담는다.
 
 `QueryContext`는 field 의미 자체를 바꾸는 입력이 아니라, 같은 semantic snapshot을 어디서 어떻게 평가할지를 정하는 evaluation context다.
 
-## Generic reference input schema
+## `generic reference` 입력 스키마
 
 Phase 5 v1 reference adapter는 source-specific naming을 쓰지 않는 generic local semantic map fixture를 사용한다. reference schema는 아래 계층으로 구성한다.
 
@@ -113,7 +113,7 @@ branch winner는 canonical에서 정하지 않는다. split/merge는 shared pref
 
 평가기, raster, Parameter Lab, `FieldRuntime`는 adapter output이 같으면 그대로 재사용한다.
 
-## Inspection path
+## 점검 경로
 
 현재 adapter inspection CLI는 다음을 지원한다.
 
@@ -133,7 +133,7 @@ SSC는 중요한 validation source지만 canonical 기준은 아니다.
 
 즉 adapter는 SSC를 포함한 어떤 source라도 같은 output contract로 번역해야 한다. source-specific 구조를 canonical로 승격하지 않는다는 경계가 이 문서의 핵심이다.
 
-## Current Implementation
+## 현재 구현
 
 Phase 5 v1 reference adapter는 generic local semantic map fixture를 `SemanticInputSnapshot + QueryContext`로 번역한다. 현재 runtime과 toy path는 같은 output contract를 공유하고, optional boundary / exception support가 없어도 canonical output 전체를 invalid로 보지 않는다.
 

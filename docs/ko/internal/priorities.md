@@ -5,7 +5,7 @@
 ## P0: Phase 5 결과 안정화
 
 - `Phase 5 완료, Phase 6 준비 상태` 문서, runtime contract, adapter contract, lab 동작을 계속 맞춘다.
-- newcomer 문서, status 문서, current implementation note 사이의 semantic drift를 막는다.
+- 입문 문서, status 문서, 현재 구현 메모 사이의 semantic drift를 막는다.
 - 이 repo를 integration-specific branch가 아니라 score-field SSOT로 유지한다.
 
 ## P1: 반복 가능한 morphology 실험 유지

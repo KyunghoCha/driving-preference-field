@@ -1,11 +1,11 @@
-# Src Audit
+# 소스 감사
 
 이 감사는 `git ls-files 'src/**'` 기준 tracked source 파일 34개를 확인한 결과를 정리한다.
 범위는 core/runtime/adapter/cli/rendering/ui 전체다.
 
 ## 현재 역할
 
-### Core / contracts / config
+### 핵심 / 계약 / 설정
 
 - `__init__.py`
 - `__main__.py`
@@ -16,7 +16,7 @@
 - `exception_layers.py`
 - `evaluator.py`
 
-### Runtime / rendering / profiling
+### runtime / rendering / profiling
 
 - `progression_surface.py`
 - `field_runtime.py`
@@ -25,7 +25,7 @@
 - `visualization_scale.py`
 - `profile_inspection.py`
 
-### Adapter / input / CLI / presets
+### adapter / 입력 / CLI / preset
 
 - `source_adapter.py`
 - `input_loader.py`
@@ -103,7 +103,7 @@
 - contracts/config/evaluator/runtime의 현재 공개 용어
 - adapter가 source-agnostic output contract를 유지하는 방식
 - base / soft / hard 분리
-- progression surface의 current implementation docstring과 runtime contract의 결합 방식
+- progression surface의 현재 구현 docstring과 runtime contract의 결합 방식
 - CLI가 inspect/evaluate/render/adapter path를 같은 contract 위에서 제공하는 구조
 
 ## 수정이 필요한 것

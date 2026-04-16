@@ -1,4 +1,4 @@
-# Math Reading Notes
+# 수학 읽을거리 메모
 
 > 현재 구현 수식의 단일 reference는 `docs/ko/reference/current_formula_reference.md`에서 관리한다.
 

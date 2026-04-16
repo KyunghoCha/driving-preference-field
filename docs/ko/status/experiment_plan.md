@@ -30,7 +30,7 @@
 
 ## 실험축
 
-### Longitudinal
+### 종방향
 
 - family
 - amplitude / slope
@@ -38,19 +38,19 @@
 - `local absolute s`
 - `ego-relative Δs`
 
-### Transverse
+### 횡방향
 
 - family
 - spread / decay
 - penalty strength
 
-### Support / confidence / continuity
+### support / confidence / continuity
 
 - weak-support 장면에서 과확신이 줄어드는가
 - branch / merge / reconnect 장면에서 continuity 차이가 유지되는가
 - alignment 같은 보조 gate가 reverse나 명백한 비양립 상태만 약하게 누르는가
 
-## baseline과 candidate
+## `Baseline`과 `Candidate`
 
 baseline과 candidate는 특정 버전 이름이 아니라 비교 역할이다.
 
@@ -107,7 +107,7 @@ generic adapter fixture:
 - `render_summary.json`
 - 짧은 비교 메모
 
-## late Phase 4 semantic acceptance
+## Phase 4 종료 기준
 
 허용:
 

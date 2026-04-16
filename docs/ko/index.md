@@ -2,48 +2,48 @@
 
 `driving-preference-field`의 한국어 문서 포털이다. 현재 프로젝트 상태는 `Phase 5 완료, Phase 6 준비 상태`다.
 
-## Newcomer Spine
+## 처음 읽는 순서
 
 1. [프로젝트 개요](./explanation/project_overview.md)
 2. [운영 원칙](./explanation/engineering_operating_principles.md)
 3. [연구 범위](./explanation/research_scope.md)
 4. [Base Field 기초](./explanation/base_field_foundation.md)
-5. [입력 Semantics](./reference/input_semantics.md)
-6. [Source Adapter](./reference/source_adapter.md)
-7. [Runtime Contract](./reference/runtime_evaluation_contract.md)
+5. [입력 의미 계약](./reference/input_semantics.md)
+6. [소스 어댑터](./reference/source_adapter.md)
+7. [런타임 계약](./reference/runtime_evaluation_contract.md)
 8. [Parameter Lab 사용](./how-to/parameter_lab.md)
 9. [로드맵](./status/roadmap.md)
 
-## Explanation
+## 설명
 
 | 문서 | 역할 | 언제 읽는지 |
 | --- | --- | --- |
-| [프로젝트 개요](./explanation/project_overview.md) | 프로젝트 의도 | 처음 들어올 때 |
+| [프로젝트 개요](./explanation/project_overview.md) | 프로젝트 목적 | 처음 들어올 때 |
 | [운영 원칙](./explanation/engineering_operating_principles.md) | repo 운영 기준 | 코드나 문서를 바꾸기 전에 |
-| [문서 작성 원칙](./explanation/documentation_writing_principles.md) | 문서 작성 기준 | 문서 재작성 전에 |
-| [파라미터 노출 정책](./explanation/parameter_exposure_policy.md) | knob 노출 정책 | 새 control을 추가하거나 숨기기 전에 |
+| [문서 작성 원칙](./explanation/documentation_writing_principles.md) | 문서 작성 기준 | 문서를 다시 쓸 때 |
+| [파라미터 노출 정책](./explanation/parameter_exposure_policy.md) | knob 노출 기준 | 새 control을 추가하거나 숨기기 전에 |
 | [연구 범위](./explanation/research_scope.md) | 범위 경계 | claim을 넓히기 전에 |
-| [Base Field 기초](./explanation/base_field_foundation.md) | base field 개념 | progression semantics를 건드리기 전에 |
+| [Base Field 기초](./explanation/base_field_foundation.md) | Base Field 개념 | progression semantics를 건드리기 전에 |
 
-## Reference
+## 레퍼런스
 
 | 문서 | 역할 | 언제 읽는지 |
 | --- | --- | --- |
-| [입력 Semantics](./reference/input_semantics.md) | canonical semantic slot | 입력 계약을 바꾸기 전에 |
-| [Source Adapter](./reference/source_adapter.md) | adapter output contract | loader/adapter를 바꾸기 전에 |
-| [Base Field 항](./reference/base_field_terms.md) | base field 항 구분 | layer 의미를 바꾸기 전에 |
+| [입력 의미 계약](./reference/input_semantics.md) | canonical 입력 구조 | 입력 계약을 바꾸기 전에 |
+| [소스 어댑터](./reference/source_adapter.md) | adapter 출력 계약 | loader/adapter를 바꾸기 전에 |
+| [Base Field 항](./reference/base_field_terms.md) | Base Field 항 구분 | layer 의미를 바꾸기 전에 |
 | [Layer 조합](./reference/layer_composition.md) | layer 조합 규칙 | runtime composition을 바꾸기 전에 |
-| [파라미터 카탈로그](./reference/parameter_catalog.md) | 현재 knob와 hidden tunable | 새 파라미터를 노출하기 전에 |
-| [Runtime Contract](./reference/runtime_evaluation_contract.md) | runtime API 계약 | public runtime behavior를 바꾸기 전에 |
-| [Current Formula Reference](./reference/current_formula_reference.md) | 현재 구현 수식 | 현재 수식이 필요할 때 |
+| [파라미터 카탈로그](./reference/parameter_catalog.md) | 현재 knob와 숨겨진 tunable | 새 파라미터를 노출하기 전에 |
+| [런타임 계약](./reference/runtime_evaluation_contract.md) | runtime API 계약 | public runtime behavior를 바꾸기 전에 |
+| [현재 구현 수식](./reference/current_formula_reference.md) | 현재 구현 수식 | 현재 수식이 필요할 때 |
 
-## How-to
+## 사용 방법
 
 | 문서 | 역할 | 언제 읽는지 |
 | --- | --- | --- |
 | [Parameter Lab 사용](./how-to/parameter_lab.md) | 도구 사용 흐름 | Lab을 실행하고 읽을 때 |
 
-## Status
+## 상태
 
 | 문서 | 역할 | 언제 읽는지 |
 | --- | --- | --- |
@@ -51,23 +51,23 @@
 | [진행 상태](./status/project_status.md) | current snapshot | 최근 완료 작업을 확인할 때 |
 | [실험 계획](./status/experiment_plan.md) | experiment procedure | morphology 비교 실험 전에 |
 
-## Reading
+## 읽을거리
 
 | 문서 | 역할 | 언제 읽는지 |
 | --- | --- | --- |
-| [Input Reconstruction Notes](./reading/source/input_reconstruction_notes.md) | 비-canonical note | input/source 예시를 참고할 때 |
-| [Phase 5 Adapter Proposal History](./reading/history/phase5_adapter_proposal.md) | proposal history | 예전 adapter 논의를 추적할 때 |
-| [External References](./reading/references/external_references.md) | 외부 참고 로그 | 외부 근거를 다시 확인할 때 |
-| [Documentation Style References](./reading/references/documentation_style_references.md) | 공식 글쓰기 참고 | 문서 스타일 기준을 다시 볼 때 |
-| [Archive References](./reading/history/archive/archive_references.md) | archive map | archive 메모 위치를 찾을 때 |
-| [Archive Score Field Notes](./reading/history/archive/archive_score_field_notes.md) | archive note | 과거 메모를 추적할 때 |
+| [입력 재구성 메모](./reading/source/input_reconstruction_notes.md) | 비-canonical 메모 | input/source 예시를 참고할 때 |
+| [Phase 5 Adapter 제안 이력](./reading/history/phase5_adapter_proposal.md) | 제안 이력 | 예전 adapter 논의를 추적할 때 |
+| [외부 참고 자료](./reading/references/external_references.md) | 외부 참고 로그 | 외부 근거를 다시 확인할 때 |
+| [문서 스타일 참고 자료](./reading/references/documentation_style_references.md) | 공식 글쓰기 참고 | 문서 스타일 기준을 다시 볼 때 |
+| [Archive 참고 자료](./reading/history/archive/archive_references.md) | archive 위치 안내 | archive 메모 위치를 찾을 때 |
+| [Archive score field 메모](./reading/history/archive/archive_score_field_notes.md) | archive 메모 | 과거 메모를 추적할 때 |
 
-## Internal
+## 내부 문서
 
 | 문서 | 역할 | 언제 읽는지 |
 | --- | --- | --- |
-| [internal README](./internal/README.md) | internal boundary | internal note를 추가하기 전에 |
-| [audit index](./internal/audit/index.md) | audit landing | 파일군별 감사 결과를 볼 때 |
-| [internal status](./internal/status.md) | internal snapshot | maintainer용 상태를 복기할 때 |
-| [internal priorities](./internal/priorities.md) | internal priorities | cleanup 우선순위를 볼 때 |
-| [internal glossary](./internal/glossary.md) | internal vocabulary | 용어 drift를 맞출 때 |
+| [내부 문서 안내](./internal/README.md) | internal 경계 | internal note를 추가하기 전에 |
+| [감사 인덱스](./internal/audit/index.md) | audit 시작점 | 파일군별 감사 결과를 볼 때 |
+| [내부 상태](./internal/status.md) | internal snapshot | maintainer용 상태를 복기할 때 |
+| [내부 우선순위](./internal/priorities.md) | internal 우선순위 | cleanup 우선순위를 볼 때 |
+| [내부 용어집](./internal/glossary.md) | internal 용어 기준 | 용어 drift를 맞출 때 |

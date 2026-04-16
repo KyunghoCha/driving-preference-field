@@ -1,6 +1,6 @@
-# Documentation Style References
+# 문서 스타일 참고 자료
 
-> 참고용 reference log다. 현재 문서 작성 판단은 `docs/ko/explanation/documentation_writing_principles.md`를 기준으로 읽는다.
+> 참고용 기록 문서다. 현재 문서 작성 판단은 `docs/ko/explanation/documentation_writing_principles.md`를 기준으로 읽는다.
 
 이 문서는 `driving-preference-field`의 문서 품질을 다듬을 때 참고한 공식 자료를 기록한다.
 canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
@@ -10,7 +10,7 @@ canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
 
 - 출처: `https://diataxis.fr/`
 - 참고한 핵심 원칙:
-  - documentation은 user need에 따라 tutorial, how-to guide, reference, explanation으로 구분된다
+  - documentation은 user need에 따라 tutorial, how-to guide, reference, explanation으로 나뉜다
   - content, style, architecture를 함께 보되 네 역할을 섞지 않는다
 - 우리 repo 적용 포인트:
   - 현재 `explanation / reference / how-to / status / reading / internal` 구조를 유지한다
@@ -30,10 +30,10 @@ canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
   - 긴 prose를 무조건 유지하지 말고, 필요할 때는 목록과 표로 바꾼다
 - 우리 repo 적용 포인트:
   - explanation 문서는 첫 문단에서 질문과 범위를 바로 말한다
-  - reference는 가능한 한 표와 목록으로 lookup-first 구조를 유지한다
+  - reference는 가능한 한 표와 목록으로 찾아보기 중심 구조를 유지한다
   - roadmap/status는 scope와 non-scope를 짧게 명시한다
 
-## 3. Microsoft Writing Style Guide
+## 3. Microsoft 글쓰기 스타일 가이드
 
 - 출처:
   - `https://learn.microsoft.com/en-us/style-guide/welcome/`
@@ -44,7 +44,7 @@ canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
   - simple, straightforward style
   - crisp and clear wording
   - terminology consistency
-  - procedure는 task-first여야 하고, heading은 사용자가 무엇을 할 수 있는지 바로 보여줘야 한다
+  - procedure는 작업 중심이어야 하고, heading은 사용자가 무엇을 할 수 있는지 바로 보여 줘야 한다
   - step은 짧고 완결된 문장으로 쓰고, UI 안에서 어디서 행동하는지 먼저 알려 주는 편이 좋다
 - 우리 repo 적용 포인트:
   - 핵심 용어는 첫 등장만 한국어+영문 병기하고, 그 뒤에는 더 짧은 표기로 통일한다
@@ -52,7 +52,7 @@ canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
   - 문서가 메타 설명으로 길어지지 않게 직접 정의하는 문장을 우선한다
   - in-app `Guide`는 “지금 무엇을 해야 하는가”를 먼저 답하고, `Parameter Help`는 knob reference를 담당하도록 역할을 분리한다
 
-## 4. Kubernetes Documentation Style Guide
+## 4. Kubernetes 문서 스타일 가이드
 
 - 출처:
   - `https://kubernetes.io/docs/contribute/style/style-guide/`
@@ -63,10 +63,10 @@ canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
   - 용어와 capitalization, 구조를 일관되게 유지한다
 - 우리 repo 적용 포인트:
   - 문서 제목 체계와 섹션 깊이를 과도하게 늘리지 않는다
-  - `docs/ko/index.md`에서 newcomer spine을 고정하고, 개별 문서 H1은 번호 없이 유지한다
+  - `docs/ko/index.md`에서 처음 읽는 순서를 고정하고, 개별 문서 H1은 번호 없이 유지한다
   - 문서/코드/테스트가 공유하는 공개 용어는 표기와 의미를 같이 맞춘다
 
-## 5. Red Hat Modular Documentation
+## 5. Red Hat 모듈형 문서
 
 - 출처: `https://redhat-documentation.github.io/modular-docs/ko/`
 - 참고한 핵심 원칙:
@@ -77,7 +77,7 @@ canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
 - 우리 repo 적용 포인트:
   - explanation 문서는 concept에 가깝게 쓰되, 개념과 경계를 분리한다
   - reference 문서는 짧은 intro 뒤에 정의, 필수, optional, 비범위 순서를 유지한다
-  - `parameter_lab.md`는 prerequisite, steps, expected outputs, limits 순서의 task-first 문서로 유지한다
+  - `parameter_lab.md`는 prerequisite, steps, expected outputs, limits 순서의 작업 중심 문서로 유지한다
 
 ## 현재 기준
 

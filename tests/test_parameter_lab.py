@@ -5,8 +5,8 @@ import pytest
 from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, QSettings, Qt, QUrl
 from PyQt6.QtGui import QColor, QImage
 
-from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, LANG_KO
-from driving_preference_field.ui.parameter_guide import PANEL_NOTE_TEXT
+from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, LANG_EN, LANG_KO, UI_TEXTS, guide_doc_path
+from driving_preference_field.ui.parameter_guide import PANEL_NOTE_TEXT, parameter_help_html
 from driving_preference_field.ui.parameter_lab_window import ParameterLabWindow
 
 
@@ -110,6 +110,38 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert summary["profile"]["selected_channel"] == "progression_tilted"
 
     window.close()
+
+
+def test_locale_catalog_stays_complete_and_mixed_terms_remain_consistent() -> None:
+    assert set(UI_TEXTS[LANG_EN]) == set(UI_TEXTS[LANG_KO])
+    for language in (LANG_EN, LANG_KO):
+        for key, value in UI_TEXTS[language].items():
+            assert value.strip(), key
+
+    assert UI_TEXTS[LANG_KO]["toolbar.guide"] == "Guide"
+    assert UI_TEXTS[LANG_KO]["toolbar.parameter_help"] == "Parameter Help"
+    assert UI_TEXTS[LANG_KO]["dock.parameters"] == "Parameters"
+    assert UI_TEXTS[LANG_KO]["tab.profile"] == "Profile"
+    assert UI_TEXTS[LANG_KO]["tab.baseline"] == "Baseline"
+    assert UI_TEXTS[LANG_KO]["tab.candidate"] == "Candidate"
+    assert UI_TEXTS[LANG_KO]["param.section.advanced"] == "Advanced Surface"
+    assert UI_TEXTS[LANG_KO]["param.button.apply"] == "Apply"
+    assert UI_TEXTS[LANG_KO]["toolbar.channel"] == "channel"
+    assert UI_TEXTS[LANG_KO]["toolbar.scale"] == "scale"
+
+
+def test_guide_and_parameter_help_keep_distinct_roles_in_both_languages() -> None:
+    help_en = parameter_help_html(LANG_EN)
+    help_ko = parameter_help_html(LANG_KO)
+    guide_en = guide_doc_path(ROOT, LANG_EN).read_text(encoding="utf-8")
+    guide_ko = guide_doc_path(ROOT, LANG_KO).read_text(encoding="utf-8")
+
+    assert "This page explains the controls" in help_en
+    assert "이 도움말은 오른쪽" in help_ko
+    assert "Quick start" in guide_en
+    assert "빠른 시작" in guide_ko
+    assert "what each control changes" in help_en
+    assert "각 항목이 무엇을 바꾸는지" in help_ko
 
 
 def test_profile_panel_builds_on_demand_when_profile_tab_is_selected(qtbot) -> None:
@@ -498,7 +530,7 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert "progression_tilted" in help_text
     assert "`progression_tilted`" not in help_text
     assert "Guide" in help_text
-    assert "continuous function" in help_text.lower()
+    assert "continuous field" in help_text.lower()
     assert "raster" in help_text.lower()
     assert "longitudinal" in help_text.lower()
     assert "transverse" in help_text.lower()
@@ -524,7 +556,7 @@ def test_toolbar_docs_opens_parameter_lab_docs_browser(qtbot) -> None:
         timeout=15000,
     )
     assert window._lab_help_dialog is not None
-    assert window._lab_help_dialog.windowTitle() == "Parameter Lab Guide"
+    assert window._lab_help_dialog.windowTitle() == "Guide"
     help_text = window._lab_help_dialog._text.toPlainText()
     assert "Parameter Lab Guide" in help_text
     assert "Quick start" in help_text
@@ -564,17 +596,17 @@ def test_language_switch_retranslates_ui_and_persists(qtbot) -> None:
     window._language_selector.setCurrentIndex(index)
 
     qtbot.waitUntil(lambda: window._language == LANG_KO, timeout=15000)
-    assert window._left_tabs.tabText(2) == "프로파일"
-    assert window._parameter_dock.windowTitle() == "파라미터"
-    assert window._lab_help_action.text() == "가이드"
-    assert window._baseline_panel._apply_button.text() == "적용"
+    assert window._left_tabs.tabText(2) == "Profile"
+    assert window._parameter_dock.windowTitle() == "Parameters"
+    assert window._lab_help_action.text() == "Guide"
+    assert window._baseline_panel._apply_button.text() == "Apply"
 
     window._baseline_panel._help_button.click()
     qtbot.waitUntil(
         lambda: window._parameter_help_dialog is not None and window._parameter_help_dialog.isVisible(),
         timeout=15000,
     )
-    assert "파라미터 도움말" in window._parameter_help_dialog.windowTitle()
+    assert "Parameter Help" in window._parameter_help_dialog.windowTitle()
 
     window._lab_help_action.trigger()
     qtbot.waitUntil(
@@ -589,7 +621,7 @@ def test_language_switch_retranslates_ui_and_persists(qtbot) -> None:
     reopened.show()
     _wait_for_result(qtbot, reopened)
     assert reopened._language == LANG_KO
-    assert reopened._left_tabs.tabText(2) == "프로파일"
+    assert reopened._left_tabs.tabText(2) == "Profile"
     reopened.close()
 
 

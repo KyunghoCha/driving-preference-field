@@ -20,7 +20,7 @@
 - case-level ego/window control과 working context 분리 추가
 - channel scale mode (`Fixed` / `Normalized`)와 range/unit 표시 추가
 - Parameter Help와 summary 정리
-- Gaussian anchor blended guide-local coordinates + hard max envelope current implementation 정리
+- Gaussian anchor blended guide-local coordinates + hard max envelope 현재 구현 정리
 - cached field runtime query layer 추가
 - public batched progression runtime query 추가
 - progression debug component view 추가
@@ -40,8 +40,8 @@
 - progression field는 특정 source 예시에 종속되지 않는다.
 - runtime은 현재 보이는 local map 전체를 analytic하게 평가할 수 있어야 한다.
 - progression field는 최소한 longitudinal term과 transverse term을 가져야 하며, 이 둘은 독립적으로 조정 가능해야 한다.
-- current implementation은 Gaussian anchor blended guide-local coordinates와 hard max envelope를 사용한다.
-- current implementation exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.
+- 현재 구현은 Gaussian anchor blended guide-local coordinates와 hard max envelope를 사용한다.
+- 현재 구현 exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.
 - visible guide endpoint는 virtual continuation으로 처리한다.
 - support / alignment는 weak secondary modulation으로만 유지한다.
 - current base composition은 `progression_tilted`만 사용한다.
@@ -70,7 +70,7 @@
 
 현재 source adapter의 design SSOT는 `docs/ko/reference/source_adapter.md`에 있고, proposal history는 `docs/ko/reading/history/phase5_adapter_proposal.md`에 남긴다.
 
-## Phase 4 acceptance
+## Phase 4 종료 기준
 
 현재 Phase 4 종료 조건은 아래를 동시에 만족하는 것으로 본다.
 

@@ -4,21 +4,21 @@
 
 [![ci](https://github.com/KyunghoCha/driving-preference-field/actions/workflows/ci.yml/badge.svg)](https://github.com/KyunghoCha/driving-preference-field/actions/workflows/ci.yml)
 
-`driving-preference-field` is a research workspace for defining and experimenting with a whole-space driving preference field over the visible local map. The current project state is `Phase 5 complete, Phase 6 preparation`.
+`driving-preference-field` is a research workspace for defining and testing a whole-space driving preference field over the visible local map. Current state: `Phase 5 complete, Phase 6 preparation`.
 
 ## What This Repo Is For
 
-- keep the canonical progression-centered field semantics and runtime contract
-- run morphology experiments in Parameter Lab
-- keep the source-adapter contract generic and reusable by downstream consumers
+- keep the canonical progression-centered field semantics and runtime contract stable
+- run repeatable morphology experiments in Parameter Lab
+- keep the source-adapter contract generic enough for downstream consumers
 
 This repo is not currently responsible for planner integration, Gazebo/RViz hookup, or full downstream control loops.
 
 ## Prerequisites
 
-- Python/conda environment from [environment.yml](./environment.yml)
+- Python/conda environment defined in [environment.yml](./environment.yml)
 - Recommended environment name: `driving-preference-field`
-- Current known-good NumPy pin: `1.26.4`
+- Current known-good NumPy version: `1.26.4`
 
 ## Quick Start
 
@@ -43,7 +43,7 @@ Recommended newcomer reading order:
 
 ## Parameter Lab
 
-Parameter Lab is the main experiment UI for comparing baseline and candidate progression settings over the same local map sample. It now supports English/Korean UI switching from the top toolbar and reads the matching guide/help documents from `docs/en` or `docs/ko`.
+Parameter Lab is the main experiment UI for comparing baseline and candidate progression settings over the same local map sample. It supports English/Korean UI switching from the top toolbar and opens the matching `Guide` and `Parameter Help` content from `docs/en` or `docs/ko`.
 
 ## Current Scope
 

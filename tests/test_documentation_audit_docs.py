@@ -69,3 +69,30 @@ def test_audit_index_records_new_bilingual_family_order() -> None:
 
     assert "1. `docs/en/*` and `docs/ko/*`" in en_index
     assert "1." in ko_index
+
+
+def test_korean_public_docs_do_not_keep_known_awkward_residue() -> None:
+    public_roots = [
+        ROOT / "docs" / "ko" / "explanation",
+        ROOT / "docs" / "ko" / "reference",
+        ROOT / "docs" / "ko" / "how-to",
+        ROOT / "docs" / "ko" / "status",
+    ]
+    combined = "\n".join(path.read_text(encoding="utf-8") for root in public_roots for path in sorted(root.rglob("*.md")))
+    forbidden = (
+        "## field 의미",
+        "## canonical 출력",
+        "## inspection 경로",
+        "## progression surface",
+        "### guide-local anchor 좌표",
+        "### guide-local Gaussian weight",
+        "### guide-local 좌표",
+        "### guide-local longitudinal frame",
+        "### secondary modulation",
+        "## exception layer",
+        "## Optional semantic slot",
+        "찾아보기 중심로",
+        "known-good NumPy pin",
+    )
+    for token in forbidden:
+        assert token not in combined

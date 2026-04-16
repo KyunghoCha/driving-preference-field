@@ -12,7 +12,7 @@
 
 이 판단은 branch와 obstacle을 다루는 방식도 같이 결정한다. branch는 field가 미리 winner를 정하는 대상이 아니다. progression support가 여러 continuation을 만들 수 있는 구조로 읽는 편이 이 프로젝트의 철학과 맞다. obstacle, rule, dynamic actor는 base field와 같은 층의 개념이 아니므로, ideal preference를 담는 본체와 별도 레이어로 분리해 다룬다.
 
-현재 runtime은 이 철학을 향한 current implementation을 포함한다. 본체 score는 `progression_tilted`를 중심으로 읽고, drivable boundary는 overlay/support로 다룬다. obstacle / rule / dynamic은 costmap 성격의 시각화와 burden layer로 분리돼 있다. 즉 canonical 철학과 current implementation은 최대한 맞춰 두되, 구현 디테일과 본체 개념을 같은 것으로 취급하지는 않는다.
+현재 runtime은 이 철학을 향한 현재 구현을 포함한다. 본체 score는 `progression_tilted`를 중심으로 읽고, drivable boundary는 overlay/support로 다룬다. obstacle / rule / dynamic은 costmap 성격의 시각화와 burden layer로 분리돼 있다. 즉 canonical 철학과 현재 구현은 최대한 맞춰 두되, 구현 디테일과 본체 개념을 같은 것으로 취급하지는 않는다.
 
 SSC는 이 아이디어를 실제로 검증하는 중요한 downstream validation source다. 하지만 SSC가 canonical truth는 아니다. SSC에서 얻은 요구사항과 관찰은 evidence로 읽고, 이 repo는 끝까지 source-agnostic field와 contract를 정의하는 기준점으로 남는다.
 

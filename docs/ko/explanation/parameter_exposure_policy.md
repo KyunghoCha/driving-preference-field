@@ -23,4 +23,4 @@ Parameter Lab은 현재 whole-space preference field의 morphology를 반복 가
 
 현재 UI 배치도 이 정책을 따른다. 좌측 `Workspace`는 `Presets`, `Summary`, `Profile`, `Layers`처럼 결과를 읽는 공간이다. 우측 `Parameters` 도크는 조정 공간이고, `Main`과 접이식 `Advanced Surface`를 함께 둔다. 좌측 읽기 공간을 tuning panel로 바꾸는 것은 피한다.
 
-이 정책의 목적은 숨기는 것이 아니라, 먼저 드러나야 할 의미를 우선순위대로 드러내는 것이다. 이렇게 해야 Parameter Lab이 field semantics 비교 도구로 남고, current implementation의 미세 상수 때문에 canonical 의미가 흔들리지 않는다.
+이 정책의 목적은 숨기는 것이 아니라, 먼저 드러나야 할 의미를 우선순위대로 드러내는 것이다. 이렇게 해야 Parameter Lab이 field semantics 비교 도구로 남고, 현재 구현의 미세 상수 때문에 canonical 의미가 흔들리지 않는다.

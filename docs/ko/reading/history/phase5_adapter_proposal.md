@@ -1,4 +1,4 @@
-# Phase 5 Adapter Proposal History
+# Phase 5 Adapter 제안 이력
 
 > 참고용 proposal history다. 현재 source adapter 결정은 `docs/ko/reference/source_adapter.md`를 기준으로 읽는다.
 

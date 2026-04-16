@@ -1,10 +1,10 @@
-# Base Field 항
+# Base Field 구성 항목
 
 이 문서는 base driving preference field가 어떤 종류의 선호 구조를 생성해야 하는지 항별로 정리한다. 최종 수식을 고정하기보다, evaluator를 설계할 수 있을 정도로 각 항의 역할과 입력 소비를 먼저 분리해 둔다.
 
 ## 필수 항
 
-### 1. Progression-Aware Potential Structure
+### 1. progression-aware potential structure
 
 현재 local map 전체에 대해 progression-aware surface patch를 생성한다.
 
@@ -20,7 +20,7 @@
 
 현재 구현은 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)` 형태의 가산형 surface를 사용한다. 같은 longitudinal slice에서는 center-high transverse profile을 읽고, strong longitudinal 설정에서는 더 먼 progression gain이 가까운 중심 선호를 이길 수 있다.
 
-### 2. Interior / Boundary-Derived Preference
+### 2. interior / boundary 기반 선호
 
 주행 가능한 구조의 interior와 boundary 관계로부터 공간적 선호를 생성한다.
 
@@ -31,7 +31,7 @@
   - interior에 안정적으로 머무르는 상태와 boundary에 과도하게 붙는 상태를 구분한다.
   - progression term과 별개로 local cross-section shape를 보강한다.
 
-### 3. Continuity / Branch Structure
+### 3. continuity / branch 구조
 
 여러 continuation 중 어떤 흐름이 더 자연스럽게 이어지는지를 생성한다.
 
@@ -42,7 +42,7 @@
   - split, merge, reconnect, branch 장면에서 continuity relation을 읽는다.
   - continuation ambiguity를 풀어 주는 보조 구조를 만든다.
 
-## 선택 / 실험 항
+## 선택 실험 항목
 
 다음은 canonical 필수 항은 아니지만 이후 prototype에서 실험 가능한 항이다.
 

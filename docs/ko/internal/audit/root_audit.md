@@ -1,4 +1,4 @@
-# Root and Supporting Files Audit
+# 루트 및 지원 파일 감사
 
 이 감사는 root-level tracked 파일과 supporting asset 파일군을 함께 본 결과를 정리한다.
 

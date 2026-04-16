@@ -1,4 +1,4 @@
-# Tests Audit
+# 테스트 감사
 
 이 감사는 `git ls-files 'tests/**'` 기준 tracked test 파일 14개를 확인한 결과를 정리한다.
 

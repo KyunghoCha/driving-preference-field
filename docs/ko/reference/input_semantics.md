@@ -1,6 +1,6 @@
-# 입력 Semantics
+# 입력 의미 계약
 
-이 문서는 base driving preference field가 어떤 입력 계약을 전제로 하는지 정리한다. 여기서 고정하는 것은 특정 센서나 지도 형식이 아니라, field generator가 소비하는 의미 슬롯(`semantic slot`)이다. canonical 입력은 raw source가 아니라 semantic contract이며, 이 문서는 그 contract에서 무엇이 필수이고 무엇이 optional인지 lookup-first로 확인하게 만드는 reference다.
+이 문서는 base driving preference field가 어떤 입력 계약을 전제로 하는지 정리한다. 여기서 고정하는 것은 특정 센서나 지도 형식이 아니라, field generator가 소비하는 의미 슬롯(`semantic slot`)이다. canonical 입력은 raw source가 아니라 semantic contract이며, 이 문서는 그 계약에서 무엇이 필수이고 무엇이 optional인지 찾아보기 중심으로 정리하는 reference다.
 
 ## 정의
 
@@ -46,7 +46,7 @@ split이나 merge가 있더라도 별도 branch slot을 두기보다, shared pre
 
 drivable support는 움직일 수 있는 공간을 알려주지만, progression ordering 자체를 대신하지는 않는다. 따라서 canonical에서는 이를 본체 additive preference가 아니라 domain / support / reconstruction 입력으로 읽는다.
 
-## Optional semantic slot
+## 선택 semantic slot
 
 ### 3. Boundary / Interior Support
 
@@ -92,7 +92,7 @@ drivable support는 움직일 수 있는 공간을 알려주지만, progression 
 
 `ego_pose`, local window policy, support/confidence transport shape 같은 항목은 semantic slot 본체보다 질의 문맥(`QueryContext`) 또는 experiment 영역에 가깝다. source adapter output contract는 [source_adapter.md](./source_adapter.md)에서 고정한다.
 
-## Current Implementation
+## 현재 구현
 
 현재 구현은 `boundary_interior_support`를 canonical 필수 slot로 materialize하지 않는다. 이는 필요한 source에서 geometry prior를 복원할 때만 쓰는 optional support이며, progression-centered base field 정의 자체를 구성하지 않는다.
 

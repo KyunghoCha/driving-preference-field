@@ -16,7 +16,7 @@
 
 canonical 문서는 현재 truth를 직접 정의해야 한다. 특정 예시나 특정 과거 문서, 특정 구현체를 빌려 핵심 개념을 설명하지 않는다. 역사적 맥락, 대안 비교, proposal history는 reading 자료로 분리하고, canonical은 지금 정의와 지금 계약만 말해야 한다.
 
-의도도 채팅 로그에만 남기지 않는다. 왜 이런 field를 정의하는지, 왜 layer를 분리하는지, 왜 runtime contract를 그렇게 두는지는 문서와 주석에 직접 남긴다. 문서만 읽어도 current canonical과 current implementation을 복원할 수 있어야 한다.
+의도도 채팅 로그에만 남기지 않는다. 왜 이런 field를 정의하는지, 왜 layer를 분리하는지, 왜 runtime contract를 그렇게 두는지는 문서와 주석에 직접 남긴다. 문서만 읽어도 current canonical과 현재 구현을 복원할 수 있어야 한다.
 
 ## 3. 범위를 먼저 자른다
 

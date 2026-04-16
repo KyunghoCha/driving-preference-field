@@ -1,6 +1,6 @@
-# Runtime Contract
+# 런타임 계약
 
-이 문서는 base field의 의미와 runtime 계산 방식을 분리해서 정리하고, 현재 repo가 제공하는 public runtime interface와 evaluator contract를 고정한다. canonical score는 `higher is better`로 읽는다. 여기서 고정하는 것은 public runtime contract와 layer split이며, current tiny evaluator의 구체 합성 규칙은 별도 `current implementation` 문단에서만 다룬다.
+이 문서는 base field의 의미와 runtime 계산 방식을 분리해서 정리하고, 현재 repo가 제공하는 public runtime interface와 evaluator contract를 고정한다. canonical score는 `higher is better`로 읽는다. 여기서 고정하는 것은 public runtime contract와 layer split이며, current tiny evaluator의 구체 합성 규칙은 별도 `현재 구현` 문단에서만 다룬다.
 
 ## 정의
 
@@ -10,7 +10,7 @@
 - downstream consumer는 current formula를 복제하지 않고 runtime layer를 소비한다.
 - soft / hard burden은 base field와 별도 계층이다.
 
-## Field semantics
+## 이 field가 말하는 것
 
 field는 현재 local map 전체에서 어디가 더 바람직한지, progression axis를 따라 점수가 어떻게 변하는지, progression axis에서 벗어날수록 점수가 어떻게 변하는지를 말할 수 있어야 한다.
 
@@ -20,9 +20,9 @@ field는 현재 local map 전체에서 어디가 더 바람직한지, progressio
 - transverse term
 - support / confidence / continuity gate 같은 secondary modulation
 
-canonical은 exact 결합식을 고정하지 않는다. 문서 SSOT는 longitudinal / transverse / secondary gate의 역할만 고정하고, exact current formula는 별도 current implementation reference에서 관리한다.
+canonical은 exact 결합식을 고정하지 않는다. 문서 SSOT는 longitudinal / transverse / secondary gate의 역할만 고정하고, exact current formula는 별도 현재 구현 reference에서 관리한다.
 
-## Public runtime interface
+## 공개 런타임 인터페이스
 
 Phase 5 current public runtime interface는 다음과 같다.
 
@@ -35,7 +35,7 @@ Phase 5 current public runtime interface는 다음과 같다.
 
 toy loader output과 generic source adapter output은 모두 같은 canonical contract로 이 runtime interface에 들어온다.
 
-## Runtime evaluation
+## 런타임 평가
 
 runtime evaluator는 local map 전체를 analytic하게 평가할 수 있어야 한다.
 
@@ -56,7 +56,7 @@ runtime evaluator는 local map 전체를 analytic하게 평가할 수 있어야 
 - batched progression query 결과는 같은 snapshot/context/config에서 `query_state` / `query_trajectory` ordering과 모순되지 않는다.
 - generic source adapter output도 toy case와 같은 runtime interface로 직접 소비할 수 있다.
 
-## Layer-wise evaluator contract
+## 계층별 evaluator 계약
 
 state evaluator는 다음 개념 출력을 제공해야 한다.
 
@@ -74,13 +74,13 @@ trajectory evaluator는 state evaluation의 누적으로 해석한다.
 
 costmap / exception burden은 raster와 rendering 경로에서만 남긴다. public runtime payload는 progression-centered base field와 그 debug coordinate를 보여주는 쪽으로 제한한다.
 
-## Current Implementation
+## 현재 구현
 
 현재 구현은 progression guide마다 Gaussian anchor blend로 guide-local coordinate를 계산한 뒤, guide-local score를 만들고 guide 간 hard max envelope를 취한다. exported `transverse_component`만 handoff candidate guide 사이에서 부드럽게 섞고, score와 나머지 debug coordinate는 dominant guide 기준 값을 유지한다.
 
 현재 tiny evaluator는 `base_preference_total = progression_tilted`로 읽는다. trajectory ordering도 progression total만 기준으로 한 prototype을 사용한다. `safety_soft`, `rule_soft`, `dynamic_soft`, hard mask는 visualization / costmap 성격의 burden channel로만 남고 public runtime payload에는 싣지 않는다.
 
-## Visualization
+## 시각화
 
 full-field raster는 다음을 위한 보조 표현이다.
 
@@ -91,7 +91,7 @@ full-field raster는 다음을 위한 보조 표현이다.
 
 일반 채널 heatmap은 채널별 고정 range와 unit을 가지고, 기본 모드는 0을 절대 최소값으로 두는 fixed scale이다. diff는 0 중심 대칭 range를 사용한다. normalized view가 필요하면 exploratory mode로만 둔다.
 
-## Optimizer와의 관계
+## 이 contract와 optimizer의 관계
 
 이 문서는 optimizer를 구현하지 않는다. 다만 다음은 고정한다.
 
