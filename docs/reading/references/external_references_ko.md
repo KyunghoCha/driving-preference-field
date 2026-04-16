@@ -15,7 +15,7 @@
 | 구분 | 자료 | 기록 이유 | 현재 연결 지점 |
 | --- | --- | --- | --- |
 | Smooth skeleton | Cem Yuksel, Scott Schaefer, John Keyser, *Parameterization and applications of Catmull-Rom curves*, Computer-Aided Design 43(7), 2011. DOI: `10.1016/j.cad.2010.08.008` | progression guide polyline을 straight segment winner로 쓰지 않고, **centripetal Catmull-Rom**으로 더 부드럽게 resample하는 기준으로 참고했다. | `src/driving_preference_field/progression_surface.py`, `docs/reference/runtime_evaluation_contract_ko.md`, `docs/how-to/parameter_lab_ko.md` |
-| Gaussian / normalized anchor blending | Donald Shepard, *A two-dimensional interpolation function for irregularly-spaced data*, Proceedings of the 1968 23rd ACM National Conference, 517-524, 1968. DOI: `10.1145/800186.810616` | current implementation에서 anchor를 winner로 고르지 않고 **정규화된 부드러운 weight blend**를 support/confidence field에만 남기는 방향을 정리할 때 참고했다. | `src/driving_preference_field/progression_surface.py`, `docs/reference/runtime_evaluation_contract_ko.md`, `docs/how-to/parameter_lab_ko.md` |
+| Gaussian / normalized anchor blending | Donald Shepard, *A two-dimensional interpolation function for irregularly-spaced data*, Proceedings of the 1968 23rd ACM National Conference, 517-524, 1968. DOI: `10.1145/800186.810616` | current implementation에서 anchor를 winner로 고르지 않고 **정규화된 부드러운 weight blend**로 guide-local coordinate와 support를 함께 추정하는 방향을 정리할 때 참고했다. | `src/driving_preference_field/progression_surface.py`, `docs/reference/runtime_evaluation_contract_ko.md`, `docs/how-to/parameter_lab_ko.md` |
 | Skeleton-based seamless blending | Jules Bloomenthal, Ken Shoemake, *Convolution Surfaces*, SIGGRAPH 1991. PDF: `https://www.bloomenthal.com/JBloom/pdf/CSurfFinal.pdf` | guide/branch를 winner reference로 읽는 대신, **skeleton이 공간 형상을 만들고 surface가 매끈하게 이어진다**는 쪽의 핵심 영감으로 참고했다. | `docs/explanation/base_field_foundation_ko.md`, `docs/reference/runtime_evaluation_contract_ko.md`, `src/driving_preference_field/progression_surface.py` |
 
 ## 배경 / 개념 정리에 참고한 외부 글
@@ -28,10 +28,10 @@
 ## 현재 코드와 자료의 관계
 
 - current implementation은 closed-form convolution surface solver가 아니다.
-- current implementation은 projection-based guide-local coordinates + Gaussian anchor support + hard max envelope 방식이다.
+- current implementation은 Gaussian anchor blended guide-local coordinates + hard max envelope 방식이다.
 - 위 참고 문헌은 아래처럼 읽는 것이 맞다.
   - Catmull-Rom: smooth skeleton 생성 기준
-  - Shepard: normalized weighted anchor support 기준
+  - Shepard: normalized weighted anchor blending 기준
   - Wendland: compact-support 기반 초기 실험과 background 참고
   - Convolution Surfaces / Blinn: seam 없는 field-like surface를 바라보는 conceptual basis
 

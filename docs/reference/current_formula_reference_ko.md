@@ -28,33 +28,25 @@
 - `src/driving_preference_field/channels.py`
 - `src/driving_preference_field/field_runtime.py`
 
-progression surface는 local map 전체에 진행 좌표와 횡방향 좌표를 동시에 부여하기 위해 필요하다. 현재 구현은 progression guide마다 projection-based local coordinate를 먼저 계산하고, 그 위에서 guide-local score를 만든 뒤 guide 간 hard max envelope를 취한다. Gaussian anchor는 좌표 자체가 아니라 support field를 만드는 데만 쓰고, exported transverse만 handoff 근처에서 부드럽게 읽는다.
+progression surface는 local map 전체에 진행 좌표와 횡방향 좌표를 동시에 부여하기 위해 필요하다. 현재 구현은 progression guide마다 Gaussian anchor blend로 guide-local coordinate를 먼저 계산하고, 그 위에서 guide-local score를 만든 뒤 guide 간 hard max envelope를 취한다. exported transverse만 handoff 근처에서 부드럽게 읽고, score와 나머지 debug coordinate는 dominant guide 기준으로 유지한다.
 
 현재 구현에서 progression surface는 canonical 본체에 가장 가까운 층이다. progression-centered whole-space preference를 가장 직접적으로 근사하는 수식이 이 섹션에 있다.
 
 ### Guide-local anchor coordinates
 
-각 progression guide는 densified polyline으로 저장되고, query point는 이 guide 위 최근접 투영점으로 읽힌다. `s_hat`, `n_hat`, `t_hat`는 anchor weighted average가 아니라 이 투영 결과에서 직접 나온다.
+각 progression guide는 자기 anchor만으로 local tangent / normal 좌표를 만든다. 이 좌표가 뒤에서 guide-local `s_hat`, `n_hat`를 만드는 기본 재료가 된다.
 
 ```math
-\pi_g(p)=q_g^{\ast}
+\tau_i = \langle p - a_i,\ t_i \rangle
 ```
 
 ```math
-\hat{s}_g(p)=s_g(q_g^{\ast})
-```
-
-```math
-\hat{n}_g(p)=\left\langle p-q_g^{\ast},\ n_g(q_g^{\ast}) \right\rangle
-```
-
-```math
-\hat{t}_g(p)=t_g(q_g^{\ast})
+\nu_i = \langle p - a_i,\ n_i \rangle
 ```
 
 ### Guide-local Gaussian weights
 
-guide 안에서는 anchor Gaussian weight를 계속 계산한다. 다만 이 weight는 좌표를 섞는 데 쓰지 않고, support/confidence를 약한 secondary modulation으로 남기는 데만 쓴다.
+guide 안에서는 nearest winner를 고르지 않고, Gaussian weight로 anchor를 부드럽게 섞는다. 이 단계가 guide-local coordinate를 만드는 핵심이다.
 
 ```math
 r_i = w_i^{guide}\, c_i \exp \left(
@@ -76,7 +68,21 @@ r_i = w_i^{guide}\, c_i \exp \left(
 \sigma_n=\max(0.35,\ \text{transverse\_scale}\cdot 1.50)
 ```
 
-좌표와 support를 분리한 이유는 bend/split/merge에서 anchor blend가 직접 `n_hat`를 흔드는 것을 줄이기 위해서다. 이후 longitudinal 성분은 projection-based `s_hat`를 쓰고, score merge는 여전히 guide 간 hard max envelope를 유지한다.
+### Guide-local coordinate
+
+이 단계에서 guide-local `s_hat`, `n_hat`, `t_hat`를 만든다. 이후 longitudinal / transverse 성분은 dominant guide 기준 coordinate를 사용한다.
+
+```math
+\hat{s} = \sum_i \bar{w}_i s_i
+```
+
+```math
+\hat{n} = \sum_i \bar{w}_i \nu_i
+```
+
+```math
+\hat{t} = \mathrm{normalize}\left(\sum_i \bar{w}_i t_i\right)
+```
 
 ### Guide-local longitudinal frame
 
@@ -86,7 +92,7 @@ local absolute:
 
 ```math
 u_{\text{local\_absolute}} = \mathrm{clip}\left(
-\frac{\hat{s}}{L_g}, 0, 1
+\frac{\hat{s} - s_{\min}^{ext}}{s_{\max}^{ext} - s_{\min}^{ext}}, 0, 1
 \right)
 ```
 

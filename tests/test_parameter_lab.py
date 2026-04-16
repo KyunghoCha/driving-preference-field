@@ -359,7 +359,7 @@ def test_preset_copy_and_export_workflow(qtbot, tmp_path, monkeypatch) -> None:
     assert "raster" in session["diff_summary"]
     assert (
         session["diff_summary"]["visualization"]["progression_surface_kind"]
-        == "projection-based guide-local coordinates with hard max envelope"
+        == "guide-local blended coordinates with hard max envelope"
     )
     assert session["diff_summary"]["visualization"]["raster_role"] == "visualization only"
     assert session["diff_summary"]["visualization"]["score_sign"] == "higher is better"

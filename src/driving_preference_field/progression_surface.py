@@ -3,19 +3,17 @@ from __future__ import annotations
 """Current progression surface implementation.
 
 This module treats progression guides as the control structure for a continuous
-local-space coordinate field. The runtime first evaluates projection-based
-guide-local coordinates and scores, then selects a pointwise max envelope over
-the local map:
+local-space coordinate field. The runtime first evaluates guide-local blended
+coordinates and scores, then selects a pointwise max envelope over the local
+map:
 
     progression_tilted(p)
       = max_g support_mod_g * alignment_mod_g * (T(|n_hat_g|) + gain * L(u_g))
 
-Guide-local support still comes from Gaussian anchor weights, but `s_hat`,
-`n_hat`, and tangent direction come from nearest-point projection on the
-densified guide polyline. The exact formula here is a current implementation
-detail, not the canonical design contract. README and
-docs/reference/current_formula_reference_ko.md must move with this module when
-the implementation changes.
+Guide-local support and coordinates come from Gaussian anchor weights. The
+exact formula here is a current implementation detail, not the canonical design
+contract. README and docs/reference/current_formula_reference_ko.md must move
+with this module when the implementation changes.
 """
 
 import math
@@ -55,12 +53,6 @@ class SurfaceGuide:
     guide_length: float
     weight: float
     confidence: float
-    segment_start_points: np.ndarray
-    segment_vectors: np.ndarray
-    segment_lengths: np.ndarray
-    segment_tangents: np.ndarray
-    segment_normals: np.ndarray
-    segment_start_s: np.ndarray
 
 
 @dataclass(frozen=True)
@@ -449,6 +441,7 @@ def _guide_local_result(
     tangent_y = surface.anchor_tangents[start:stop, 1][:, None]
     normal_x = surface.anchor_normals[start:stop, 0][:, None]
     normal_y = surface.anchor_normals[start:stop, 1][:, None]
+    cumulative_s = surface.anchor_cumulative_s[start:stop][:, None]
     guide_lengths = surface.anchor_guide_lengths[start:stop][:, None]
     guide_weights = surface.anchor_guide_weights[start:stop][:, None]
     confidences = surface.anchor_confidences[start:stop][:, None]
@@ -464,10 +457,24 @@ def _guide_local_result(
     support_sum = np.sum(raw_weights, axis=0)
     blend_weights = raw_weights / np.clip(support_sum, _EPS, None)
 
-    s_hat, n_hat, tangent_hat = _project_points_onto_guide(guide, x_values, y_values)
-    progress_span = max(guide.guide_length, _EPS)
+    s_values = cumulative_s + tau
+    s_hat = np.sum(blend_weights * s_values, axis=0)
+    n_hat = np.sum(blend_weights * nu, axis=0)
+    tangent_hat = np.stack(
+        (
+            np.sum(blend_weights * tangent_x, axis=0),
+            np.sum(blend_weights * tangent_y, axis=0),
+        ),
+        axis=1,
+    )
+    tangent_norm = np.linalg.norm(tangent_hat, axis=1, keepdims=True)
+    tangent_hat = tangent_hat / np.clip(tangent_norm, _EPS, None)
+
+    guide_min_progress_extent = float(np.min(surface.anchor_cumulative_s[start:stop]))
+    guide_max_progress_extent = float(np.max(surface.anchor_cumulative_s[start:stop]))
+    progress_span = max(guide_max_progress_extent - guide_min_progress_extent, _EPS)
     if config.longitudinal_frame == "local_absolute":
-        u_value = np.clip(s_hat / progress_span, 0.0, 1.0)
+        u_value = np.clip((s_hat - guide_min_progress_extent) / progress_span, 0.0, 1.0)
     else:
         lookahead = max(_ego_relative_lookahead(progress_span, config), _EPS)
         reference_s = float(ego_s_hat or 0.0)
@@ -695,26 +702,12 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         guide_length = polyline_length(smooth_points)
         if guide_length <= _EPS:
             continue
-        (
-            segment_start_points,
-            segment_vectors,
-            segment_lengths,
-            segment_tangents,
-            segment_normals,
-            segment_start_s,
-        ) = _guide_projection_geometry(smooth_points)
         guide = SurfaceGuide(
             guide_id=str(guide_id),
             points=smooth_points,
             guide_length=guide_length,
             weight=float(weight),
             confidence=float(confidence),
-            segment_start_points=segment_start_points,
-            segment_vectors=segment_vectors,
-            segment_lengths=segment_lengths,
-            segment_tangents=segment_tangents,
-            segment_normals=segment_normals,
-            segment_start_s=segment_start_s,
         )
         guide_index = len(guides)
         guides.append(guide)
@@ -940,73 +933,3 @@ def _segment_tangent(a: Point2, b: Point2) -> Point2:
     if norm <= _EPS:
         return (1.0, 0.0)
     return (dx / norm, dy / norm)
-
-
-def _guide_projection_geometry(
-    points: tuple[Point2, ...],
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    points_array = np.asarray(points, dtype=float)
-    segment_start_points = points_array[:-1]
-    segment_end_points = points_array[1:]
-    segment_vectors = segment_end_points - segment_start_points
-    raw_segment_lengths = np.linalg.norm(segment_vectors, axis=1)
-    valid_mask = raw_segment_lengths > _EPS
-    if not np.any(valid_mask):
-        return (
-            np.asarray([[points_array[0, 0], points_array[0, 1]]], dtype=float),
-            np.asarray([[1.0, 0.0]], dtype=float),
-            np.asarray([1.0], dtype=float),
-            np.asarray([[1.0, 0.0]], dtype=float),
-            np.asarray([[0.0, 1.0]], dtype=float),
-            np.asarray([0.0], dtype=float),
-        )
-
-    cumulative_s = np.zeros(points_array.shape[0], dtype=float)
-    cumulative_s[1:] = np.cumsum(raw_segment_lengths)
-    segment_start_s = cumulative_s[:-1][valid_mask]
-    segment_start_points = segment_start_points[valid_mask]
-    segment_vectors = segment_vectors[valid_mask]
-    segment_lengths = raw_segment_lengths[valid_mask]
-    segment_tangents = segment_vectors / segment_lengths[:, None]
-    segment_normals = np.stack((-segment_tangents[:, 1], segment_tangents[:, 0]), axis=1)
-    return (
-        segment_start_points,
-        segment_vectors,
-        segment_lengths,
-        segment_tangents,
-        segment_normals,
-        segment_start_s,
-    )
-
-
-def _project_points_onto_guide(
-    guide: SurfaceGuide,
-    x_values: np.ndarray,
-    y_values: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    query_points = np.stack((x_values, y_values), axis=1)
-    segment_start_points = guide.segment_start_points[:, None, :]
-    segment_vectors = guide.segment_vectors[:, None, :]
-    segment_lengths = guide.segment_lengths[:, None]
-    point_delta = query_points[None, :, :] - segment_start_points
-    projection_ratio = np.clip(
-        np.sum(point_delta * segment_vectors, axis=2)
-        / np.clip((segment_lengths[:, 0] ** 2)[:, None], _EPS, None),
-        0.0,
-        1.0,
-    )
-    closest_points = segment_start_points + projection_ratio[:, :, None] * segment_vectors
-    closest_delta = query_points[None, :, :] - closest_points
-    closest_distance_sq = np.sum(closest_delta * closest_delta, axis=2)
-
-    best_segment_indices = np.argmin(closest_distance_sq, axis=0)
-    positions = np.arange(query_points.shape[0])
-    best_projection_ratio = projection_ratio[best_segment_indices, positions]
-    best_delta = closest_delta[best_segment_indices, positions]
-    tangent_hat = guide.segment_tangents[best_segment_indices]
-    normal_hat = guide.segment_normals[best_segment_indices]
-    s_hat = guide.segment_start_s[best_segment_indices] + (
-        best_projection_ratio * guide.segment_lengths[best_segment_indices]
-    )
-    n_hat = np.sum(best_delta * normal_hat, axis=1)
-    return s_hat, n_hat, tangent_hat
