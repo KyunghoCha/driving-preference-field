@@ -48,7 +48,7 @@ visible guide endpoint는 semantic start/end로 읽지 않고 짧은 virtual con
 
 구조적으로 보면 현재 progression score는 `transverse_component + longitudinal_component` 위에 `support_mod`와 `alignment_mod`가 약한 secondary modulation으로 얹히는 형태다. strong longitudinal 설정에서는 farther-ahead off-center point가 nearer-center point보다 높아질 수도 있다. exact formula는 별도 수식 문서에 정리하지만, 그 수식도 결국 이 개념 모델을 만족하는지로 읽어야 한다.
 
-다만 current tiny evaluator는 progression score 외에 `interior_boundary`, `continuity_branch`, soft exception burden을 함께 유지하고 있다. 이들은 current implementation과 debug/composition을 위한 채널로 읽어야 한다. canonical 본체를 곧바로 이 additive 조합으로 동일시하면 progression-centered 철학과 현재 evaluator 편의 구현을 혼동하게 된다.
+현재 tiny evaluator도 본체 score는 `progression_tilted`만 사용한다. drivable boundary와 branch guide는 overlay나 reconstruction 입력으로 읽고, safety / rule / dynamic burden은 costmap 성격의 시각화 채널로만 남긴다. canonical 본체를 geometry bonus나 burden 합성과 동일시하지 않는다는 점이 여기서 더 분명해진다.
 
 ## base field가 맡는 층
 

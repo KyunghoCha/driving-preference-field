@@ -187,9 +187,6 @@ def main(argv: list[str] | None = None) -> int:
             "state": {"x": state.x, "y": state.y, "yaw": state.yaw},
             "base_preference_channels": result.base_preference_channels,
             "base_preference_total": result.base_preference_total,
-            "soft_exception_channels": result.soft_exception_channels,
-            "soft_exception_total": result.soft_exception_total,
-            "hard_violation_flags": result.hard_violation_flags,
             "diagnostics": result.diagnostics,
         }
         print(json.dumps(payload, indent=2, sort_keys=True))
@@ -202,12 +199,6 @@ def main(argv: list[str] | None = None) -> int:
             "trajectory_size": len(trajectory.states),
             "trajectory_base_preference_channels": result.trajectory_base_preference_channels,
             "trajectory_base_preference_total": result.trajectory_base_preference_total,
-            "trajectory_soft_exception_channels": result.trajectory_soft_exception_channels,
-            "trajectory_soft_exception_total": result.trajectory_soft_exception_total,
-            "trajectory_hard_violation_flags": result.trajectory_hard_violation_flags,
-            "trajectory_hard_violation_count": sum(
-                1 for value in result.trajectory_hard_violation_flags.values() if value
-            ),
             "ordering_key": list(result.ordering_key),
         }
         print(json.dumps(payload, indent=2, sort_keys=True))

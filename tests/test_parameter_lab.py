@@ -340,8 +340,8 @@ def test_preset_copy_and_export_workflow(qtbot, tmp_path, monkeypatch) -> None:
     export_path = window.export_current_comparison()
 
     assert export_path is not None
-    assert (export_path / "baseline" / "base_total.png").exists()
-    assert (export_path / "candidate" / "base_total.png").exists()
+    assert (export_path / "baseline" / "progression_tilted.png").exists()
+    assert (export_path / "candidate" / "progression_tilted.png").exists()
     session_path = export_path / "comparison_session.json"
     assert session_path.exists()
     assert (export_path / "profile" / "profile_baseline.png").exists()

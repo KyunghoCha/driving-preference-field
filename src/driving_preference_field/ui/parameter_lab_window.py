@@ -76,10 +76,9 @@ CHANNEL_OPTIONS = {
     "progression_transverse_component": ("Transverse Component", "cividis"),
     "progression_support_mod": ("Support Modulation", "inferno"),
     "progression_alignment_mod": ("Alignment Modulation", "inferno"),
-    "interior_boundary": ("Interior Boundary", "magma"),
-    "continuity_branch": ("Continuity Branch", "cividis"),
-    "base_preference_total": ("Base Preference Total", "viridis"),
     "safety_soft": ("Safety Soft Burden", "inferno"),
+    "rule_soft": ("Rule Soft Burden", "magma"),
+    "dynamic_soft": ("Dynamic Soft Burden", "cividis"),
 }
 
 COMPARE_LAYOUT_OPTIONS = {
@@ -916,9 +915,7 @@ class ParameterLabWindow(QMainWindow):
 
     def _state_summary_payload(self, state_result) -> dict[str, float]:
         return {
-            "base_total": state_result.base_preference_total,
-            "soft_total": state_result.soft_exception_total,
-            "hard_count": state_result.hard_violation_count,
+            "progression_total": state_result.base_preference_total,
             "selected_channel_value": self._state_channel_value(state_result, self._selected_channel),
         }
 
@@ -926,10 +923,12 @@ class ParameterLabWindow(QMainWindow):
         baseline_selected = self._state_channel_value(baseline_state, self._selected_channel)
         candidate_selected = self._state_channel_value(candidate_state, self._selected_channel)
         return {
-            "selected_channel_delta": candidate_selected - baseline_selected,
-            "base_total_delta": candidate_state.base_preference_total - baseline_state.base_preference_total,
-            "soft_total_delta": candidate_state.soft_exception_total - baseline_state.soft_exception_total,
-            "hard_count_delta": candidate_state.hard_violation_count - baseline_state.hard_violation_count,
+            "selected_channel_delta": (
+                None
+                if baseline_selected is None or candidate_selected is None
+                else candidate_selected - baseline_selected
+            ),
+            "progression_total_delta": candidate_state.base_preference_total - baseline_state.base_preference_total,
             "diff_raster_summary": summarize_diff_array(self._selected_diff_array()),
         }
 
@@ -949,9 +948,7 @@ class ParameterLabWindow(QMainWindow):
             "diff_range": self._display_range(diff_data, diff=True),
         }
 
-    def _state_channel_value(self, state_result, channel_name: str) -> float:
-        if channel_name == "base_preference_total":
-            return state_result.base_preference_total
+    def _state_channel_value(self, state_result, channel_name: str) -> float | None:
         if channel_name in state_result.base_preference_channels:
             return state_result.base_preference_channels[channel_name]
         debug_key_map = {
@@ -964,7 +961,7 @@ class ParameterLabWindow(QMainWindow):
         }
         if channel_name in debug_key_map:
             return float(state_result.diagnostics[debug_key_map[channel_name]])
-        return state_result.soft_exception_channels[channel_name]
+        return None
 
     def _export_comparison(self) -> None:
         export_path = self.export_current_comparison()

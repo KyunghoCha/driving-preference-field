@@ -51,7 +51,7 @@ runtime evaluator는 local map 전체를 analytic하게 평가할 수 있어야 
 ## 보장해야 하는 성질
 
 - cache 사용 여부가 semantic drift를 만들지 않는다.
-- evaluator entrypoint와 `FieldRuntime` layer가 의미상 같은 base / soft / hard 결과를 반환한다.
+- evaluator entrypoint와 `FieldRuntime` layer가 의미상 같은 progression-centered base 결과를 반환한다.
 - overlap 영역 ordering stability와 endpoint continuation acceptance를 runtime layer가 깨지 않는다.
 - batched progression query 결과는 같은 snapshot/context/config에서 `query_state` / `query_trajectory` ordering과 모순되지 않는다.
 - generic source adapter output도 toy case와 같은 runtime interface로 직접 소비할 수 있다.
@@ -61,8 +61,6 @@ runtime evaluator는 local map 전체를 analytic하게 평가할 수 있어야 
 state evaluator는 다음 개념 출력을 제공해야 한다.
 
 - `base_preference_channels`
-- `soft_exception_channels`
-- `hard_violation_flags`
 - optional diagnostic metadata
 
 trajectory evaluator는 state evaluation의 누적으로 해석한다.
@@ -72,25 +70,15 @@ trajectory evaluator는 state evaluation의 누적으로 해석한다.
   - rollout state sequence
 - 출력:
   - `trajectory_base_preference_channels`
-  - `trajectory_soft_exception_channels`
-  - `trajectory_hard_violation_flags`
   - optional derived ordering key
 
-trajectory hard violation은 horizon 전체에서 하나라도 발생하면 유지된다. soft / base channel은 누적 또는 집계되며, 구체 가중 방식은 prototype에서 정한다.
-
-base field 채널과 soft / hard burden 채널은 문서상 분리해서 읽어야 한다. runtime layer가 둘을 한 payload에 싣더라도, canonical 해석은 “preference”와 “burden”을 같은 층으로 보지 않는다.
+costmap / exception burden은 raster와 rendering 경로에서만 남긴다. public runtime payload는 progression-centered base field와 그 debug coordinate를 보여주는 쪽으로 제한한다.
 
 ## Current Implementation
 
 현재 구현은 smooth skeleton anchor들의 Gaussian elliptical blend로 local map 전체의 whole-fabric continuous function을 만든다. branch 사이도 별도 winner 없이 같은 함수 안에서 메우고, visible guide endpoint는 virtual continuation으로 처리한다. support와 alignment는 shape를 주도하지 않는 약한 보조 변조(`weak secondary modulation`)로 남긴다.
 
-현재 tiny evaluator는 다음 prototype composition을 사용한다.
-
-- `base_preference_total = progression_tilted + interior_boundary + continuity_branch`
-- `soft_exception_total = safety_soft + rule_soft + dynamic_soft`
-- trajectory ordering은 `(hard_count, soft_total, -base_total)`을 쓴다.
-
-여기서 `safety_soft`는 ordering에 실제로 들어가지만, 해석상으로는 costmap / exception 성격의 burden channel이다. canonical runtime semantics가 base field 본체에 이를 포함한다는 뜻은 아니다.
+현재 tiny evaluator는 `base_preference_total = progression_tilted`로 읽는다. trajectory ordering도 progression total만 기준으로 한 prototype을 사용한다. `safety_soft`, `rule_soft`, `dynamic_soft`, hard mask는 visualization / costmap 성격의 burden channel로만 남고 public runtime payload에는 싣지 않는다.
 
 ## Visualization
 

@@ -23,10 +23,7 @@ def test_default_field_config_preserves_baseline_behavior() -> None:
     explicit = evaluate_state(snapshot, context, state, config=DEFAULT_FIELD_CONFIG)
 
     assert explicit.base_preference_channels == implicit.base_preference_channels
-    assert explicit.soft_exception_channels == implicit.soft_exception_channels
-    assert explicit.hard_violation_flags == implicit.hard_violation_flags
     assert explicit.base_preference_total == implicit.base_preference_total
-    assert explicit.soft_exception_total == implicit.soft_exception_total
 
 
 def test_progression_config_change_only_affects_progression_channel() -> None:
@@ -47,8 +44,6 @@ def test_progression_config_change_only_affects_progression_channel() -> None:
             transverse_shape=2.0,
             support_ceiling=0.9,
         ),
-        interior_boundary=DEFAULT_FIELD_CONFIG.interior_boundary,
-        continuity_branch=DEFAULT_FIELD_CONFIG.continuity_branch,
     )
     candidate = evaluate_state(snapshot, context, state, config=candidate_config)
 
@@ -56,16 +51,20 @@ def test_progression_config_change_only_affects_progression_channel() -> None:
         candidate.base_preference_channels["progression_tilted"]
         != baseline.base_preference_channels["progression_tilted"]
     )
-    assert (
-        candidate.base_preference_channels["interior_boundary"]
-        == baseline.base_preference_channels["interior_boundary"]
+
+
+def test_legacy_field_config_payload_ignores_removed_geometry_keys() -> None:
+    config = FieldConfig.from_dict(
+        {
+            "progression": {"longitudinal_gain": 2.0},
+            "interior_boundary": {"gain": 9.0},
+            "continuity_branch": {"gain": 9.0},
+        }
     )
-    assert (
-        candidate.base_preference_channels["continuity_branch"]
-        == baseline.base_preference_channels["continuity_branch"]
-    )
-    assert candidate.soft_exception_channels == baseline.soft_exception_channels
-    assert candidate.hard_violation_flags == baseline.hard_violation_flags
+
+    assert config.progression.longitudinal_gain == 2.0
+    assert "interior_boundary" not in config.to_dict()
+    assert "continuity_branch" not in config.to_dict()
 
 
 def test_comparison_preset_roundtrip(tmp_path) -> None:

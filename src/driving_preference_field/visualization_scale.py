@@ -61,24 +61,6 @@ CHANNEL_SCALE_SPECS = {
         fixed_max=1.0,
         diff_abs_max=0.1,
     ),
-    "interior_boundary": ChannelScaleSpec(
-        unit="score",
-        fixed_min=0.0,
-        fixed_max=1.0,
-        diff_abs_max=1.0,
-    ),
-    "continuity_branch": ChannelScaleSpec(
-        unit="score",
-        fixed_min=0.0,
-        fixed_max=1.0,
-        diff_abs_max=1.0,
-    ),
-    "base_preference_total": ChannelScaleSpec(
-        unit="score",
-        fixed_min=0.0,
-        fixed_max=7.0,
-        diff_abs_max=7.0,
-    ),
     "safety_soft": ChannelScaleSpec(
         unit="burden score",
         fixed_min=0.0,

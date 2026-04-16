@@ -2,8 +2,6 @@ from pathlib import Path
 
 from driving_preference_field.config import FieldConfig, ProgressionConfig
 from driving_preference_field.channels import (
-    continuity_branch,
-    interior_boundary,
     progression_tilted,
     progression_tilted_details,
 )
@@ -40,24 +38,6 @@ def test_progression_tilted_prefers_forward_alignment() -> None:
     assert progression_tilted(snapshot, context, forward) > progression_tilted(snapshot, context, reverse)
 
 
-def test_interior_boundary_prefers_interior_over_boundary() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
-    interior = StateSample(x=2.0, y=0.0, yaw=0.0)
-    near_boundary = StateSample(x=2.0, y=0.9, yaw=0.0)
-
-    assert interior_boundary(snapshot, context, interior) > interior_boundary(snapshot, context, near_boundary)
-
-
-def test_continuity_branch_distinguishes_branch_alternatives() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
-    upper = StateSample(x=5.2, y=1.4, yaw=0.55)
-    wrong_for_upper = StateSample(x=5.2, y=1.4, yaw=-0.55)
-    lower = StateSample(x=5.2, y=-1.4, yaw=-0.55)
-
-    assert continuity_branch(snapshot, context, upper) > continuity_branch(snapshot, context, wrong_for_upper)
-    assert continuity_branch(snapshot, context, lower) > 0.0
-
-
 def test_progression_tilted_is_bounded_for_weak_sensor_patch() -> None:
     weak_snapshot, weak_context = load_toy_snapshot(ROOT / "cases/toy/sensor_patch_open.yaml")
     weak_state = StateSample(x=1.8, y=0.0, yaw=0.0)
@@ -65,22 +45,6 @@ def test_progression_tilted_is_bounded_for_weak_sensor_patch() -> None:
 
     assert 0.0 < weak_details["score"] < 2.0
     assert weak_details["support_mod"] < 1.0
-
-
-def test_interior_boundary_prefers_center_in_narrow_patch() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/sensor_patch_narrow.yaml")
-    center = StateSample(x=1.8, y=0.0, yaw=0.0)
-    edge = StateSample(x=1.8, y=0.28, yaw=0.0)
-
-    assert interior_boundary(snapshot, context, center) > interior_boundary(snapshot, context, edge)
-
-
-def test_continuity_branch_reads_merge_like_preference() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/merge_like_patch.yaml")
-    aligned = StateSample(x=3.4, y=0.25, yaw=-0.2)
-    misaligned = StateSample(x=3.4, y=0.25, yaw=1.2)
-
-    assert continuity_branch(snapshot, context, aligned) > continuity_branch(snapshot, context, misaligned)
 
 
 def test_progression_longitudinal_gain_extends_score_along_axis() -> None:

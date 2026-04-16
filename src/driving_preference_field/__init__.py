@@ -3,9 +3,7 @@
 from .config import (
     DEFAULT_FIELD_CONFIG,
     ComparisonPreset,
-    ContinuityBranchConfig,
     FieldConfig,
-    InteriorBoundaryConfig,
     ProgressionConfig,
 )
 from .contracts import (
@@ -37,14 +35,12 @@ from .source_adapter import GenericAdapterValidationError, load_generic_snapshot
 __all__ = [
     "DEFAULT_FIELD_CONFIG",
     "ComparisonPreset",
-    "ContinuityBranchConfig",
     "BoundaryInteriorSupport",
     "BranchContinuitySupport",
     "DirectedPolyline",
     "DrivableSupport",
     "ExceptionLayerSupport",
     "FieldConfig",
-    "InteriorBoundaryConfig",
     "PolygonRegion",
     "ProgressionConfig",
     "ProgressionSupport",

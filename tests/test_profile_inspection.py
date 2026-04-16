@@ -43,11 +43,11 @@ def test_export_profile_bundle_writes_pngs_and_json(tmp_path: Path) -> None:
         baseline,
         candidate,
         spec=ProfileSpec(axis="vertical", coordinate=4.5),
-        selected_channel="base_preference_total",
+        selected_channel="progression_tilted",
     )
     payload = export_profile_bundle(
         result,
-        selected_channel="base_preference_total",
+        selected_channel="progression_tilted",
         out_dir=tmp_path / "profile",
     )
 
@@ -56,5 +56,5 @@ def test_export_profile_bundle_writes_pngs_and_json(tmp_path: Path) -> None:
     assert (tmp_path / "profile" / "profile_diff.png").exists()
     assert (tmp_path / "profile" / "profile_data.json").exists()
     exported = json.loads((tmp_path / "profile" / "profile_data.json").read_text(encoding="utf-8"))
-    assert exported["selected_channel"] == "base_preference_total"
-    assert payload["summary"]["selected_channel"] == "base_preference_total"
+    assert exported["selected_channel"] == "progression_tilted"
+    assert payload["summary"]["selected_channel"] == "progression_tilted"

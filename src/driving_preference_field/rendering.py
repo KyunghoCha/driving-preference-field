@@ -25,9 +25,6 @@ CHANNEL_DESCRIPTIONS = {
     "progression_transverse_component": "Current implementation center-high transverse profile term.",
     "progression_support_mod": "Weak secondary support modulation. It should not dominate the space shape.",
     "progression_alignment_mod": "Weak secondary heading-alignment modulation. It should not dominate the space shape.",
-    "interior_boundary": "Interior preference derived from boundary margin. Higher means deeper interior support.",
-    "continuity_branch": "Continuation preference near split/merge structure. Higher means more coherent continuation.",
-    "base_preference_total": "Sum of the three base preference channels.",
     "safety_soft": "Distance-based safety burden from safety regions. Higher means stronger obstacle/safety burden.",
     "rule_soft": "Soft burden from rule-related regions.",
     "dynamic_soft": "Soft burden from dynamic interaction regions.",
@@ -44,10 +41,9 @@ CHANNEL_TITLES = {
     "progression_transverse_component": "Transverse Component",
     "progression_support_mod": "Support Modulation",
     "progression_alignment_mod": "Alignment Modulation",
-    "interior_boundary": "Interior Boundary",
-    "continuity_branch": "Continuity Branch",
-    "base_preference_total": "Base Preference Total",
     "safety_soft": "Safety Soft Burden",
+    "rule_soft": "Rule Soft Burden",
+    "dynamic_soft": "Dynamic Soft Burden",
     "hard_unsafe_mask": "Hard Unsafe Mask",
     "hard_rule_mask": "Hard Rule Mask",
     "hard_dynamic_mask": "Hard Dynamic Mask",
@@ -160,7 +156,7 @@ def _render_composite(
 ) -> None:
     fig, ax = plt.subplots(figsize=(6.8, 5.8), dpi=dpi)
     base_image = ax.imshow(
-        raster.channels["base_preference_total"],
+        raster.channels["progression_tilted"],
         origin="lower",
         extent=extent,
         cmap="viridis",
@@ -232,10 +228,9 @@ def _render_legend(path: Path, *, dpi: int) -> None:
     lines = ["Render Legend", ""]
     for channel_name in (
         "progression_tilted",
-        "interior_boundary",
-        "continuity_branch",
-        "base_preference_total",
         "safety_soft",
+        "rule_soft",
+        "dynamic_soft",
     ):
         lines.extend(
             textwrap.wrap(
@@ -323,10 +318,9 @@ def render_case(
             CHANNEL_TITLES["progression_alignment_mod"],
             "inferno",
         ),
-        "interior_boundary.png": ("interior_boundary", CHANNEL_TITLES["interior_boundary"], "magma"),
-        "continuity_branch.png": ("continuity_branch", CHANNEL_TITLES["continuity_branch"], "cividis"),
-        "base_total.png": ("base_preference_total", CHANNEL_TITLES["base_preference_total"], "viridis"),
         "safety_soft.png": ("safety_soft", CHANNEL_TITLES["safety_soft"], "inferno"),
+        "rule_soft.png": ("rule_soft", CHANNEL_TITLES["rule_soft"], "magma"),
+        "dynamic_soft.png": ("dynamic_soft", CHANNEL_TITLES["dynamic_soft"], "cividis"),
     }
     for filename, (channel_name, title, cmap) in outputs.items():
         path = base_out_dir / filename
@@ -382,9 +376,6 @@ def render_case(
             "progression_transverse_component": _channel_min_max(raster.channels["progression_transverse_component"]),
             "progression_support_mod": _channel_min_max(raster.channels["progression_support_mod"]),
             "progression_alignment_mod": _channel_min_max(raster.channels["progression_alignment_mod"]),
-            "interior_boundary": _channel_min_max(raster.channels["interior_boundary"]),
-            "continuity_branch": _channel_min_max(raster.channels["continuity_branch"]),
-            "base_preference_total": _channel_min_max(raster.channels["base_preference_total"]),
             "safety_soft": _channel_min_max(raster.channels["safety_soft"]),
             "rule_soft": _channel_min_max(raster.channels["rule_soft"]),
             "dynamic_soft": _channel_min_max(raster.channels["dynamic_soft"]),
@@ -406,9 +397,6 @@ def render_case(
                 "progression_transverse_component",
                 "progression_support_mod",
                 "progression_alignment_mod",
-                "interior_boundary",
-                "continuity_branch",
-                "base_preference_total",
                 "safety_soft",
                 "rule_soft",
                 "dynamic_soft",

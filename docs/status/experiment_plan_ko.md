@@ -97,10 +97,9 @@ generic adapter fixture:
   - `profile_data.json`
 - 채널별 PNG
   - `progression_tilted`
-  - `interior_boundary`
-  - `continuity_branch`
-  - `base_total`
   - `safety_soft`
+  - `rule_soft`
+  - `dynamic_soft`
 - hard mask PNG
 - `composite_debug.png`
 - `render_legend.png`
@@ -132,7 +131,7 @@ generic adapter fixture:
 
 - longitudinal / transverse 독립 실험축을 유지한다.
 - 같은 case 또는 generic adapter fixture와 같은 출력 형식으로 비교 가능한 절차를 유지한다.
-- 이후 코드 cleanup과 canonical model 정렬 뒤에도 반복 실험이 가능하게 만든다.
+- progression field는 본체 채널로, safety / rule / dynamic은 costmap 성격 시각화로 분리한 뒤에도 반복 실험이 가능하게 만든다.
 
 ## 비범위
 

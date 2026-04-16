@@ -18,8 +18,9 @@ class ParameterGuideEntry:
 PARAMETER_GUIDE_INTRO = (
     "canonical score는 `higher is better`로 읽는다.\n"
     "현재 GUI는 `progression_tilted`만 직접 수정한다.\n"
-    "`interior_boundary`, `continuity_branch`, exception layer는 아직 GUI에서 직접 수정하지 않는다.\n"
-    "차이는 `base_preference_total`보다 `progression_tilted` 채널에서 먼저 확인하는 것이 맞다.\n"
+    "drivable boundary와 branch guides는 overlay로만 읽고 base heatmap에 더하지 않는다.\n"
+    "safety / rule / dynamic burden은 costmap 성격의 시각화 채널로만 남긴다.\n"
+    "차이는 `progression_tilted` 채널에서 먼저 확인하는 것이 맞다.\n"
     "현재 progression 파라미터는 longitudinal frame/term, transverse profile, support ceiling을 다룬다.\n"
     "current implementation은 smooth skeleton anchor들을 공간 좌표 추정용 control point로 쓰고, Gaussian elliptical blend로 whole-fabric continuous function over local space를 만든다.\n"
     "보이는 guide 끝은 semantic start/end가 아니라 virtual continuation이 붙은 local patch로 읽는다.\n"
@@ -126,7 +127,7 @@ PROGRESSION_PARAMETER_GUIDE: dict[str, ParameterGuideEntry] = {
 
 PANEL_NOTE_TEXT = (
     "Current GUI edits `progression_tilted` only.\n"
-    "Check `progression_tilted` before `base_preference_total`."
+    "Read drivable/branch as overlays and safety as costmap burden."
 )
 
 

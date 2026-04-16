@@ -18,24 +18,8 @@ class ProgressionConfig:
 
 
 @dataclass(frozen=True)
-class InteriorBoundaryConfig:
-    gain: float = 1.0
-    margin_scale_multiplier: float = 1.0
-
-
-@dataclass(frozen=True)
-class ContinuityBranchConfig:
-    gain: float = 1.0
-    distance_scale: float = 0.75
-    alignment_weight: float = 1.0
-    confidence_ceiling: float = 1.0
-
-
-@dataclass(frozen=True)
 class FieldConfig:
     progression: ProgressionConfig = field(default_factory=ProgressionConfig)
-    interior_boundary: InteriorBoundaryConfig = field(default_factory=InteriorBoundaryConfig)
-    continuity_branch: ContinuityBranchConfig = field(default_factory=ContinuityBranchConfig)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -43,13 +27,7 @@ class FieldConfig:
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "FieldConfig":
         progression = ProgressionConfig(**payload.get("progression", {}))
-        interior_boundary = InteriorBoundaryConfig(**payload.get("interior_boundary", {}))
-        continuity_branch = ContinuityBranchConfig(**payload.get("continuity_branch", {}))
-        return cls(
-            progression=progression,
-            interior_boundary=interior_boundary,
-            continuity_branch=continuity_branch,
-        )
+        return cls(progression=progression)
 
 
 @dataclass(frozen=True)

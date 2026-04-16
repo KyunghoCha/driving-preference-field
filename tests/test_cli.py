@@ -37,10 +37,9 @@ def test_evaluate_state_outputs_layerwise_result(capsys) -> None:
 
     assert exit_code == 0
     assert "base_preference_channels" in payload
-    assert "hard_violation_flags" in payload
     assert "progression_anchor_count" in payload["diagnostics"]
     assert "progression_dominant_guides" in payload["diagnostics"]
-    assert "interior_signed_margin" in payload["diagnostics"]
+    assert "base_preference_total" in payload["diagnostics"]
 
 
 def test_inspect_adapter_input_outputs_generic_summary(capsys) -> None:
@@ -105,6 +104,7 @@ def test_evaluate_trajectory_outputs_ordering_key(capsys) -> None:
     assert exit_code == 0
     assert "ordering_key" in payload
     assert "trajectory_base_preference_total" in payload
+    assert "trajectory_soft_exception_total" not in payload
 
 
 def test_inline_trajectory_json_is_parsed_before_path_probe(monkeypatch) -> None:

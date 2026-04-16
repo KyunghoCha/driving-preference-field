@@ -108,7 +108,7 @@ drivable support는 움직일 수 있는 공간을 알려주지만, progression 
 
 ## Current Implementation
 
-현재 tiny evaluator는 `interior_boundary`나 `continuity_branch` 같은 geometry / continuation 보조 채널을 별도로 materialize할 수 있다. 하지만 이는 current implementation과 debug / composition을 위한 구조다. canonical 입력 계약 자체가 이를 필수 slot로 요구하는 것은 아니다.
+현재 구현은 `boundary_interior_support`나 `branch_continuity_support`를 canonical 필수 slot로 materialize하지 않는다. 이들은 필요한 source에서 geometry / continuation prior를 복원할 때만 쓰는 optional support이며, progression-centered base field 정의 자체를 구성하지 않는다.
 
 ## 현재 기준
 

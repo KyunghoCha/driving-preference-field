@@ -44,6 +44,8 @@
 - current implementation exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.
 - visible guide endpoint는 virtual continuation으로 처리한다.
 - support / alignment는 weak secondary modulation으로만 유지한다.
+- current base composition은 `progression_tilted`만 사용한다.
+- safety / rule / dynamic burden은 costmap 성격의 visualization 채널로만 유지한다.
 - 자연 contour와 인공 artifact를 구분해 다룬다.
 - bend/U-turn의 대각선 contour와 global 등고선은 허용하고, overlap ordering flip / branch hole / fake end-cap만 제거 대상으로 본다.
 - support / confidence / continuity / alignment는 보조 성분이다.

@@ -39,8 +39,6 @@ def test_field_runtime_state_query_matches_evaluator_semantics() -> None:
     result = evaluate_state(snapshot, context, state, config=config)
 
     assert payload.base_channels == result.base_preference_channels
-    assert payload.soft_channels == result.soft_exception_channels
-    assert payload.hard_flags == result.hard_violation_flags
     assert payload.diagnostics["progression_s_hat"] == result.diagnostics["progression_s_hat"]
     assert payload.diagnostics["progression_n_hat"] == result.diagnostics["progression_n_hat"]
 
@@ -57,8 +55,6 @@ def test_field_runtime_cache_does_not_create_semantic_drift() -> None:
     second_payload = second_runtime.query_state(state)
 
     assert first_payload.base_channels == second_payload.base_channels
-    assert first_payload.soft_channels == second_payload.soft_channels
-    assert first_payload.hard_flags == second_payload.hard_flags
     assert first_payload.diagnostics["progression_s_hat"] == second_payload.diagnostics["progression_s_hat"]
     assert first_payload.diagnostics["progression_n_hat"] == second_payload.diagnostics["progression_n_hat"]
 
@@ -79,8 +75,6 @@ def test_field_runtime_trajectory_query_matches_evaluator_ordering() -> None:
     result = evaluate_trajectory(snapshot, context, trajectory, config=config)
 
     assert payload.base_channels == result.trajectory_base_preference_channels
-    assert payload.soft_channels == result.trajectory_soft_exception_channels
-    assert payload.hard_flags == result.trajectory_hard_violation_flags
     assert payload.ordering_key == result.ordering_key
 
 

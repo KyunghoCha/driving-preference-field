@@ -26,7 +26,7 @@ def test_normalized_range_uses_observed_data() -> None:
 
     value_range = resolve_display_range(
         data,
-        channel_name="base_preference_total",
+        channel_name="progression_tilted",
         scale_mode=SCALE_MODE_NORMALIZED,
     )
 
@@ -38,12 +38,12 @@ def test_fixed_diff_range_is_symmetric() -> None:
 
     value_range = resolve_display_range(
         data,
-        channel_name="base_preference_total",
+        channel_name="progression_tilted",
         scale_mode=SCALE_MODE_FIXED,
         diff=True,
     )
 
-    assert value_range == (-7.0, 7.0)
+    assert value_range == (-5.0, 5.0)
 
 
 def test_display_range_text_includes_mode_and_unit() -> None:
