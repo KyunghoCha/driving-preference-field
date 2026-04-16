@@ -1,4 +1,5 @@
 from pathlib import Path
+import ast
 import json
 
 import pytest
@@ -12,6 +13,7 @@ from driving_preference_field.ui.parameter_lab_window import ParameterLabWindow
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "fixtures/adapter"
+PRODUCT_LABELS = {"Guide", "Parameter Help", "Main", "Advanced Surface", "Profile", "Baseline", "Candidate", "Diff", "channel", "scale"}
 
 
 @pytest.fixture(autouse=True)
@@ -128,6 +130,8 @@ def test_locale_catalog_stays_complete_and_mixed_terms_remain_consistent() -> No
     assert UI_TEXTS[LANG_KO]["param.button.apply"] == "Apply"
     assert UI_TEXTS[LANG_KO]["toolbar.channel"] == "channel"
     assert UI_TEXTS[LANG_KO]["toolbar.scale"] == "scale"
+    assert UI_TEXTS[LANG_KO]["help.guide.title"] == "Guide"
+    assert UI_TEXTS[LANG_KO]["help.parameter.title"] == "Parameter Help"
 
 
 def test_guide_and_parameter_help_keep_distinct_roles_in_both_languages() -> None:
@@ -142,6 +146,24 @@ def test_guide_and_parameter_help_keep_distinct_roles_in_both_languages() -> Non
     assert "빠른 시작" in guide_ko
     assert "what each control changes" in help_en
     assert "각 항목이 무엇을 바꾸는지" in help_ko
+
+
+def test_high_risk_ui_modules_do_not_hardcode_product_labels() -> None:
+    ui_root = ROOT / "src" / "driving_preference_field" / "ui"
+    targets = [ui_root / "parameter_lab_window.py", *sorted((ui_root / "widgets").glob("*.py"))]
+    offenders: list[str] = []
+
+    for path in targets:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        literals = {
+            node.value
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Constant) and isinstance(node.value, str)
+        }
+        for literal in sorted(PRODUCT_LABELS & literals):
+            offenders.append(f"{path.relative_to(ROOT)} -> {literal}")
+
+    assert not offenders, "\n".join(offenders)
 
 
 def test_profile_panel_builds_on_demand_when_profile_tab_is_selected(qtbot) -> None:

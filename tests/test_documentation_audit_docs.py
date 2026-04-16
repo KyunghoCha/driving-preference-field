@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
+INLINE_CODE_PATTERN = re.compile(r"`([^`]+)`")
+PUBLIC_DOC_DIRS = ("explanation", "reference", "how-to", "status")
 
 
 def _read(path: str) -> str:
@@ -96,3 +99,26 @@ def test_korean_public_docs_do_not_keep_known_awkward_residue() -> None:
     )
     for token in forbidden:
         assert token not in combined
+
+
+def test_korean_public_docs_keep_mixed_terms_in_inline_product_labels() -> None:
+    forbidden_inline_labels = {
+        "가이드",
+        "파라미터 도움말",
+        "메인",
+        "프로파일",
+        "기준",
+        "후보",
+        "차이",
+        "채널",
+        "스케일",
+    }
+    violations: list[str] = []
+    for directory in PUBLIC_DOC_DIRS:
+        for path in sorted((ROOT / "docs" / "ko" / directory).rglob("*.md")):
+            text = path.read_text(encoding="utf-8")
+            for label in INLINE_CODE_PATTERN.findall(text):
+                if label in forbidden_inline_labels:
+                    violations.append(f"{path.relative_to(ROOT)} -> `{label}`")
+
+    assert not violations, "\n".join(violations)

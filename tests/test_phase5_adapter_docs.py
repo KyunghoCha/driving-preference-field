@@ -6,6 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LINK_PATTERN = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+HEADING_PATTERN = re.compile(r"^(#{1,6})\s+.+$", re.MULTILINE)
+PUBLIC_DOC_DIRS = ("explanation", "reference", "how-to", "status")
 
 
 def _read(path: str) -> str:
@@ -17,8 +19,28 @@ def _tree_files(language: str) -> list[str]:
     return sorted(str(path.relative_to(base)) for path in base.rglob("*.md"))
 
 
+def _public_tree_files(language: str) -> list[str]:
+    base = ROOT / "docs" / language
+    return sorted(
+        str(path.relative_to(base))
+        for directory in PUBLIC_DOC_DIRS
+        for path in sorted((base / directory).rglob("*.md"))
+    )
+
+
+def _heading_depths(path: Path) -> list[int]:
+    return [len(match.group(1)) for match in HEADING_PATTERN.finditer(path.read_text(encoding="utf-8"))]
+
+
 def test_docs_trees_have_identical_file_sets() -> None:
     assert _tree_files("en") == _tree_files("ko")
+
+
+def test_public_docs_have_matching_heading_skeletons() -> None:
+    for relpath in _public_tree_files("en"):
+        en_path = ROOT / "docs" / "en" / relpath
+        ko_path = ROOT / "docs" / "ko" / relpath
+        assert _heading_depths(en_path) == _heading_depths(ko_path), relpath
 
 
 def test_readmes_cross_link_and_point_to_language_portals() -> None:
@@ -35,6 +57,27 @@ def test_readmes_cross_link_and_point_to_language_portals() -> None:
     assert "./docs/ko/index.md" in readme_ko
     assert "Phase 5 complete, Phase 6 preparation" in readme_en
     assert "Phase 5 완료, Phase 6 준비" in readme_ko
+
+
+def test_readmes_keep_matching_section_order() -> None:
+    heading_pairs = (
+        ("## Prerequisites", "## 준비 사항"),
+        ("## Quick Start", "## 빠른 시작"),
+        ("## Docs", "## 문서"),
+        ("## Current Scope", "## 현재 범위"),
+    )
+    readme_en = _read("README.md")
+    readme_ko = _read("README.ko.md")
+
+    previous_en = -1
+    previous_ko = -1
+    for heading_en, heading_ko in heading_pairs:
+        current_en = readme_en.index(heading_en)
+        current_ko = readme_ko.index(heading_ko)
+        assert current_en > previous_en
+        assert current_ko > previous_ko
+        previous_en = current_en
+        previous_ko = current_ko
 
 
 def test_docs_index_is_language_landing_page() -> None:
