@@ -14,31 +14,14 @@ from .rendering import render_case
 from .source_adapter import serialize_canonical_bundle
 
 
-def _parse_inline_trajectory_payload(raw: str) -> object | None:
-    try:
-        payload = json.loads(raw)
-    except json.JSONDecodeError:
-        try:
-            payload = yaml.safe_load(raw)
-        except yaml.YAMLError:
-            return None
-    if isinstance(payload, dict) and "states" in payload:
-        return payload
-    if isinstance(payload, list):
-        return payload
-    return None
-
-
 def _load_trajectory_arg(raw: str) -> TrajectorySample:
-    payload = _parse_inline_trajectory_payload(raw)
-    if payload is None:
+    candidate = Path(raw)
+    if candidate.exists():
+        payload = yaml.safe_load(candidate.read_text(encoding="utf-8"))
+    else:
         try:
-            candidate = Path(raw)
-            if candidate.exists():
-                payload = yaml.safe_load(candidate.read_text(encoding="utf-8"))
-            else:
-                payload = yaml.safe_load(raw)
-        except OSError:
+            payload = json.loads(raw)
+        except json.JSONDecodeError:
             payload = yaml.safe_load(raw)
     states = payload["states"] if isinstance(payload, dict) else payload
     return TrajectorySample(

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from driving_preference_field.cli import _load_trajectory_arg, main
+from driving_preference_field.cli import main
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -105,21 +105,6 @@ def test_evaluate_trajectory_outputs_ordering_key(capsys) -> None:
     assert "ordering_key" in payload
     assert "trajectory_base_preference_total" in payload
     assert "trajectory_soft_exception_total" not in payload
-
-
-def test_inline_trajectory_json_is_parsed_before_path_probe(monkeypatch) -> None:
-    class _ForbiddenPath:
-        def __init__(self, *_args, **_kwargs) -> None:
-            raise AssertionError("Path probing should not happen for inline trajectory JSON")
-
-    monkeypatch.setattr("driving_preference_field.cli.Path", _ForbiddenPath)
-
-    trajectory = _load_trajectory_arg('{"states":[{"x":1.0,"y":2.0,"yaw":0.5}]}')
-
-    assert len(trajectory.states) == 1
-    assert trajectory.states[0].x == 1.0
-    assert trajectory.states[0].y == 2.0
-    assert trajectory.states[0].yaw == 0.5
 
 
 def test_parameter_lab_cli_starts_and_returns_zero(monkeypatch) -> None:
