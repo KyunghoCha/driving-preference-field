@@ -6,7 +6,6 @@ import yaml
 
 from .contracts import (
     BoundaryInteriorSupport,
-    BranchContinuitySupport,
     DirectedPolyline,
     DrivableSupport,
     ExceptionLayerSupport,
@@ -17,6 +16,11 @@ from .contracts import (
     SemanticInputSnapshot,
     StateSample,
 )
+
+
+def _reject_removed_key(payload: dict, key: str, *, message: str) -> None:
+    if key in payload:
+        raise ValueError(message)
 
 
 def _point_list(raw_points: list[list[float]]) -> tuple[tuple[float, float], ...]:
@@ -63,13 +67,17 @@ def load_toy_snapshot(case_path: str | Path) -> tuple[SemanticInputSnapshot, Que
 
     path = Path(case_path)
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    _reject_removed_key(
+        payload,
+        "branch_guides",
+        message="branch_guides is no longer supported; express split/merge as multiple progression_guides",
+    )
 
     metadata = dict(payload.get("metadata", {}))
     drivable_regions = _polygon_list(payload.get("drivable_regions", []))
     progression_guides = _polyline_list(payload.get("progression_guides", []))
     boundary_regions = _polygon_list(payload.get("boundary_regions", []))
     boundaries = _polyline_list(payload.get("boundaries", []))
-    branch_guides = _polyline_list(payload.get("branch_guides", []))
     safety_regions = _polygon_list(payload.get("safety_regions", []))
     rule_regions = _polygon_list(payload.get("rule_regions", []))
     dynamic_regions = _polygon_list(payload.get("dynamic_regions", []))
@@ -87,7 +95,6 @@ def load_toy_snapshot(case_path: str | Path) -> tuple[SemanticInputSnapshot, Que
             boundaries=boundaries,
             boundary_regions=boundary_regions,
         ),
-        branch_continuity_support=BranchContinuitySupport(guides=branch_guides),
         exception_layer_support=ExceptionLayerSupport(
             safety_regions=safety_regions,
             rule_regions=rule_regions,
@@ -123,7 +130,6 @@ def summarize_snapshot(snapshot: SemanticInputSnapshot) -> dict[str, object]:
         "progression_guides": len(snapshot.progression_support.guides),
         "boundaries": len(snapshot.boundary_interior_support.boundaries),
         "boundary_regions": len(snapshot.boundary_interior_support.boundary_regions),
-        "branch_guides": len(snapshot.branch_continuity_support.guides),
         "safety_regions": len(snapshot.exception_layer_support.safety_regions),
         "rule_regions": len(snapshot.exception_layer_support.rule_regions),
         "dynamic_regions": len(snapshot.exception_layer_support.dynamic_regions),

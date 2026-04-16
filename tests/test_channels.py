@@ -121,8 +121,10 @@ def test_progression_split_branch_gap_is_filled_without_hole() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
     config = _canonical_config()
     upper_branch = StateSample(x=5.2, y=1.4, yaw=0.55)
+    lower_branch = StateSample(x=5.2, y=-1.4, yaw=-0.55)
     branch_gap = StateSample(x=5.2, y=0.0, yaw=0.55)
     outer_upper = StateSample(x=5.2, y=2.2, yaw=0.55)
+    divergence_onset = StateSample(x=3.8, y=0.0, yaw=0.0)
 
     assert progression_tilted(snapshot, context, upper_branch, config=config) > progression_tilted(
         snapshot,
@@ -130,7 +132,20 @@ def test_progression_split_branch_gap_is_filled_without_hole() -> None:
         outer_upper,
         config=config,
     )
+    assert progression_tilted(snapshot, context, upper_branch, config=config) > progression_tilted(
+        snapshot,
+        context,
+        branch_gap,
+        config=config,
+    )
+    assert progression_tilted(snapshot, context, lower_branch, config=config) > progression_tilted(
+        snapshot,
+        context,
+        branch_gap,
+        config=config,
+    )
     assert progression_tilted(snapshot, context, branch_gap, config=config) > 0.0
+    assert progression_tilted(snapshot, context, divergence_onset, config=config) > 0.0
 
 
 def test_strong_longitudinal_can_outweigh_near_center_preference() -> None:
@@ -262,3 +277,20 @@ def test_no_progression_reference_preset_disables_progression_channel() -> None:
     state = StateSample(x=4.4, y=0.0, yaw=0.0)
 
     assert progression_tilted(snapshot, context, state, config=preset.field_config) == 0.0
+
+
+def test_two_lane_straight_creates_lane_centers_with_valley_between_them() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/two_lane_straight.yaml")
+    config = _canonical_config(longitudinal_frame="local_absolute", longitudinal_gain=1.0)
+    lower_lane = StateSample(x=3.0, y=-0.6, yaw=0.0)
+    midpoint = StateSample(x=3.0, y=0.0, yaw=0.0)
+    upper_lane = StateSample(x=3.0, y=0.6, yaw=0.0)
+    outer_edge = StateSample(x=3.0, y=1.8, yaw=0.0)
+
+    lower_score = progression_tilted(snapshot, context, lower_lane, config=config)
+    midpoint_score = progression_tilted(snapshot, context, midpoint, config=config)
+    upper_score = progression_tilted(snapshot, context, upper_lane, config=config)
+    outer_score = progression_tilted(snapshot, context, outer_edge, config=config)
+
+    assert lower_score > midpoint_score > outer_score
+    assert upper_score > midpoint_score > outer_score

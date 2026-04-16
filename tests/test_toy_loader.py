@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from driving_preference_field.toy_loader import load_toy_snapshot, summarize_snapshot
 
 
@@ -21,8 +23,8 @@ def test_summarize_snapshot_reports_slot_counts() -> None:
     summary = summarize_snapshot(snapshot)
 
     assert summary["drivable_regions"] == 1
-    assert summary["progression_guides"] == 1
-    assert summary["branch_guides"] == 2
+    assert summary["progression_guides"] == 2
+    assert "branch_guides" not in summary
 
 
 def test_sensor_only_open_patch_loads_expected_metadata() -> None:
@@ -51,5 +53,26 @@ def test_two_lane_straight_case_loads_parallel_progression_guides() -> None:
     assert len(snapshot.drivable_support.regions) == 1
     assert len(snapshot.progression_support.guides) == 2
     assert summary["progression_guides"] == 2
-    assert summary["branch_guides"] == 0
-    assert context.ego_pose.y == -0.9
+    assert context.ego_pose.y == -0.6
+
+
+def test_toy_loader_rejects_removed_branch_guides_key(tmp_path) -> None:
+    fixture = tmp_path / "legacy_branch_guides.yaml"
+    fixture.write_text(
+        """
+metadata:
+  name: legacy
+query_window: {x_min: -1.0, x_max: 1.0, y_min: -1.0, y_max: 1.0}
+ego_pose: {x: 0.0, y: 0.0, yaw: 0.0}
+drivable_regions:
+  - points: [[0.0, -1.0], [1.0, -1.0], [1.0, 1.0], [0.0, 1.0]]
+progression_guides:
+  - points: [[0.0, 0.0], [1.0, 0.0]]
+branch_guides:
+  - points: [[0.5, 0.0], [1.0, 0.5]]
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="multiple progression_guides"):
+        load_toy_snapshot(fixture)

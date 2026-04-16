@@ -8,7 +8,7 @@ query_window:
   y_max: 3.0
 ego_pose:
   x: 0.5
-  y: -0.9
+  y: -0.6
   yaw: 0.0
 drivable_regions:
   - id: two_lane_corridor
@@ -20,12 +20,12 @@ drivable_regions:
 progression_guides:
   - id: lower_lane_guide
     points:
-      - [0.0, -0.9]
-      - [7.0, -0.9]
+      - [0.0, -0.6]
+      - [7.0, -0.6]
   - id: upper_lane_guide
     points:
-      - [0.0, 0.9]
-      - [7.0, 0.9]
+      - [0.0, 0.6]
+      - [7.0, 0.6]
 boundaries:
   - id: lower_road_edge
     points:

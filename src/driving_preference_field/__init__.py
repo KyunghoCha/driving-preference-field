@@ -8,7 +8,6 @@ from .config import (
 )
 from .contracts import (
     BoundaryInteriorSupport,
-    BranchContinuitySupport,
     DirectedPolyline,
     DrivableSupport,
     ExceptionLayerSupport,
@@ -36,7 +35,6 @@ __all__ = [
     "DEFAULT_FIELD_CONFIG",
     "ComparisonPreset",
     "BoundaryInteriorSupport",
-    "BranchContinuitySupport",
     "DirectedPolyline",
     "DrivableSupport",
     "ExceptionLayerSupport",

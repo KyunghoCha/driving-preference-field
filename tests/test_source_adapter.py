@@ -73,13 +73,33 @@ def test_optional_branch_and_support_metadata_are_not_required() -> None:
     assert context.ego_pose.x == 0.5
 
 
-def test_optional_quality_and_branch_prior_are_preserved_in_metadata() -> None:
+def test_optional_quality_and_multiple_progression_guides_are_preserved() -> None:
     bend_snapshot, _ = load_generic_snapshot(FIXTURES / "left_bend_generic.yaml")
     split_snapshot, _ = load_generic_snapshot(FIXTURES / "split_branch_generic.yaml")
 
     assert bend_snapshot.progression_support.guides[0].metadata["support_confidence"] == pytest.approx(0.92)
-    assert split_snapshot.branch_continuity_support.guides[0].metadata["branch_prior"] == pytest.approx(1.0)
-    assert split_snapshot.branch_continuity_support.guides[1].metadata["branch_prior"] == pytest.approx(0.9)
+    assert len(split_snapshot.progression_support.guides) == 2
+    assert {guide.guide_id for guide in split_snapshot.progression_support.guides} == {
+        "upper_branch_progression",
+        "lower_branch_progression",
+    }
+
+
+def test_generic_adapter_rejects_removed_branch_supports_key(tmp_path) -> None:
+    payload = {
+        "drivable_regions": [{"points": [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]}],
+        "progression_supports": [{"points": [[0.0, 0.0], [1.0, 0.0]]}],
+        "branch_supports": [{"points": [[0.5, 0.0], [1.0, 0.4]]}],
+        "query_context": {
+            "query_pose": {"x": 0.0, "y": 0.0, "yaw": 0.0},
+            "local_window": {"x_min": -1.0, "x_max": 1.0, "y_min": -1.0, "y_max": 1.0},
+        },
+    }
+    fixture = tmp_path / "legacy_branch_supports.yaml"
+    fixture.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    with pytest.raises(GenericAdapterValidationError, match="multiple progression_supports"):
+        load_generic_snapshot(fixture)
 
 
 def test_adapter_output_can_be_used_by_runtime_and_evaluator() -> None:
@@ -123,3 +143,11 @@ def test_canonical_types_do_not_expose_source_specific_slots() -> None:
     assert "lane_graph" not in snapshot_fields
     assert "ssc_route" not in snapshot_fields
     assert "planner_state" not in snapshot_fields
+    assert "branch_continuity_support" not in snapshot_fields
+
+
+def test_serialized_canonical_bundle_no_longer_exposes_branch_support_slot() -> None:
+    snapshot, context = load_generic_snapshot(FIXTURES / "split_branch_generic.yaml")
+    payload = serialize_canonical_bundle(snapshot, context)
+
+    assert "branch_continuity_support" not in payload["snapshot"]

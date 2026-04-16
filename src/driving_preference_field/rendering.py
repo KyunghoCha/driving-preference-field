@@ -20,7 +20,7 @@ from .visualization_scale import SCALE_MODE_FIXED, display_unit, format_display_
 CHANNEL_DESCRIPTIONS = {
     "progression_tilted": "Whole-fabric blended progression space over the local map. Higher means stronger progression ordering.",
     "progression_s_hat": "Blended progression coordinate over the local space. This is the current implementation debug view of s_hat.",
-    "progression_n_hat": "Blended transverse distance from the current progression fabric center. Lower means closer to the center-high slice.",
+    "progression_n_hat": "Signed lateral offset from the currently dominant progression guide. Lower absolute value means closer to that guide center.",
     "progression_longitudinal_component": "Current implementation longitudinal tilt term before gain is applied.",
     "progression_transverse_component": "Current implementation center-high transverse profile term.",
     "progression_support_mod": "Weak secondary support modulation. It should not dominate the space shape.",
@@ -191,8 +191,6 @@ def _render_composite(
 
     for guide in snapshot.progression_support.guides:
         _plot_polyline(ax, guide, color="cyan", linestyle="-", linewidth=1.5)
-    for guide in snapshot.branch_continuity_support.guides:
-        _plot_polyline(ax, guide, color="yellow", linestyle="--", linewidth=1.2)
     for region in snapshot.drivable_support.regions:
         boundary = DirectedPolyline(
             guide_id=f"{region.region_id}_boundary",
@@ -246,7 +244,7 @@ def _render_legend(path: Path, *, dpi: int) -> None:
             "",
             "Composite overlay:",
             "  red = hard unsafe, orange = hard rule, magenta = hard dynamic",
-            "  cyan = progression guide, yellow dashed = branch guide",
+            "  cyan = progression guide",
             "  white = drivable boundary and ego pose",
         ]
     )

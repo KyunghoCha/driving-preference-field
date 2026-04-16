@@ -29,6 +29,7 @@
   - progression-aware whole-space preference structure를 만든다.
 
 progression support는 branch winner를 직접 고르는 입력이 아니라, local map 전체의 before / after ordering과 continuation 구조를 만들 progression hint다.
+split이나 merge가 있더라도 별도 branch slot을 두기보다, shared prefix/suffix를 가진 multiple progression guide를 허용하는 쪽으로 읽는다.
 
 ### 2. Drivable Support
 
@@ -62,22 +63,7 @@ drivable support는 움직일 수 있는 공간을 알려주지만, progression 
 
 이 slot은 canonical base의 필수 성분이 아니다. 필요하면 optional geometry support로만 다룬다.
 
-### 4. Branch / Continuity Support
-
-- 의미:
-  - branch나 split, merge에서 복수 continuation support를 보조적으로 전달한다.
-- 최소 의미:
-  - 대안적 continuation 사이의 continuity relation을 구분할 수 있어야 한다.
-- 선택 의미:
-  - optional branch priority
-  - merge preference
-  - optional continuity confidence
-- field generator 해석:
-  - continuation prior나 optional continuity support를 만든다.
-
-이 slot은 branch winner를 canonical 입력이 직접 정한다는 뜻이 아니다. 여러 continuation support를 허용하고, optional priority나 confidence가 있더라도 weak prior로만 읽는다.
-
-### 5. Exception-Layer Support
+### 4. Exception-Layer Support
 
 - 최소 의미:
   - obstacle / safety semantics
@@ -108,7 +94,7 @@ drivable support는 움직일 수 있는 공간을 알려주지만, progression 
 
 ## Current Implementation
 
-현재 구현은 `boundary_interior_support`나 `branch_continuity_support`를 canonical 필수 slot로 materialize하지 않는다. 이들은 필요한 source에서 geometry / continuation prior를 복원할 때만 쓰는 optional support이며, progression-centered base field 정의 자체를 구성하지 않는다.
+현재 구현은 `boundary_interior_support`를 canonical 필수 slot로 materialize하지 않는다. 이는 필요한 source에서 geometry prior를 복원할 때만 쓰는 optional support이며, progression-centered base field 정의 자체를 구성하지 않는다.
 
 ## 현재 기준
 

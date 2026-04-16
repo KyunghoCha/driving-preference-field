@@ -31,7 +31,6 @@ adapter output은 다음 두 타입으로 고정한다.
   - `drivable_support`
 - optional slot:
   - `boundary_interior_support`
-  - `branch_continuity_support`
   - `exception_layer_support`
 
 추가 원칙:
@@ -40,9 +39,9 @@ adapter output은 다음 두 타입으로 고정한다.
 - `drivable_support`는 domain / support / reconstruction 재료다.
 - progression과 drivable은 분리된 semantic slot로 유지한다.
 - branch winner는 canonical snapshot이 직접 정하지 않는다.
-- support/confidence/branch prior 같은 값은 있더라도 weak prior metadata로만 다룬다.
+- support/confidence 같은 값은 있더라도 weak prior metadata로만 다룬다.
 
-`boundary_interior_support`는 optional geometry prior다. `branch_continuity_support`는 optional continuation prior다. 둘 다 canonical base를 항상 구성하는 필수 slot이 아니다.
+`boundary_interior_support`는 optional geometry prior다. split/merge continuity는 별도 slot보다 multiple progression guide 표현으로 다루며, canonical base를 항상 구성하는 필수 slot로 materialize하지 않는다.
 
 ### QueryContext
 
@@ -68,7 +67,6 @@ Phase 5 v1 reference adapter는 source-specific naming을 쓰지 않는 generic 
 - optional `progression_options`
 - optional `boundaries`
 - optional `boundary_regions`
-- optional `branch_supports`
 - optional `safety_regions`
 - optional `rule_regions`
 - optional `dynamic_regions`
@@ -90,11 +88,10 @@ optional 입력은 다음이다.
 
 - `boundaries`
 - `boundary_regions`
-- `branch_supports`
 - `safety_regions`
 - `rule_regions`
 - `dynamic_regions`
-- guide/region metadata의 `support_confidence`, `branch_prior` 같은 weak prior
+- guide/region metadata의 `support_confidence` 같은 weak prior
 
 optional 항목이 없다고 canonical output이 invalid가 되지는 않는다.
 
@@ -105,7 +102,7 @@ adapter는 progression과 drivable을 하나로 합치지 않는다.
 - `progression_support`: 무엇이 앞이고 뒤인지, intended progression continuity를 어떤 흐름이 더 잘 지지하는가
 - `drivable_support`: 지금 local map에서 무엇이 움직일 수 있는 공간인가, 그리고 progression support를 어떻게 지지하거나 복원할 수 있는가
 
-branch winner는 canonical에서 정하지 않는다. 여러 candidate continuation을 continuity support로 전달할 수 있고, optional `branch_prior`가 있으면 weak prior metadata로만 전달한다. support/confidence도 본체가 아니라 optional weak prior다.
+branch winner는 canonical에서 정하지 않는다. split/merge는 shared prefix/suffix를 가진 multiple progression guide로 전달하고, support/confidence는 본체가 아니라 optional weak prior다.
 
 ## 기존 toy path와의 관계
 
@@ -138,7 +135,7 @@ SSC는 중요한 validation source지만 canonical 기준은 아니다.
 
 ## Current Implementation
 
-Phase 5 v1 reference adapter는 generic local semantic map fixture를 `SemanticInputSnapshot + QueryContext`로 번역한다. 현재 runtime과 toy path는 같은 output contract를 공유하고, optional boundary / branch / exception support가 없어도 canonical output 전체를 invalid로 보지 않는다.
+Phase 5 v1 reference adapter는 generic local semantic map fixture를 `SemanticInputSnapshot + QueryContext`로 번역한다. 현재 runtime과 toy path는 같은 output contract를 공유하고, optional boundary / exception support가 없어도 canonical output 전체를 invalid로 보지 않는다.
 
 ## 현재 기준
 

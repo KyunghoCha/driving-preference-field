@@ -92,3 +92,16 @@ SSC는 prototype input source로는 유용하지만, canonical 입력 구조를 
   - multi-lane corridor보다 richer rule semantics가 먼저 들어오므로, rule layer와 progression guide의 책임 분리가 더 정리된 뒤에 다루는 편이 낫다.
 
 반대로 단순 multi-lane corridor는 현재 toy-case 집합에 추가할 수 있다. 이 경우 핵심은 “차선 여러 개가 있는 직선/곡선 공간에서 progression guide를 여러 개 둘 수 있는가”를 보는 것이지, 교차로 의미를 한 번에 해결하는 것이 아니다.
+
+## 5. Current Guide-Blend Observations
+
+현재 `progression_surface.py`의 guide blending은 다음 관찰을 남긴다. 이 항목은 아직 canonical 판단이 아니라, 다음 transverse / guide 재설계 배치에서 다시 확인할 working note다.
+
+- `two_lane_straight`:
+  - 평행한 progression guide 두 개를 넣었을 때 lane 사이 중심이 별도 저점으로 내려가지 않고, 넓은 high transverse band처럼 남는다.
+- `left_bend`:
+  - curved guide 중심을 따라가도 transverse ridge가 위치에 따라 완전히 일정하지 않다.
+- `split_branch`:
+  - shared prefix를 가진 multiple progression guide를 넣어도 split 부근에서 saddle / bridge 같은 비균일한 transverse shape가 생긴다.
+
+이 세 관찰은 따로 보지 않고 함께 다룬다. 다음 배치에서는 branch semantics 자체보다 먼저, guide blending이 `n_hat`과 transverse component를 어떻게 만들고 있는지부터 다시 본다.

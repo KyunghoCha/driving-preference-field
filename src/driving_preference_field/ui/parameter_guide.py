@@ -18,16 +18,16 @@ class ParameterGuideEntry:
 PARAMETER_GUIDE_INTRO = (
     "canonical score는 `higher is better`로 읽는다.\n"
     "현재 GUI는 `progression_tilted`만 직접 수정한다.\n"
-    "drivable boundary와 branch guides는 overlay로만 읽고 base heatmap에 더하지 않는다.\n"
+    "drivable boundary는 overlay로만 읽고 base heatmap에 더하지 않는다.\n"
     "obstacle / rule / dynamic 채널은 costmap 성격의 시각화로만 남긴다.\n"
     "차이는 `progression_tilted` 채널에서 먼저 확인하는 것이 맞다.\n"
     "현재 progression 파라미터는 longitudinal frame/term, transverse profile, support ceiling을 다룬다.\n"
-    "current implementation은 smooth skeleton anchor들을 공간 좌표 추정용 control point로 쓰고, Gaussian elliptical blend로 whole-fabric continuous function over local space를 만든다.\n"
+    "current implementation은 각 progression guide 안에서 local coordinate를 만들고, guide별 score 가운데 최대값을 최종 field로 읽는다.\n"
     "보이는 guide 끝은 semantic start/end가 아니라 virtual continuation이 붙은 local patch로 읽는다.\n"
     "현재 exact formula는 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.\n"
     "support / alignment는 shape를 주도하지 않는 약한 secondary modulation이다.\n"
     "같은 진행 slice에서는 중심이 가장 높고, longitudinal tilt가 충분히 강하면 더 먼 좋은 영역이 가까운 중심보다 더 높은 ordering을 만들 수 있다.\n"
-    "branch 사이도 nearest-winner 없이 fabric-like surface로 이어지며, raster는 이 함수를 샘플링한 시각화일 뿐이다."
+    "split/merge는 shared prefix/suffix를 가진 multiple progression guide로 표현하고, raster는 이 continuous function을 local map 위에서 샘플링한 시각화일 뿐이다."
 )
 
 
@@ -85,7 +85,7 @@ PROGRESSION_PARAMETER_GUIDE: dict[str, ParameterGuideEntry] = {
     "transverse_family": ParameterGuideEntry(
         key="transverse_family",
         label="trans family",
-        meaning="같은 진행 slice에서 중심이 가장 높게 보이는 횡단면 profile의 함수 family를 고른다. branch 사이는 Gaussian-blended space coordinates 위에서 자동으로 메워진다.",
+        meaning="같은 진행 slice에서 중심이 가장 높게 보이는 횡단면 profile의 함수 family를 고른다. split/merge도 현재는 progression guide 집합에서 바로 계산한다.",
         effect_up="숫자 증가 개념은 없다. family를 바꾸면 축 밖 감쇠 모양이 달라진다.",
         effect_down="더 완만한 family로 바꾸면 off-axis 점수가 더 오래 유지되어 멀리 있는 좋은 영역으로 이어질 여지가 커진다.",
         practical_band="exponential | inverse | power",
@@ -127,7 +127,7 @@ PROGRESSION_PARAMETER_GUIDE: dict[str, ParameterGuideEntry] = {
 
 PANEL_NOTE_TEXT = (
     "Current GUI edits `progression_tilted` only.\n"
-    "Read drivable/branch as overlays and obstacle/rule/dynamic as costmap."
+    "Read drivable boundary as overlay and obstacle/rule/dynamic as costmap."
 )
 
 

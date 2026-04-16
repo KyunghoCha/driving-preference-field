@@ -62,6 +62,8 @@ def test_render_case_writes_expected_files_and_summary(tmp_path: Path) -> None:
     assert "progression_tilted" in summary["channel_ranges"]
     assert "progression_tilted" in summary["channel_descriptions"]
     assert "render_legend.png" in summary["render_file_manifest"]
+    legend_text = (tmp_path / "render" / "render_legend.png").read_bytes()
+    assert legend_text
 
 
 def test_render_case_cli_exports_pngs_and_summary(tmp_path: Path, capsys) -> None:

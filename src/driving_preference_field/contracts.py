@@ -21,7 +21,7 @@ class PolygonRegion:
 
 @dataclass(frozen=True)
 class DirectedPolyline:
-    """Directed guide used for progression or branch continuity support."""
+    """Directed polyline used for progression, boundary, or overlay geometry."""
 
     guide_id: str
     points: tuple[Point2, ...]
@@ -49,11 +49,6 @@ class BoundaryInteriorSupport:
 
 
 @dataclass(frozen=True)
-class BranchContinuitySupport:
-    guides: tuple[DirectedPolyline, ...] = ()
-
-
-@dataclass(frozen=True)
 class ExceptionLayerSupport:
     safety_regions: tuple[PolygonRegion, ...] = ()
     rule_regions: tuple[PolygonRegion, ...] = ()
@@ -66,7 +61,6 @@ class SemanticInputSnapshot:
     drivable_support: DrivableSupport
     progression_support: ProgressionSupport
     boundary_interior_support: BoundaryInteriorSupport
-    branch_continuity_support: BranchContinuitySupport
     exception_layer_support: ExceptionLayerSupport
 
 

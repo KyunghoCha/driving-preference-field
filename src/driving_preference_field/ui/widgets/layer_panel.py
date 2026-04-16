@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import QCheckBox, QVBoxLayout, QWidget
 
 LAYER_LABELS = {
     "progression_guides": "Progression guides",
-    "branch_guides": "Branch guides",
     "drivable_boundary": "Drivable boundary",
     "ego": "Ego pose",
     "hard_masks": "Hard masks",

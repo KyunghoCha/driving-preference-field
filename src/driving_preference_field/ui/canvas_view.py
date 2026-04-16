@@ -19,7 +19,6 @@ from driving_preference_field.contracts import DirectedPolyline, QueryWindow, Se
 
 LAYER_KEYS = (
     "progression_guides",
-    "branch_guides",
     "drivable_boundary",
     "ego",
     "hard_masks",
@@ -107,9 +106,6 @@ class RasterCanvasView(QGraphicsView):
         if self._overlay_visibility.get("progression_guides", True):
             for guide in self._snapshot.progression_support.guides:
                 self._draw_polyline(guide, color=QColor("cyan"))
-        if self._overlay_visibility.get("branch_guides", True):
-            for guide in self._snapshot.branch_continuity_support.guides:
-                self._draw_polyline(guide, color=QColor("yellow"), dashed=True)
         if self._overlay_visibility.get("drivable_boundary", True):
             for region in self._snapshot.drivable_support.regions:
                 closed = DirectedPolyline(

@@ -16,7 +16,6 @@ import yaml
 
 from .contracts import (
     BoundaryInteriorSupport,
-    BranchContinuitySupport,
     DirectedPolyline,
     DrivableSupport,
     ExceptionLayerSupport,
@@ -80,6 +79,11 @@ def _optional_sequence(payload: dict[str, Any], key: str) -> list[Any]:
     return list(value)
 
 
+def _reject_removed_key(payload: dict[str, Any], key: str, *, message: str) -> None:
+    if key in payload:
+        raise GenericAdapterValidationError(message)
+
+
 def _coerce_point(raw: Any, *, path: str) -> Point2:
     if not isinstance(raw, (list, tuple)) or len(raw) != 2:
         raise GenericAdapterValidationError(f"{path} must be a 2-element point")
@@ -109,12 +113,15 @@ def _point_list(raw_points: Any, *, path: str, min_points: int) -> tuple[Point2,
 
 def _merged_metadata(item: dict[str, Any], *, path: str) -> dict[str, Any]:
     metadata = dict(item.get("metadata", {}))
-    for key in ("support_confidence", "branch_prior"):
-        if key in item and key not in metadata:
-            try:
-                metadata[key] = float(item[key])
-            except (TypeError, ValueError) as exc:
-                raise GenericAdapterValidationError(f"{path}.{key} must be numeric") from exc
+    if "branch_prior" in item or "branch_prior" in metadata:
+        raise GenericAdapterValidationError(
+            f"{path}.branch_prior is no longer supported; express split/merge as multiple progression_supports"
+        )
+    if "support_confidence" in item and "support_confidence" not in metadata:
+        try:
+            metadata["support_confidence"] = float(item["support_confidence"])
+        except (TypeError, ValueError) as exc:
+            raise GenericAdapterValidationError(f"{path}.support_confidence must be numeric") from exc
     return metadata
 
 
@@ -159,6 +166,11 @@ def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot
 
     path = Path(input_path)
     payload = _load_payload(path)
+    _reject_removed_key(
+        payload,
+        "branch_supports",
+        message="branch_supports is no longer supported; express split/merge as multiple progression_supports",
+    )
 
     metadata = dict(payload.get("metadata", {}))
     drivable_regions = _polygon_list(_require_sequence(payload, "drivable_regions"), key="drivable_regions")
@@ -168,7 +180,6 @@ def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot
     )
     boundaries = _polyline_list(_optional_sequence(payload, "boundaries"), key="boundaries")
     boundary_regions = _polygon_list(_optional_sequence(payload, "boundary_regions"), key="boundary_regions")
-    branch_guides = _polyline_list(_optional_sequence(payload, "branch_supports"), key="branch_supports")
     safety_regions = _polygon_list(_optional_sequence(payload, "safety_regions"), key="safety_regions")
     rule_regions = _polygon_list(_optional_sequence(payload, "rule_regions"), key="rule_regions")
     dynamic_regions = _polygon_list(_optional_sequence(payload, "dynamic_regions"), key="dynamic_regions")
@@ -201,7 +212,6 @@ def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot
             boundaries=boundaries,
             boundary_regions=boundary_regions,
         ),
-        branch_continuity_support=BranchContinuitySupport(guides=branch_guides),
         exception_layer_support=ExceptionLayerSupport(
             safety_regions=safety_regions,
             rule_regions=rule_regions,
@@ -264,9 +274,6 @@ def serialize_snapshot(snapshot: SemanticInputSnapshot) -> dict[str, Any]:
             "boundary_regions": [
                 serialize_region(region) for region in snapshot.boundary_interior_support.boundary_regions
             ],
-        },
-        "branch_continuity_support": {
-            "guides": [serialize_guide(guide) for guide in snapshot.branch_continuity_support.guides],
         },
         "exception_layer_support": {
             "safety_regions": [serialize_region(region) for region in snapshot.exception_layer_support.safety_regions],
