@@ -20,20 +20,22 @@ from PyQt6.QtWidgets import (
 
 from driving_preference_field.contracts import QueryContext
 from driving_preference_field.profile_contracts import ProfileSpec
+from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, t
 
 if TYPE_CHECKING:
     from driving_preference_field.profile_contracts import ComparisonProfileResult
 
 
 LOGGER = logging.getLogger(__name__)
-_PROFILE_PREVIEW_UNAVAILABLE_MESSAGE = "Profile preview unavailable."
 
 
 class _ProfileImageWidget(QWidget):
-    def __init__(self) -> None:
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
         super().__init__()
+        self._language = language
         self._has_pixmap = False
-        self._label = QLabel("No profile result")
+        self._empty_text = t(language, "profile.no_result")
+        self._label = QLabel(self._empty_text)
         self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._label.setMinimumSize(0, 0)
         self._label.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
@@ -57,10 +59,12 @@ class _ProfileImageWidget(QWidget):
         if not self._has_pixmap:
             self._resize_placeholder_to_viewport()
 
-    def set_png(self, payload: bytes | None, *, empty_text: str = "No profile result") -> None:
+    def set_png(self, payload: bytes | None, *, empty_text: str | None = None) -> None:
+        if empty_text is not None:
+            self._empty_text = empty_text
         if not payload:
             self._has_pixmap = False
-            self._label.setText(empty_text)
+            self._label.setText(self._empty_text)
             self._label.setPixmap(QPixmap())
             self._label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self._label.setMinimumSize(0, 0)
@@ -76,6 +80,12 @@ class _ProfileImageWidget(QWidget):
         self._label.setMaximumSize(pixmap.size())
         self._label.resize(pixmap.size())
 
+    def retranslate(self, language: str) -> None:
+        self._language = language
+        if not self._has_pixmap:
+            self._empty_text = t(language, "profile.no_result")
+            self._label.setText(self._empty_text)
+
     def _resize_placeholder_to_viewport(self) -> None:
         viewport_size = self._scroll.viewport().size()
         width = max(1, viewport_size.width())
@@ -89,35 +99,36 @@ class _ProfileImageWidget(QWidget):
 class ProfilePanelWidget(QWidget):
     profileSpecChanged = pyqtSignal(str, float)
 
-    def __init__(self) -> None:
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
         super().__init__()
+        self._language = language
         self._context: QueryContext | None = None
         self._axis_selector = QComboBox()
-        self._axis_selector.addItem("Horizontal (constant y)", "horizontal")
-        self._axis_selector.addItem("Vertical (constant x)", "vertical")
         self._coordinate_spin = QDoubleSpinBox()
         self._coordinate_spin.setDecimals(3)
         self._coordinate_spin.setSingleStep(0.1)
-        self._ego_button = QPushButton("Use Ego")
-        self._center_button = QPushButton("Use Center")
-        self._line_label = QLabel("Line")
+        self._ego_button = QPushButton()
+        self._center_button = QPushButton()
+        self._line_label = QLabel()
         self._line_label.setWordWrap(True)
         self._line_label.setMinimumWidth(0)
         self._line_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         self._tabs = QTabWidget()
         self._tabs.setMinimumWidth(0)
         self._tabs.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
-        self._baseline_widget = _ProfileImageWidget()
-        self._candidate_widget = _ProfileImageWidget()
-        self._diff_widget = _ProfileImageWidget()
-        self._tabs.addTab(self._baseline_widget, "Baseline")
-        self._tabs.addTab(self._candidate_widget, "Candidate")
-        self._tabs.addTab(self._diff_widget, "Diff")
+        self._baseline_widget = _ProfileImageWidget(language=language)
+        self._candidate_widget = _ProfileImageWidget(language=language)
+        self._diff_widget = _ProfileImageWidget(language=language)
+        self._tabs.addTab(self._baseline_widget, "")
+        self._tabs.addTab(self._candidate_widget, "")
+        self._tabs.addTab(self._diff_widget, "")
+        self._line_control_label = QLabel()
+        self._coord_control_label = QLabel()
 
         controls = QGridLayout()
-        controls.addWidget(QLabel("line"), 0, 0)
+        controls.addWidget(self._line_control_label, 0, 0)
         controls.addWidget(self._axis_selector, 0, 1)
-        controls.addWidget(QLabel("coord"), 1, 0)
+        controls.addWidget(self._coord_control_label, 1, 0)
         controls.addWidget(self._coordinate_spin, 1, 1)
         controls.addWidget(self._ego_button, 2, 0)
         controls.addWidget(self._center_button, 2, 1)
@@ -132,6 +143,7 @@ class ProfilePanelWidget(QWidget):
         self._coordinate_spin.valueChanged.connect(self._emit_spec_changed)
         self._ego_button.clicked.connect(self._set_to_ego)
         self._center_button.clicked.connect(self._set_to_center)
+        self.retranslate(language)
 
     def minimumSizeHint(self) -> QSize:
         return QSize(240, 260)
@@ -152,14 +164,21 @@ class ProfilePanelWidget(QWidget):
 
     def set_profile_result(self, result: ComparisonProfileResult | None, *, selected_channel: str) -> None:
         if result is None:
-            self._line_label.setText("Line")
-            self._baseline_widget.set_png(None)
-            self._candidate_widget.set_png(None)
-            self._diff_widget.set_png(None)
+            self._line_label.setText(t(self._language, "profile.line_label.default"))
+            self._baseline_widget.set_png(None, empty_text=t(self._language, "profile.no_result"))
+            self._candidate_widget.set_png(None, empty_text=t(self._language, "profile.no_result"))
+            self._diff_widget.set_png(None, empty_text=t(self._language, "profile.no_result"))
             self.setToolTip("")
             return
         self._line_label.setText(
-            f"{result.spec.axis} line | {result.spec.coordinate_axis}={result.spec.coordinate:.3f} | selected={selected_channel}"
+            t(
+                self._language,
+                "profile.line_label.value",
+                axis=result.spec.axis,
+                coordinate_axis=result.spec.coordinate_axis,
+                coordinate=result.spec.coordinate,
+                selected_channel=selected_channel,
+            )
         )
         try:
             from driving_preference_field.profile_inspection import profile_plot_png_bytes
@@ -176,8 +195,8 @@ class ProfilePanelWidget(QWidget):
             self.setToolTip("")
         except Exception as exc:  # pragma: no cover - exercised by UI test with monkeypatch
             LOGGER.exception("Profile preview rendering failed: %s", exc)
-            message = f"{_PROFILE_PREVIEW_UNAVAILABLE_MESSAGE} Plot rendering failed for this view."
-            tooltip = f"Profile preview failed: {exc}"
+            message = t(self._language, "profile.preview_unavailable")
+            tooltip = t(self._language, "profile.preview_tooltip", error=exc)
             self._baseline_widget.set_png(None, empty_text=message)
             self._candidate_widget.set_png(None, empty_text=message)
             self._diff_widget.set_png(None, empty_text=message)
@@ -232,3 +251,26 @@ class ProfilePanelWidget(QWidget):
 
     def _emit_spec_changed(self) -> None:
         self.profileSpecChanged.emit(str(self._axis_selector.currentData()), float(self._coordinate_spin.value()))
+
+    def retranslate(self, language: str) -> None:
+        self._language = language
+        current_axis = str(self._axis_selector.currentData()) if self._axis_selector.count() else "horizontal"
+        self._axis_selector.blockSignals(True)
+        self._axis_selector.clear()
+        self._axis_selector.addItem(t(language, "profile.axis.horizontal"), "horizontal")
+        self._axis_selector.addItem(t(language, "profile.axis.vertical"), "vertical")
+        index = self._axis_selector.findData(current_axis)
+        self._axis_selector.setCurrentIndex(index if index >= 0 else 0)
+        self._axis_selector.blockSignals(False)
+        self._ego_button.setText(t(language, "profile.use_ego"))
+        self._center_button.setText(t(language, "profile.use_center"))
+        self._line_control_label.setText(t(language, "profile.line"))
+        self._coord_control_label.setText(t(language, "profile.coord"))
+        self._tabs.setTabText(0, t(language, "tab.baseline"))
+        self._tabs.setTabText(1, t(language, "tab.candidate"))
+        self._tabs.setTabText(2, t(language, "tab.diff"))
+        self._baseline_widget.retranslate(language)
+        self._candidate_widget.retranslate(language)
+        self._diff_widget.retranslate(language)
+        if not self.toolTip():
+            self._line_label.setText(t(language, "profile.line_label.default"))

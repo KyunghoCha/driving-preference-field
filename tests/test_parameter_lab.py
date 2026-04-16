@@ -1,15 +1,27 @@
 from pathlib import Path
 import json
 
-from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, Qt, QUrl
+import pytest
+from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, QSettings, Qt, QUrl
 from PyQt6.QtGui import QColor, QImage
 
+from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, LANG_KO
 from driving_preference_field.ui.parameter_guide import PANEL_NOTE_TEXT
-from driving_preference_field.ui.parameter_lab_window import PARAMETER_HELP_TEXT, ParameterLabWindow
+from driving_preference_field.ui.parameter_lab_window import ParameterLabWindow
 
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "fixtures/adapter"
+
+
+@pytest.fixture(autouse=True)
+def _clear_parameter_lab_settings() -> None:
+    settings = QSettings("driving-preference-field", "ParameterLab")
+    settings.clear()
+    settings.sync()
+    yield
+    settings.clear()
+    settings.sync()
 
 
 def _wait_for_result(qtbot, window: ParameterLabWindow) -> None:
@@ -475,7 +487,6 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     help_text = window._parameter_help_dialog._text.toPlainText()
     assert "Parameter Help" in help_text
     assert "Start Here" in help_text
-    assert "Before You Touch a Knob" in help_text
     assert "Main vs Advanced" in help_text
     assert "Detailed Reference" in help_text
     assert "practical band" in help_text.lower()
@@ -493,10 +504,9 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert "transverse" in help_text.lower()
     assert ("prototype" + "_ridge") not in help_text
     assert ("surface" + "_v2") not in help_text
-    assert PARAMETER_HELP_TEXT.strip()
-    assert window._baseline_panel._note_label.text() == PANEL_NOTE_TEXT
-    assert "추천 0.5..3.0" in window._baseline_panel._controls["longitudinal_gain"].toolTip()
-    assert "Range:" in window._baseline_panel._controls["transverse_family"].toolTip()
+    assert window._baseline_panel._note_label.text() == PANEL_NOTE_TEXT[DEFAULT_LANGUAGE]
+    assert "Recommended 0.5..3.0" in window._baseline_panel._controls["longitudinal_gain"].toolTip()
+    assert "Technical range:" in window._baseline_panel._controls["transverse_family"].toolTip()
 
     window.close()
 
@@ -517,13 +527,13 @@ def test_toolbar_docs_opens_parameter_lab_docs_browser(qtbot) -> None:
     assert window._lab_help_dialog.windowTitle() == "Parameter Lab Guide"
     help_text = window._lab_help_dialog._text.toPlainText()
     assert "Parameter Lab Guide" in help_text
-    assert "빠른 시작" in help_text
-    assert "화면 읽기" in help_text
-    assert "Guide와 Parameter Help의 차이" in help_text
+    assert "Quick start" in help_text
+    assert "How to read the screen" in help_text
+    assert "Guide vs Parameter Help" in help_text
 
-    window._lab_help_dialog._text.setSource(QUrl("../explanation/parameter_exposure_policy_ko.md"))
+    window._lab_help_dialog._text.setSource(QUrl("../explanation/parameter_exposure_policy.md"))
     qtbot.waitUntil(
-        lambda: "파라미터 노출 정책" in window._lab_help_dialog._text.toPlainText(),
+        lambda: "Parameter Exposure Policy" in window._lab_help_dialog._text.toPlainText(),
         timeout=15000,
     )
     assert window._lab_help_dialog._text.isBackwardAvailable() is True
@@ -534,6 +544,53 @@ def test_toolbar_docs_opens_parameter_lab_docs_browser(qtbot) -> None:
     )
 
     window.close()
+
+
+def test_language_switch_retranslates_ui_and_persists(qtbot) -> None:
+    settings = QSettings("driving-preference-field", "ParameterLab")
+    settings.clear()
+    settings.sync()
+
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    assert window._language == DEFAULT_LANGUAGE
+    assert window._left_tabs.tabText(2) == "Profile"
+    assert window._lab_help_action.text() == "Guide"
+
+    index = window._language_selector.findData(LANG_KO)
+    window._language_selector.setCurrentIndex(index)
+
+    qtbot.waitUntil(lambda: window._language == LANG_KO, timeout=15000)
+    assert window._left_tabs.tabText(2) == "프로파일"
+    assert window._parameter_dock.windowTitle() == "파라미터"
+    assert window._lab_help_action.text() == "가이드"
+    assert window._baseline_panel._apply_button.text() == "적용"
+
+    window._baseline_panel._help_button.click()
+    qtbot.waitUntil(
+        lambda: window._parameter_help_dialog is not None and window._parameter_help_dialog.isVisible(),
+        timeout=15000,
+    )
+    assert "파라미터 도움말" in window._parameter_help_dialog.windowTitle()
+
+    window._lab_help_action.trigger()
+    qtbot.waitUntil(
+        lambda: window._lab_help_dialog is not None and window._lab_help_dialog.isVisible(),
+        timeout=15000,
+    )
+    assert "빠른 시작" in window._lab_help_dialog._text.toPlainText()
+
+    window.close()
+
+    reopened = ParameterLabWindow(case_path=case_path)
+    reopened.show()
+    _wait_for_result(qtbot, reopened)
+    assert reopened._language == LANG_KO
+    assert reopened._left_tabs.tabText(2) == "프로파일"
+    reopened.close()
 
 
 def test_advanced_surface_controls_apply_reset_and_reload(qtbot, tmp_path) -> None:

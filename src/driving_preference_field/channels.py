@@ -3,7 +3,8 @@ from __future__ import annotations
 """Progression-centered base field channels.
 
 The project-level formulas are documented in
-docs/reference/current_formula_reference_ko.md. This module only exposes the
+docs/en/reference/current_formula_reference.md and
+docs/ko/reference/current_formula_reference.md. This module only exposes the
 active base channels that remain part of the public contract.
 """
 from typing import Any

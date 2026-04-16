@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
     QFormLayout,
+    QLabel,
     QPushButton,
     QSizePolicy,
     QVBoxLayout,
@@ -14,16 +15,17 @@ from PyQt6.QtWidgets import (
 )
 
 from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample
+from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, t
 
 
-CONTROL_LABELS = {
-    "ego_x": "ego x",
-    "ego_y": "ego y",
-    "ego_yaw": "ego yaw",
-    "window_x_min": "x min",
-    "window_x_max": "x max",
-    "window_y_min": "y min",
-    "window_y_max": "y max",
+CONTROL_LABEL_KEYS = {
+    "ego_x": "case.ego_x",
+    "ego_y": "case.ego_y",
+    "ego_yaw": "case.ego_yaw",
+    "window_x_min": "case.window_x_min",
+    "window_x_max": "case.window_x_max",
+    "window_y_min": "case.window_y_min",
+    "window_y_max": "case.window_y_max",
 }
 
 
@@ -32,8 +34,9 @@ class CasePanelWidget(QWidget):
     caseControlsApplied = pyqtSignal(object, object)
     caseControlsReset = pyqtSignal()
 
-    def __init__(self, cases_root: Path) -> None:
+    def __init__(self, cases_root: Path, *, language: str = DEFAULT_LANGUAGE) -> None:
         super().__init__()
+        self._language = language
         self._cases_root = cases_root
         self._external_case_path: str | None = None
         self._default_context: QueryContext | None = None
@@ -45,8 +48,10 @@ class CasePanelWidget(QWidget):
         self._combo.currentIndexChanged.connect(self._emit_case)
 
         self._controls: dict[str, QDoubleSpinBox] = {}
-        self._apply_button = QPushButton("Apply Case")
-        self._reset_button = QPushButton("Reset Case")
+        self._form_labels: dict[str, QLabel] = {}
+        self._case_label = QLabel()
+        self._apply_button = QPushButton()
+        self._reset_button = QPushButton()
         self._apply_button.setEnabled(False)
         self._apply_button.clicked.connect(self._apply_controls)
         self._reset_button.clicked.connect(self._reset_controls)
@@ -54,7 +59,7 @@ class CasePanelWidget(QWidget):
         layout = QVBoxLayout(self)
         form = QFormLayout()
         layout.addLayout(form)
-        form.addRow("case", self._combo)
+        form.addRow(self._case_label, self._combo)
 
         control_specs = (
             ("ego_x", -1000.0, 1000.0),
@@ -74,12 +79,23 @@ class CasePanelWidget(QWidget):
             spin.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
             spin.valueChanged.connect(self._on_control_changed)
             self._controls[key] = spin
-            form.addRow(CONTROL_LABELS[key], spin)
+            label = QLabel()
+            self._form_labels[key] = label
+            form.addRow(label, spin)
 
         layout.addWidget(self._apply_button)
         layout.addWidget(self._reset_button)
         layout.addStretch(1)
+        self.retranslate(language)
         self.reload_cases()
+
+    def retranslate(self, language: str) -> None:
+        self._language = language
+        self._case_label.setText(t(language, "case.case"))
+        for key, label in self._form_labels.items():
+            label.setText(t(language, CONTROL_LABEL_KEYS[key]))
+        self._apply_button.setText(t(language, "case.apply"))
+        self._reset_button.setText(t(language, "case.reset"))
 
     def reload_cases(self) -> None:
         current = self.current_case_path()

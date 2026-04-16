@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QSettings, Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QComboBox,
@@ -45,6 +45,13 @@ from driving_preference_field.presets import (
 )
 from driving_preference_field.ui.async_raster_evaluator import AsyncRasterEvaluator, RasterComparisonResult
 from driving_preference_field.ui.canvas_view import RasterCanvasView, raster_to_qimage
+from driving_preference_field.ui.locale import (
+    DEFAULT_LANGUAGE,
+    guide_doc_path,
+    language_display_items,
+    normalize_language,
+    t,
+)
 from driving_preference_field.ui.parameter_guide import parameter_help_html
 from driving_preference_field.ui.widgets.case_panel import CasePanelWidget
 from driving_preference_field.ui.widgets.color_scale_widget import ColorScaleWidget
@@ -67,29 +74,23 @@ if TYPE_CHECKING:
 
 
 CHANNEL_OPTIONS = {
-    "progression_tilted": ("Progression Tilted", "plasma"),
-    "progression_s_hat": ("Progression s_hat", "viridis"),
-    "progression_n_hat": ("Progression n_hat", "magma"),
-    "progression_longitudinal_component": ("Longitudinal Component", "plasma"),
-    "progression_transverse_component": ("Transverse Component", "cividis"),
-    "progression_support_mod": ("Support Modulation", "inferno"),
-    "progression_alignment_mod": ("Alignment Modulation", "inferno"),
-    "safety_soft": ("Obstacle Cost", "inferno"),
-    "rule_soft": ("Rule Cost", "magma"),
-    "dynamic_soft": ("Dynamic Cost", "cividis"),
+    "progression_tilted": "plasma",
+    "progression_s_hat": "viridis",
+    "progression_n_hat": "magma",
+    "progression_longitudinal_component": "plasma",
+    "progression_transverse_component": "cividis",
+    "progression_support_mod": "inferno",
+    "progression_alignment_mod": "inferno",
+    "safety_soft": "inferno",
+    "rule_soft": "magma",
+    "dynamic_soft": "cividis",
 }
 
 COMPARE_LAYOUT_OPTIONS = {
-    "stacked": ("Stacked", Qt.Orientation.Vertical),
-    "side_by_side": ("Side-by-side", Qt.Orientation.Horizontal),
+    "stacked": Qt.Orientation.Vertical,
+    "side_by_side": Qt.Orientation.Horizontal,
 }
 
-SCALE_MODE_OPTIONS = {
-    SCALE_MODE_FIXED: "Fixed",
-    SCALE_MODE_NORMALIZED: "Normalized",
-}
-
-PARAMETER_HELP_TEXT = parameter_help_html()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -188,11 +189,12 @@ class ParameterLabWindow(QMainWindow):
         candidate_preset: Path | None = None,
     ) -> None:
         super().__init__()
-        self.setWindowTitle("driving-preference-field | Parameter Lab")
         self.resize(1600, 950)
         self.setMinimumSize(1280, 760)
 
         self._repo_root = Path(__file__).resolve().parents[3]
+        self._settings = QSettings("driving-preference-field", "ParameterLab")
+        self._language = normalize_language(str(self._settings.value("ui/language", DEFAULT_LANGUAGE)))
         self._cases_root = self._repo_root / "cases/toy"
         self._preset_root = self._repo_root / DEFAULT_PRESET_DIR
         self._preset_root.mkdir(parents=True, exist_ok=True)
@@ -223,38 +225,46 @@ class ParameterLabWindow(QMainWindow):
         self._comparison_result: RasterComparisonResult | None = None
         self._profile_result: ComparisonProfileResult | None = None
         self._reset_views_pending = True
+        self._busy = False
 
         self._async = AsyncRasterEvaluator(debounce_ms=100)
-        self._status_label = QLabel("idle")
+        self._status_label = QLabel()
         self._hover_label = QLabel("(x, y)=(-,-)")
 
-        self._case_panel = CasePanelWidget(self._cases_root)
-        self._layer_panel = LayerPanelWidget()
-        self._baseline_panel = ProgressionParameterPanelWidget(title="Baseline Progression")
-        self._candidate_panel = ProgressionParameterPanelWidget(title="Candidate Progression")
-        self._preset_panel = PresetPanelWidget()
-        self._summary_panel = SummaryPanelWidget()
-        self._profile_panel = ProfilePanelWidget()
+        self._case_panel = CasePanelWidget(self._cases_root, language=self._language)
+        self._layer_panel = LayerPanelWidget(language=self._language)
+        self._baseline_panel = ProgressionParameterPanelWidget(
+            title=t(self._language, "panel.baseline_progression"),
+            language=self._language,
+        )
+        self._candidate_panel = ProgressionParameterPanelWidget(
+            title=t(self._language, "panel.candidate_progression"),
+            language=self._language,
+        )
+        self._preset_panel = PresetPanelWidget(language=self._language)
+        self._summary_panel = SummaryPanelWidget(language=self._language)
+        self._profile_panel = ProfilePanelWidget(language=self._language)
 
         self._baseline_view = RasterCanvasView()
         self._candidate_view = RasterCanvasView()
         self._diff_view = RasterCanvasView()
         self._single_view = RasterCanvasView()
-        self._baseline_pane = ViewPaneWidget("Baseline", self._baseline_view)
-        self._candidate_pane = ViewPaneWidget("Candidate", self._candidate_view)
-        self._diff_pane = ViewPaneWidget("Diff", self._diff_view, show_title=False)
-        self._single_pane = ViewPaneWidget("Baseline", self._single_view, show_title=False)
+        self._baseline_pane = ViewPaneWidget(t(self._language, "tab.baseline"), self._baseline_view)
+        self._candidate_pane = ViewPaneWidget(t(self._language, "tab.candidate"), self._candidate_view)
+        self._diff_pane = ViewPaneWidget(t(self._language, "tab.diff"), self._diff_view, show_title=False)
+        self._single_pane = ViewPaneWidget(t(self._language, "tab.baseline"), self._single_view, show_title=False)
         self._single_selector = QComboBox()
-        self._single_selector.addItems(["baseline", "candidate"])
+        self._single_selector.addItem("", "baseline")
+        self._single_selector.addItem("", "candidate")
 
         self._channel_selector = QComboBox()
-        for channel_name, (label, _) in CHANNEL_OPTIONS.items():
-            self._channel_selector.addItem(label, channel_name)
-        self._channel_selector.setCurrentIndex(self._channel_selector.findData(self._selected_channel))
+        self._populate_channel_selector()
         self._scale_selector = QComboBox()
-        for scale_mode, label in SCALE_MODE_OPTIONS.items():
-            self._scale_selector.addItem(label, scale_mode)
-        self._scale_selector.setCurrentIndex(self._scale_selector.findData(self._scale_mode))
+        self._populate_scale_selector()
+        self._language_selector = QComboBox()
+        for code, label in language_display_items():
+            self._language_selector.addItem(label, code)
+        self._language_selector.setCurrentIndex(self._language_selector.findData(self._language))
         self._scale_info_label = QLabel()
         self._compare_layout_button = QToolButton()
         self._compare_layout_button.setAutoRaise(True)
@@ -274,6 +284,7 @@ class ParameterLabWindow(QMainWindow):
 
         self._build_ui()
         self._wire_signals()
+        self.retranslate_ui()
         self._baseline_panel.set_config(self._baseline_config)
         self._candidate_panel.set_config(self._candidate_config)
         self._profile_panel.set_context(self._working_context)
@@ -363,21 +374,21 @@ class ParameterLabWindow(QMainWindow):
     def _build_ui(self) -> None:
         self._build_toolbar()
         self._build_central_tabs()
-        self._case_dock = self._add_dock("Case Controls", self._case_panel, Qt.DockWidgetArea.LeftDockWidgetArea)
+        self._case_dock = self._add_dock("", self._case_panel, Qt.DockWidgetArea.LeftDockWidgetArea)
         self._left_tabs = QTabWidget()
-        self._left_tabs.addTab(self._preset_panel, "Presets")
-        self._left_tabs.addTab(self._summary_panel, "Summary")
-        self._left_tabs.addTab(self._profile_panel, "Profile")
-        self._left_tabs.addTab(self._layer_panel, "Layers")
+        self._left_tabs.addTab(self._preset_panel, "")
+        self._left_tabs.addTab(self._summary_panel, "")
+        self._left_tabs.addTab(self._profile_panel, "")
+        self._left_tabs.addTab(self._layer_panel, "")
         self._left_tabs.setDocumentMode(True)
         self._left_tabs.currentChanged.connect(self._on_left_tab_changed)
-        self._left_stack_dock = self._add_dock("Workspace", self._left_tabs, Qt.DockWidgetArea.LeftDockWidgetArea)
+        self._left_stack_dock = self._add_dock("", self._left_tabs, Qt.DockWidgetArea.LeftDockWidgetArea)
 
         self._parameter_tabs = QTabWidget()
-        self._parameter_tabs.addTab(self._wrap_scroll(self._baseline_panel), "Baseline")
-        self._parameter_tabs.addTab(self._wrap_scroll(self._candidate_panel), "Candidate")
+        self._parameter_tabs.addTab(self._wrap_scroll(self._baseline_panel), "")
+        self._parameter_tabs.addTab(self._wrap_scroll(self._candidate_panel), "")
         self._parameter_tabs.setDocumentMode(True)
-        self._parameter_dock = self._add_dock("Parameters", self._parameter_tabs, Qt.DockWidgetArea.RightDockWidgetArea)
+        self._parameter_dock = self._add_dock("", self._parameter_tabs, Qt.DockWidgetArea.RightDockWidgetArea)
 
         self._case_dock.setMinimumWidth(0)
         self._left_stack_dock.setMinimumWidth(0)
@@ -388,48 +399,51 @@ class ParameterLabWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self._hover_label, 2)
 
     def _build_toolbar(self) -> None:
-        self._toolbar = QToolBar("Parameter Lab")
+        self._toolbar = QToolBar()
         self._toolbar.setMovable(False)
         self.addToolBar(self._toolbar)
 
-        self._reload_action = QAction("Reload Case", self)
+        self._reload_action = QAction(self)
         self._reload_action.setShortcut("F5")
-        self._reload_action.setStatusTip("Reload the current case and rerun comparison.")
         self._reload_action.triggered.connect(self._reload_case)
 
-        self._export_action = QAction("Export Comparison", self)
+        self._export_action = QAction(self)
         self._export_action.setShortcut("Ctrl+Shift+E")
-        self._export_action.setStatusTip("Export the current baseline/candidate comparison bundle.")
         self._export_action.triggered.connect(self._export_comparison)
 
-        self._reset_view_action = QAction("Reset View", self)
+        self._reset_view_action = QAction(self)
         self._reset_view_action.setShortcut("Ctrl+0")
-        self._reset_view_action.setStatusTip("Reset pan and zoom for the current canvases.")
         self._reset_view_action.triggered.connect(self._reset_views)
 
-        self._lab_help_action = QAction("Guide", self)
+        self._lab_help_action = QAction(self)
         self._lab_help_action.setShortcut("F1")
-        self._lab_help_action.setStatusTip("Open the Parameter Lab guide.")
         self._lab_help_action.triggered.connect(self._show_lab_help)
+
+        self._channel_label = QLabel()
+        self._scale_label = QLabel()
+        self._language_label = QLabel()
 
         self._toolbar.addAction(self._reload_action)
         self._toolbar.addAction(self._export_action)
         self._toolbar.addSeparator()
         self._toolbar.addAction(self._reset_view_action)
         self._toolbar.addSeparator()
-        self._toolbar.addWidget(QLabel("channel"))
+        self._toolbar.addWidget(self._channel_label)
         self._toolbar.addWidget(self._channel_selector)
         self._toolbar.addSeparator()
-        self._toolbar.addWidget(QLabel("scale"))
+        self._toolbar.addWidget(self._scale_label)
         self._toolbar.addWidget(self._scale_selector)
         self._toolbar.addWidget(self._scale_info_label)
+        self._toolbar.addSeparator()
+        self._toolbar.addWidget(self._language_label)
+        self._toolbar.addWidget(self._language_selector)
         self._toolbar.addSeparator()
         self._toolbar.addAction(self._lab_help_action)
 
     def _build_central_tabs(self) -> None:
         self._tabs = QTabWidget()
 
-        self._compare_splitter = QSplitter(COMPARE_LAYOUT_OPTIONS[self._compare_layout][1])
+        self._compare_splitter = QSplitter(COMPARE_LAYOUT_OPTIONS[self._compare_layout])
         self._compare_splitter.addWidget(self._baseline_pane)
         self._compare_splitter.addWidget(self._candidate_pane)
         self._compare_splitter.setSizes([1, 1])
@@ -439,9 +453,9 @@ class ParameterLabWindow(QMainWindow):
         single_layout = QVBoxLayout(single_container)
         single_layout.addWidget(self._single_selector)
         single_layout.addWidget(self._single_pane)
-        self._tabs.addTab(single_container, "Single")
-        self._tabs.addTab(compare_container, "Compare")
-        self._tabs.addTab(self._diff_pane, "Diff")
+        self._tabs.addTab(single_container, "")
+        self._tabs.addTab(compare_container, "")
+        self._tabs.addTab(self._diff_pane, "")
 
         self.setCentralWidget(self._tabs)
 
@@ -472,6 +486,7 @@ class ParameterLabWindow(QMainWindow):
         self._preset_panel.copyRequested.connect(self._copy_side)
         self._channel_selector.currentIndexChanged.connect(self._on_channel_changed)
         self._scale_selector.currentIndexChanged.connect(self._on_scale_mode_changed)
+        self._language_selector.currentIndexChanged.connect(self._on_language_changed)
         self._compare_layout_button.clicked.connect(self._toggle_compare_layout)
         self._single_selector.currentTextChanged.connect(self._on_single_side_changed)
         self._profile_panel.profileSpecChanged.connect(self._on_profile_spec_changed)
@@ -482,6 +497,94 @@ class ParameterLabWindow(QMainWindow):
         self._async.comparisonReady.connect(self._on_comparison_ready)
         self._async.evaluationFailed.connect(self._on_evaluation_failed)
         self._async.busyChanged.connect(self._on_busy_changed)
+
+    def _populate_channel_selector(self) -> None:
+        self._channel_selector.blockSignals(True)
+        self._channel_selector.clear()
+        for channel_name in CHANNEL_OPTIONS:
+            self._channel_selector.addItem(t(self._language, f"channel.{channel_name}"), channel_name)
+        self._channel_selector.setCurrentIndex(self._channel_selector.findData(self._selected_channel))
+        self._channel_selector.blockSignals(False)
+
+    def _populate_scale_selector(self) -> None:
+        self._scale_selector.blockSignals(True)
+        self._scale_selector.clear()
+        self._scale_selector.addItem(t(self._language, "scale.fixed"), SCALE_MODE_FIXED)
+        self._scale_selector.addItem(t(self._language, "scale.normalized"), SCALE_MODE_NORMALIZED)
+        self._scale_selector.setCurrentIndex(self._scale_selector.findData(self._scale_mode))
+        self._scale_selector.blockSignals(False)
+
+    def retranslate_ui(self) -> None:
+        self.setWindowTitle(t(self._language, "app.title"))
+        self._toolbar.setWindowTitle(t(self._language, "app.title"))
+        self._reload_action.setText(t(self._language, "toolbar.reload"))
+        self._reload_action.setStatusTip(t(self._language, "toolbar.status.reload"))
+        self._export_action.setText(t(self._language, "toolbar.export"))
+        self._export_action.setStatusTip(t(self._language, "toolbar.status.export"))
+        self._reset_view_action.setText(t(self._language, "toolbar.reset_view"))
+        self._reset_view_action.setStatusTip(t(self._language, "toolbar.status.reset_view"))
+        self._lab_help_action.setText(t(self._language, "toolbar.guide"))
+        self._lab_help_action.setStatusTip(t(self._language, "toolbar.status.guide"))
+        self._channel_label.setText(t(self._language, "toolbar.channel"))
+        self._scale_label.setText(t(self._language, "toolbar.scale"))
+        self._language_label.setText(t(self._language, "toolbar.language"))
+        self._populate_channel_selector()
+        self._populate_scale_selector()
+        self._language_selector.blockSignals(True)
+        self._language_selector.setCurrentIndex(self._language_selector.findData(self._language))
+        self._language_selector.blockSignals(False)
+        self._case_dock.setWindowTitle(t(self._language, "dock.case_controls"))
+        self._left_stack_dock.setWindowTitle(t(self._language, "dock.workspace"))
+        self._parameter_dock.setWindowTitle(t(self._language, "dock.parameters"))
+        self._left_tabs.setTabText(0, t(self._language, "tab.presets"))
+        self._left_tabs.setTabText(1, t(self._language, "tab.summary"))
+        self._left_tabs.setTabText(2, t(self._language, "tab.profile"))
+        self._left_tabs.setTabText(3, t(self._language, "tab.layers"))
+        self._parameter_tabs.setTabText(0, t(self._language, "tab.baseline"))
+        self._parameter_tabs.setTabText(1, t(self._language, "tab.candidate"))
+        self._tabs.setTabText(0, t(self._language, "tab.single"))
+        self._tabs.setTabText(1, t(self._language, "tab.compare"))
+        self._tabs.setTabText(2, t(self._language, "tab.diff"))
+        self._baseline_pane.set_title(t(self._language, "tab.baseline"))
+        self._candidate_pane.set_title(t(self._language, "tab.candidate"))
+        self._single_pane.set_title(
+            t(self._language, "tab.baseline") if self._single_side == "baseline" else t(self._language, "tab.candidate")
+        )
+        self._status_label.setText(
+            t(self._language, "status.computing") if self._busy else t(self._language, "status.idle")
+        )
+        self._case_panel.retranslate(self._language)
+        self._layer_panel.retranslate(self._language)
+        self._preset_panel.retranslate(self._language)
+        self._summary_panel.retranslate(self._language)
+        self._profile_panel.retranslate(self._language)
+        self._baseline_panel.retranslate(self._language, title=t(self._language, "panel.baseline_progression"))
+        self._candidate_panel.retranslate(self._language, title=t(self._language, "panel.candidate_progression"))
+        self._single_selector.blockSignals(True)
+        self._single_selector.setItemText(0, t(self._language, "single.selector.baseline"))
+        self._single_selector.setItemText(1, t(self._language, "single.selector.candidate"))
+        self._single_selector.blockSignals(False)
+        self._update_compare_layout_button()
+        if self._parameter_help_dialog is not None:
+            self._parameter_help_dialog.set_text_document(
+                title=t(self._language, "help.parameter.title"),
+                text=parameter_help_html(self._language).strip(),
+                text_format="html",
+                language=self._language,
+            )
+        if self._lab_help_dialog is not None:
+            self._lab_help_dialog.set_source_document(
+                title=t(self._language, "help.guide.title"),
+                source_path=guide_doc_path(self._repo_root, self._language),
+                language=self._language,
+            )
+
+    def _on_language_changed(self) -> None:
+        self._language = normalize_language(str(self._language_selector.currentData()))
+        self._settings.setValue("ui/language", self._language)
+        self.retranslate_ui()
+        self._refresh_views()
+        self._refresh_profile_panel()
 
     def _initialize_side_from_path(self, side: str, preset_path: Path | None) -> None:
         resolved_path = preset_path
@@ -656,7 +759,11 @@ class ParameterLabWindow(QMainWindow):
         target_path = self._preset_root / f"{preset_name}.yaml"
         allowed, message = can_overwrite_preset(target_path)
         if not allowed:
-            QMessageBox.warning(self, "Preset Save Rejected", message or "preset 저장이 거부되었습니다.")
+            QMessageBox.warning(
+                self,
+                t(self._language, "message.preset_save_rejected.title"),
+                message or t(self._language, "message.preset_save_rejected.body_default"),
+            )
             return
         metadata = dict(current_state.metadata)
         metadata.update(
@@ -711,7 +818,7 @@ class ParameterLabWindow(QMainWindow):
         self._compare_layout = (
             "side_by_side" if self._compare_layout == "stacked" else "stacked"
         )
-        _, orientation = COMPARE_LAYOUT_OPTIONS[self._compare_layout]
+        orientation = COMPARE_LAYOUT_OPTIONS[self._compare_layout]
         self._compare_splitter.setOrientation(orientation)
         self._compare_splitter.setSizes([1, 1])
         self._update_compare_layout_button()
@@ -719,14 +826,16 @@ class ParameterLabWindow(QMainWindow):
     def _update_compare_layout_button(self) -> None:
         if self._compare_layout == "stacked":
             self._compare_layout_button.setText("↔")
-            self._compare_layout_button.setToolTip("Switch compare layout to side-by-side")
+            self._compare_layout_button.setToolTip(t(self._language, "toolbar.compare_layout.to_side_by_side"))
         else:
             self._compare_layout_button.setText("↕")
-            self._compare_layout_button.setToolTip("Switch compare layout to stacked")
+            self._compare_layout_button.setToolTip(t(self._language, "toolbar.compare_layout.to_stacked"))
 
     def _on_single_side_changed(self, value: str) -> None:
-        self._single_side = value
-        self._single_pane.set_title("Baseline" if value == "baseline" else "Candidate")
+        self._single_side = str(self._single_selector.currentData() or value)
+        self._single_pane.set_title(
+            t(self._language, "tab.baseline") if self._single_side == "baseline" else t(self._language, "tab.candidate")
+        )
         self._refresh_views()
 
     def _on_note_changed(self, value: str) -> None:
@@ -745,10 +854,11 @@ class ParameterLabWindow(QMainWindow):
         self._refresh_summary()
 
     def _on_evaluation_failed(self, _generation: int, message: str) -> None:
-        QMessageBox.critical(self, "Evaluation Failed", message)
+        QMessageBox.critical(self, t(self._language, "message.evaluation_failed.title"), message)
 
     def _on_busy_changed(self, busy: bool) -> None:
-        self._status_label.setText("computing" if busy else "idle")
+        self._busy = busy
+        self._status_label.setText(t(self._language, "status.computing") if busy else t(self._language, "status.idle"))
 
     def _on_profile_spec_changed(self, _axis: str, _coordinate: float) -> None:
         self._profile_result = None
@@ -805,7 +915,8 @@ class ParameterLabWindow(QMainWindow):
         if self._comparison_result is None:
             return
         extent_window = self._working_context.local_window
-        label, cmap = CHANNEL_OPTIONS[self._selected_channel]
+        label = t(self._language, f"channel.{self._selected_channel}")
+        cmap = CHANNEL_OPTIONS[self._selected_channel]
         baseline_data = self._comparison_result.baseline_raster.channels[self._selected_channel]
         candidate_data = self._comparison_result.candidate_raster.channels[self._selected_channel]
         diff_data = candidate_data - baseline_data
@@ -861,7 +972,7 @@ class ParameterLabWindow(QMainWindow):
         )
         self._apply_layer_visibility()
         self._refresh_scale_info_label()
-        self._status_label.setText(f"idle | channel={label}")
+        self._status_label.setText(t(self._language, "status.idle_channel", label=label))
 
     def _refresh_profile_panel(self) -> None:
         if self._comparison_result is None:
@@ -1018,14 +1129,15 @@ class ParameterLabWindow(QMainWindow):
         export_path = self.export_current_comparison()
         if export_path is None:
             return
-        QMessageBox.information(self, "Export Complete", str(export_path))
+        QMessageBox.information(self, t(self._language, "message.export_complete.title"), str(export_path))
 
     def _show_parameter_help(self) -> None:
         if self._parameter_help_dialog is None:
             self._parameter_help_dialog = TextViewerDialog(
-                title="Parameter Help",
-                text=PARAMETER_HELP_TEXT.strip(),
+                title=t(self._language, "help.parameter.title"),
+                text=parameter_help_html(self._language).strip(),
                 text_format="html",
+                language=self._language,
                 parent=self,
             )
         self._parameter_help_dialog.show()
@@ -1034,10 +1146,10 @@ class ParameterLabWindow(QMainWindow):
 
     def _show_lab_help(self) -> None:
         if self._lab_help_dialog is None:
-            help_path = self._repo_root / "docs/how-to/parameter_lab_ko.md"
             self._lab_help_dialog = TextViewerDialog(
-                title="Parameter Lab Guide",
-                source_path=help_path,
+                title=t(self._language, "help.guide.title"),
+                source_path=guide_doc_path(self._repo_root, self._language),
+                language=self._language,
                 parent=self,
             )
         self._lab_help_dialog.show()

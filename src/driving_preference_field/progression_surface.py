@@ -12,8 +12,10 @@ map:
 
 Guide-local support and coordinates come from Gaussian anchor weights. The
 exact formula here is a current implementation detail, not the canonical design
-contract. README and docs/reference/current_formula_reference_ko.md must move
-with this module when the implementation changes.
+contract. README plus the bilingual current formula references under
+docs/en/reference/current_formula_reference.md and
+docs/ko/reference/current_formula_reference.md must move with this module when
+the implementation changes.
 """
 
 import math

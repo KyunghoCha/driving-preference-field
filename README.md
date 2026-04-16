@@ -1,36 +1,58 @@
 # driving-preference-field
 
+[한국어 README](./README.ko.md)
+
 [![ci](https://github.com/KyunghoCha/driving-preference-field/actions/workflows/ci.yml/badge.svg)](https://github.com/KyunghoCha/driving-preference-field/actions/workflows/ci.yml)
 
-source-agnostic progression semantics와 drivable semantics를 받아, 현재 보이는 local map 전체를 평가하는 whole-space driving preference field를 정의하고 실험하는 연구 워크스페이스다.
+`driving-preference-field` is a research workspace for defining and experimenting with a whole-space driving preference field over the visible local map. The current project state is `Phase 5 complete, Phase 6 preparation`.
 
-현재 상태는 `Phase 5 완료, Phase 6 준비 상태`다.
+## What This Repo Is For
 
-처음 읽는 순서:
+- keep the canonical progression-centered field semantics and runtime contract
+- run morphology experiments in Parameter Lab
+- keep the source-adapter contract generic and reusable by downstream consumers
 
-1. `docs/explanation/project_overview_ko.md`
-2. `docs/explanation/engineering_operating_principles_ko.md`
-3. `docs/explanation/base_field_foundation_ko.md`
-4. `docs/reference/source_adapter_ko.md`
-5. `docs/reference/runtime_evaluation_contract_ko.md`
-6. `docs/status/roadmap_ko.md`
+This repo is not currently responsible for planner integration, Gazebo/RViz hookup, or full downstream control loops.
 
-전체 문서 포털은 `docs/index.md`에 있다.
+## Prerequisites
 
-## 빠른 시작
+- Python/conda environment from [environment.yml](./environment.yml)
+- Recommended environment name: `driving-preference-field`
+- Current known-good NumPy pin: `1.26.4`
+
+## Quick Start
 
 1. `conda env create -f environment.yml`
 2. `conda activate driving-preference-field`
 3. `PYTHONPATH=src python -m driving_preference_field parameter-lab`
 
-## 현재 범위
+## Docs
 
-- 이 repo는 점수장 SSOT, morphology 연구용 랩, runtime/adapter contract를 유지한다.
-- `FieldRuntime`와 source adapter는 downstream consumer가 그대로 사용할 수 있는 public contract를 제공한다.
-- Gazebo / RViz / MPPI hookup, planner integration, interactive studio는 현재 범위가 아니다.
+- Language landing page: [docs/index.md](./docs/index.md)
+- English portal: [docs/en/index.md](./docs/en/index.md)
+- Korean portal: [docs/ko/index.md](./docs/ko/index.md)
 
-## 참고
+Recommended newcomer reading order:
 
-- 문서 포털: `docs/index.md`
-- external reference log: `docs/reading/references/external_references_ko.md`
-- current implementation formula reference: `docs/reference/current_formula_reference_ko.md`
+1. [Project Overview](./docs/en/explanation/project_overview.md)
+2. [Engineering Operating Principles](./docs/en/explanation/engineering_operating_principles.md)
+3. [Base Field Foundation](./docs/en/explanation/base_field_foundation.md)
+4. [Source Adapter](./docs/en/reference/source_adapter.md)
+5. [Runtime Evaluation Contract](./docs/en/reference/runtime_evaluation_contract.md)
+6. [Roadmap](./docs/en/status/roadmap.md)
+
+## Parameter Lab
+
+Parameter Lab is the main experiment UI for comparing baseline and candidate progression settings over the same local map sample. It now supports English/Korean UI switching from the top toolbar and reads the matching guide/help documents from `docs/en` or `docs/ko`.
+
+## Current Scope
+
+- canonical docs and contracts
+- progression-surface morphology experiments
+- presets, exports, and comparison tooling
+- source-agnostic semantic input loading
+
+## References
+
+- Current formula reference: [docs/en/reference/current_formula_reference.md](./docs/en/reference/current_formula_reference.md)
+- External references log: [docs/en/reading/references/external_references.md](./docs/en/reading/references/external_references.md)

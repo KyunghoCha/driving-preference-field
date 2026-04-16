@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from driving_preference_field.presets import PresetDescriptor
+from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, t
 
 
 class PresetPanelWidget(QWidget):
@@ -24,8 +25,9 @@ class PresetPanelWidget(QWidget):
     saveRequested = pyqtSignal(str, str)
     copyRequested = pyqtSignal(str, str)
 
-    def __init__(self) -> None:
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
         super().__init__()
+        self._language = language
         self._lists = {
             "baseline": QListWidget(),
             "candidate": QListWidget(),
@@ -35,14 +37,14 @@ class PresetPanelWidget(QWidget):
             list_widget.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         self._tabs = QTabWidget()
         self._tabs.setDocumentMode(True)
-        self._tabs.addTab(self._lists["baseline"], "Baseline")
-        self._tabs.addTab(self._lists["candidate"], "Candidate")
-        self._save_baseline = QPushButton("Save Baseline")
-        self._save_candidate = QPushButton("Save Candidate")
-        self._load_baseline = QPushButton("Load -> Baseline")
-        self._load_candidate = QPushButton("Load -> Candidate")
-        self._copy_b_to_c = QPushButton("Candidate <- Baseline")
-        self._copy_c_to_b = QPushButton("Baseline <- Candidate")
+        self._tabs.addTab(self._lists["baseline"], "")
+        self._tabs.addTab(self._lists["candidate"], "")
+        self._save_baseline = QPushButton()
+        self._save_candidate = QPushButton()
+        self._load_baseline = QPushButton()
+        self._load_candidate = QPushButton()
+        self._copy_b_to_c = QPushButton()
+        self._copy_c_to_b = QPushButton()
 
         layout = QVBoxLayout(self)
         layout.addWidget(self._tabs)
@@ -72,6 +74,7 @@ class PresetPanelWidget(QWidget):
         ):
             button.setMinimumWidth(0)
             button.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.retranslate(language)
 
     def set_presets(
         self,
@@ -104,6 +107,21 @@ class PresetPanelWidget(QWidget):
         self.loadRequested.emit(target, preset_path)
 
     def _emit_save(self, source: str) -> None:
-        preset_name, accepted = QInputDialog.getText(self, "Save Preset", "preset name")
+        preset_name, accepted = QInputDialog.getText(
+            self,
+            t(self._language, "preset.save_dialog.title"),
+            t(self._language, "preset.save_dialog.label"),
+        )
         if accepted and preset_name.strip():
             self.saveRequested.emit(source, preset_name.strip())
+
+    def retranslate(self, language: str) -> None:
+        self._language = language
+        self._tabs.setTabText(0, t(language, "tab.baseline"))
+        self._tabs.setTabText(1, t(language, "tab.candidate"))
+        self._save_baseline.setText(t(language, "preset.save_baseline"))
+        self._save_candidate.setText(t(language, "preset.save_candidate"))
+        self._load_baseline.setText(t(language, "preset.load_baseline"))
+        self._load_candidate.setText(t(language, "preset.load_candidate"))
+        self._copy_b_to_c.setText(t(language, "preset.copy_b_to_c"))
+        self._copy_c_to_b.setText(t(language, "preset.copy_c_to_b"))
