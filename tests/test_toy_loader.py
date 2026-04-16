@@ -24,6 +24,7 @@ def test_summarize_snapshot_reports_slot_counts() -> None:
 
     assert summary["drivable_regions"] == 1
     assert summary["progression_guides"] == 2
+    assert len(snapshot.exception_layer_support.safety_regions) == 0
     assert "branch_guides" not in summary
 
 

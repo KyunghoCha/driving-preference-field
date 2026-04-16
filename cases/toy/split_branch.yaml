@@ -1,6 +1,6 @@
 metadata:
   name: split_branch
-  description: Split branch case expressed as duplicated progression guides with a shared prefix.
+  description: Clean split branch case expressed as duplicated progression guides with a shared prefix.
 query_window:
   x_min: -1.0
   x_max: 7.0
@@ -44,13 +44,4 @@ boundaries:
       - [0.0, -1.0]
       - [3.5, -1.0]
       - [6.0, -2.5]
-safety_regions:
-  - id: blocked_median
-    points:
-      - [3.2, -0.3]
-      - [3.8, -0.3]
-      - [3.8, 0.3]
-      - [3.2, 0.3]
-    severity: 0.8
-    hard: false
-    influence_radius: 0.6
+safety_regions: []

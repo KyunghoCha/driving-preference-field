@@ -1,6 +1,6 @@
 metadata:
   name: split_branch_generic
-  description: Generic local semantic map fixture for a split branch corridor using duplicated progression guides.
+  description: Generic local semantic map fixture for a clean split branch corridor using duplicated progression guides.
 drivable_regions:
   - id: split_region
     points:
@@ -18,13 +18,11 @@ progression_supports:
     points:
       - [0.0, 0.0]
       - [3.5, 0.0]
-      - [3.4, 0.0]
       - [5.8, 1.6]
   - id: lower_branch_progression
     points:
       - [0.0, 0.0]
       - [3.5, 0.0]
-      - [3.4, 0.0]
       - [5.8, -1.6]
 boundaries:
   - id: upper_boundary
@@ -37,16 +35,7 @@ boundaries:
       - [0.0, -1.0]
       - [3.5, -1.0]
       - [6.0, -2.5]
-safety_regions:
-  - id: blocked_median
-    points:
-      - [3.2, -0.3]
-      - [3.8, -0.3]
-      - [3.8, 0.3]
-      - [3.2, 0.3]
-    severity: 0.8
-    hard: false
-    influence_radius: 0.6
+safety_regions: []
 query_context:
   query_pose:
     x: 0.5

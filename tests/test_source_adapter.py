@@ -79,6 +79,7 @@ def test_optional_quality_and_multiple_progression_guides_are_preserved() -> Non
 
     assert bend_snapshot.progression_support.guides[0].metadata["support_confidence"] == pytest.approx(0.92)
     assert len(split_snapshot.progression_support.guides) == 2
+    assert len(split_snapshot.exception_layer_support.safety_regions) == 0
     assert {guide.guide_id for guide in split_snapshot.progression_support.guides} == {
         "upper_branch_progression",
         "lower_branch_progression",
