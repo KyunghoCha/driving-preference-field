@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, Qt
+from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, Qt, QUrl
 from PyQt6.QtGui import QColor, QImage
 
 from driving_preference_field.ui.parameter_guide import PANEL_NOTE_TEXT
@@ -52,7 +52,7 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._reload_action.text() == "Reload Case"
     assert window._export_action.text() == "Export Comparison"
     assert window._reset_view_action.text() == "Reset View"
-    assert window._lab_help_action.text() == "Lab Help"
+    assert window._lab_help_action.text() == "Docs"
     assert window._reload_action.shortcut().toString() == "F5"
     assert window._export_action.shortcut().toString() == "Ctrl+Shift+E"
     assert window._reset_view_action.shortcut().toString() == "Ctrl+0"
@@ -502,7 +502,7 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     window.close()
 
 
-def test_toolbar_lab_help_opens_parameter_lab_guide(qtbot) -> None:
+def test_toolbar_docs_opens_parameter_lab_docs_browser(qtbot) -> None:
     case_path = ROOT / "cases/toy/straight_corridor.yaml"
     window = ParameterLabWindow(case_path=case_path)
     window.show()
@@ -515,11 +515,24 @@ def test_toolbar_lab_help_opens_parameter_lab_guide(qtbot) -> None:
         timeout=15000,
     )
     assert window._lab_help_dialog is not None
-    assert window._lab_help_dialog.windowTitle() == "Parameter Lab Guide"
+    assert window._lab_help_dialog.windowTitle() == "Parameter Lab Docs"
     help_text = window._lab_help_dialog._text.toPlainText()
     assert "Parameter Lab 사용" in help_text
     assert "실행" in help_text
     assert "현재 파라미터 배치" in help_text
+    assert "Docs와 Parameter Help는 역할이 다르다." in help_text
+
+    window._lab_help_dialog._text.setSource(QUrl("../explanation/parameter_exposure_policy_ko.md"))
+    qtbot.waitUntil(
+        lambda: "파라미터 노출 정책" in window._lab_help_dialog._text.toPlainText(),
+        timeout=15000,
+    )
+    assert window._lab_help_dialog._text.isBackwardAvailable() is True
+    window._lab_help_dialog._text.backward()
+    qtbot.waitUntil(
+        lambda: "Parameter Lab 사용" in window._lab_help_dialog._text.toPlainText(),
+        timeout=15000,
+    )
 
     window.close()
 

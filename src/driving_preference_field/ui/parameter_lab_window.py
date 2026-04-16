@@ -407,9 +407,9 @@ class ParameterLabWindow(QMainWindow):
         self._reset_view_action.setStatusTip("Reset pan and zoom for the current canvases.")
         self._reset_view_action.triggered.connect(self._reset_views)
 
-        self._lab_help_action = QAction("Lab Help", self)
+        self._lab_help_action = QAction("Docs", self)
         self._lab_help_action.setShortcut("F1")
-        self._lab_help_action.setStatusTip("Open the Parameter Lab usage guide.")
+        self._lab_help_action.setStatusTip("Open the Parameter Lab docs browser.")
         self._lab_help_action.triggered.connect(self._show_lab_help)
 
         self._toolbar.addAction(self._reload_action)
@@ -1035,18 +1035,9 @@ class ParameterLabWindow(QMainWindow):
     def _show_lab_help(self) -> None:
         if self._lab_help_dialog is None:
             help_path = self._repo_root / "docs/how-to/parameter_lab_ko.md"
-            try:
-                help_text = help_path.read_text(encoding="utf-8")
-            except OSError:
-                help_text = (
-                    "# Parameter Lab Guide\n\n"
-                    "사용 가이드를 읽을 수 없습니다.\n"
-                    f"- expected path: `{help_path}`\n"
-                )
             self._lab_help_dialog = TextViewerDialog(
-                title="Parameter Lab Guide",
-                text=help_text,
-                text_format="markdown",
+                title="Parameter Lab Docs",
+                source_path=help_path,
                 parent=self,
             )
         self._lab_help_dialog.show()
