@@ -2,49 +2,74 @@
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="50%" stop-color="#1d4ed8"/>
+      <stop offset="52%" stop-color="#1d4ed8"/>
       <stop offset="100%" stop-color="#22c55e"/>
     </linearGradient>
-    <linearGradient id="track" x1="0%" y1="100%" x2="100%" y2="0%">
+    <linearGradient id="track" x1="18%" y1="82%" x2="88%" y2="18%">
       <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="55%" stop-color="#ec4899"/>
       <stop offset="100%" stop-color="#f97316"/>
     </linearGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#020617" flood-opacity="0.35"/>
+    <linearGradient id="shoulder" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#bfdbfe" stop-opacity="0.62"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#020617" flood-opacity="0.28"/>
     </filter>
   </defs>
 
   <rect x="8" y="8" width="240" height="240" rx="40" fill="url(#bg)"/>
 
+  <g filter="url(#cardShadow)">
+    <rect x="34" y="30" width="90" height="54" rx="14" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+    <path d="M48 68 L64 52 L78 62 L96 40 L110 50" fill="none" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <circle cx="184" cy="52" r="22" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+    <path d="M172 52 H196 M184 40 V64" stroke="#f8fafc" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
   <path
-    d="M54 186
-       C 84 186, 104 186, 126 176
-       C 156 162, 160 130, 172 110
-       C 186 88, 204 80, 218 78"
-    fill="none"
-    stroke="#ffffff"
-    stroke-opacity="0.30"
-    stroke-width="56"
-    stroke-linecap="round"
-    filter="url(#shadow)"
+    d="M50 166
+       C 84 166, 104 167, 125 157
+       C 148 146, 154 121, 167 100
+       C 180 79, 198 66, 221 62
+       Q 236 60, 244 70
+       Q 252 80, 246 92
+       C 241 102, 233 109, 226 114
+       C 214 122, 204 129, 196 143
+       C 184 164, 176 188, 153 202
+       C 129 217, 108 217, 75 217
+       Q 60 217, 50 207
+       Q 40 197, 40 187
+       Q 40 176, 50 166
+       Z"
+    fill="url(#shoulder)"
   />
 
   <path
-    d="M54 186
-       C 84 186, 104 186, 126 176
-       C 156 162, 160 130, 172 110
-       C 186 88, 204 80, 218 78"
-    fill="none"
-    stroke="url(#track)"
-    stroke-width="34"
-    stroke-linecap="round"
+    d="M60 175
+       C 88 175, 106 176, 124 167
+       C 145 157, 149 133, 160 115
+       C 172 95, 190 84, 210 81
+       Q 221 80, 227 87
+       Q 232 94, 228 103
+       C 224 110, 219 114, 213 118
+       C 203 125, 194 132, 187 144
+       C 176 161, 170 181, 151 193
+       C 130 205, 111 205, 80 205
+       Q 67 205, 59 198
+       Q 52 191, 52 184
+       Q 52 178, 60 175
+       Z"
+    fill="url(#track)"
   />
 
   <path
-    d="M54 186
-       C 84 186, 104 186, 126 176
-       C 156 162, 160 130, 172 110
-       C 186 88, 204 80, 218 78"
+    d="M68 186
+       C 95 186, 111 186, 128 178
+       C 147 169, 152 146, 162 129
+       C 172 111, 188 101, 204 98"
     fill="none"
     stroke="#67e8f9"
     stroke-width="6"
@@ -53,10 +78,4 @@
   />
 
   <polygon points="68,174 94,186 68,198" fill="#ffffff"/>
-
-  <rect x="34" y="30" width="90" height="54" rx="14" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
-  <path d="M48 68 L64 52 L78 62 L96 40 L110 50" fill="none" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-
-  <circle cx="184" cy="52" r="22" fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
-  <path d="M172 52 H196 M184 40 V64" stroke="#f8fafc" stroke-width="4" stroke-linecap="round"/>
 </svg>
