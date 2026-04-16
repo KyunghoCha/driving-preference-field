@@ -36,6 +36,8 @@ class _ProfileImageWidget(QWidget):
         scroll = QScrollArea()
         scroll.setWidget(self._label)
         scroll.setWidgetResizable(True)
+        scroll.setMinimumWidth(0)
+        scroll.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(scroll)
@@ -55,7 +57,6 @@ class _ProfileImageWidget(QWidget):
         pixmap = QPixmap()
         pixmap.loadFromData(payload)
         self._label.setPixmap(pixmap)
-        self._label.adjustSize()
 
 
 class ProfilePanelWidget(QWidget):
@@ -77,6 +78,8 @@ class ProfilePanelWidget(QWidget):
         self._line_label.setMinimumWidth(0)
         self._line_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         self._tabs = QTabWidget()
+        self._tabs.setMinimumWidth(0)
+        self._tabs.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         self._baseline_widget = _ProfileImageWidget()
         self._candidate_widget = _ProfileImageWidget()
         self._diff_widget = _ProfileImageWidget()
@@ -102,6 +105,12 @@ class ProfilePanelWidget(QWidget):
         self._coordinate_spin.valueChanged.connect(self._emit_spec_changed)
         self._ego_button.clicked.connect(self._set_to_ego)
         self._center_button.clicked.connect(self._set_to_center)
+
+    def minimumSizeHint(self) -> QSize:
+        return QSize(240, 260)
+
+    def sizeHint(self) -> QSize:
+        return QSize(260, 320)
 
     def set_context(self, context: QueryContext) -> None:
         self._context = context
