@@ -17,8 +17,10 @@ jobs:
         include:
           - os: ubuntu-latest
             experimental: false
+            qt_platform: offscreen
           - os: windows-latest
             experimental: true
+            qt_platform: minimal
 
     steps:
       - name: Checkout
@@ -29,8 +31,9 @@ jobs:
         with:
           activate-environment: driving-preference-field
           environment-file: environment.yml
-          auto-activate-base: false
+          auto-activate: true
           channels: conda-forge
+          conda-remove-defaults: true
 
       - name: Show Python version
         shell: bash -el {0}
@@ -40,6 +43,7 @@ jobs:
         shell: bash -el {0}
         env:
           PYTHONPATH: src
-          QT_QPA_PLATFORM: offscreen
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+          QT_QPA_PLATFORM: ${{ matrix.qt_platform }}
           MPLBACKEND: Agg
-        run: pytest -q
+        run: python -m pytest -q -p pytestqt.plugin
