@@ -552,22 +552,7 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
         escaped = html.escape(text)
         return re.sub(r"`([^`]+)`", r"<code>\1</code>", escaped)
 
-    main_rows = []
-    for key in main_parameter_keys():
-        entry = guide[key]
-        main_rows.append(
-            f"""
-            <tr>
-              <td><code>{entry.label}</code></td>
-              <td>{entry.meaning}</td>
-              <td>{entry.effect_up}</td>
-              <td><code>{entry.practical_band}</code></td>
-            </tr>
-            """
-        )
-
-    advanced_sections = []
-    for group_key, keys in ADVANCED_PARAMETER_GROUPS:
+    def _summary_table(keys: list[str] | tuple[str, ...], *, anchor: str, title: str) -> str:
         rows = []
         for key in keys:
             entry = guide[key]
@@ -581,9 +566,8 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
                 </tr>
                 """
             )
-        advanced_sections.append(
-            f"""
-            <h3>{section_title(lang, group_key)}</h3>
+        return f"""
+            <h3 id="{anchor}">{title}</h3>
             <table class="summary-table">
               <tr>
                 <th>{"Parameter" if lang == LANG_EN else "파라미터"}</th>
@@ -593,7 +577,16 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
               </tr>
               {''.join(rows)}
             </table>
-            """
+        """
+
+    advanced_sections = []
+    for group_key, keys in ADVANCED_PARAMETER_GROUPS:
+        advanced_sections.append(
+            _summary_table(
+                keys,
+                anchor=f"group-{group_key.replace('_', '-')}",
+                title=section_title(lang, group_key),
+            )
         )
 
     detail_sections = []
@@ -620,81 +613,83 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
     if lang == LANG_EN:
         title = "Parameter Help"
         intro_paragraph = (
-            "This page explains the controls in the right-hand <code>Parameters</code> dock. "
-            "<code>Guide</code> covers the workflow; this page focuses on when to touch a control and what changes when the value moves."
+            "This page is the control reference for the right-hand <code>Parameters</code> dock. "
+            "<code>Guide</code> covers the workflow; this page explains when to touch a knob and what changes when the value moves."
         )
-        start_here = "Start Here"
-        start_steps = [
-            "Read <code>progression_tilted</code> with <code>Fixed</code> scale first.",
-            "Change one <code>Main</code> parameter at a time and press <code>Apply</code>.",
-            "Only open <code>Advanced Surface</code> after the semantics are already clear.",
-            "Always read <code>Diff</code> as <code>candidate - baseline</code>.",
-        ]
-        before_title = "Before You Touch a Knob"
-        main_vs_advanced = "Main vs Advanced"
-        decision_rows = [
-            ("Main", "These knobs change field semantics directly. Start here for frame, family, gain, transverse profile, and support ceiling."),
-            ("Advanced Surface", "Use this section only when you are tuning discretization, kernel width, modulation, or split/merge handoff quality."),
-            ("Do Not Start Here", "If you begin from Advanced Surface, you will usually change implementation artifacts before you understand semantics."),
-        ]
-        main_title = "Main Parameters"
-        advanced_title = "Advanced Surface"
+        page_purpose_title = "What This Page Is For"
+        main_title = "When to Use Main"
+        main_intro = "Start here when you are deciding field semantics: longitudinal frame, family, gain, transverse profile, and support ceiling."
+        main_intro += " Read `progression_tilted` on `Fixed` scale first."
+        advanced_title = "When to Open Advanced Surface"
         advanced_intro = (
-            "This section tunes morphology quality and cost rather than the canonical meaning of the field. "
-            "Use it for split/merge handoff, bend locality, and discretization behavior."
+            "Open this only after the semantics are already clear. "
+            "This section tunes discretization, support kernels, modulation, and split/merge handoff quality."
         )
-        interpretation_title = "Interpretation Rules"
+        interpretation_title = "How to Read Parameter Effects"
         interpretation_items = [
             "<code>higher is better</code> is the score sign itself.",
             "<code>Fixed</code> is the reading mode. <code>Normalized</code> is only a convenience view.",
+            "<code>Diff</code> always means <code>candidate - baseline</code>.",
             "<code>drivable boundary</code> is an overlay. It is not additive base preference.",
             "<code>Obstacle / Rule / Dynamic</code> are costmap views, not the base preference layer.",
             "<code>Raster</code> is a sampled visualization of the continuous field, not the field contract itself.",
         ]
+        groups_title = "Parameter Groups"
+        groups_intro = "Use these jumps when you already know which group you need."
+        groups_links = [
+            ("Longitudinal", "#group-longitudinal"),
+            ("Transverse", "#group-transverse"),
+            ("Support / Gate", "#group-support-gate"),
+            ("Advanced Surface", "#group-advanced-surface"),
+            ("Discretization", "#group-discretization"),
+            ("Support Kernel", "#group-support-kernel"),
+            ("Modulation", "#group-modulation"),
+            ("Handoff", "#group-handoff"),
+        ]
         detail_title = "Detailed Reference"
-        detail_intro = "Use the lookup cards below when you need to decide whether to push a knob up or down."
+        detail_intro = "Use the lookup cards below when you need a fast up/down decision."
     else:
         title = "Parameter Help"
         intro_paragraph = (
-            "이 도움말은 오른쪽 <code>Parameters</code> 패널을 설명한다. 도구를 어디서 시작하고 어떤 순서로 써야 하는지는 "
-            "<code>Guide</code>가 답하고, 여기서는 각 항목을 언제 조정해야 하는지와 값을 올리거나 내리면 무엇이 달라지는지에만 집중한다."
+            "이 도움말은 오른쪽 <code>Parameters</code> 패널의 참고 페이지다. "
+            "<code>Guide</code>는 사용 흐름을 설명하고, 여기서는 각 조정 항목을 언제 만져야 하는지와 값을 올리거나 내리면 무엇이 달라지는지만 설명한다."
         )
-        start_here = "먼저 볼 것"
-        start_steps = [
-            "<code>progression_tilted</code>를 <code>Fixed</code> scale에서 먼저 읽는다.",
-            "<code>Main</code>에서 한 항목만 바꾸고 <code>Apply</code>를 누른다.",
-            "semantics가 먼저 잡히기 전에는 <code>Advanced Surface</code>를 열지 않는다.",
-            "<code>Diff</code>는 항상 <code>candidate - baseline</code>으로 읽는다.",
-        ]
-        before_title = "파라미터를 만지기 전에"
-        main_vs_advanced = "`Main`과 `Advanced Surface`"
-        decision_rows = [
-            ("Main", "field semantics를 바로 읽는 항목이다. frame, family, gain, transverse profile, support ceiling을 먼저 본다."),
-            ("Advanced Surface", "discretization, kernel width, modulation, split/merge handoff 품질을 다룰 때만 쓴다."),
-            ("주의", "`Advanced Surface`부터 만지면 semantics보다 implementation artifact를 먼저 바꾸기 쉽다."),
-        ]
-        main_title = "Main"
-        advanced_title = "Advanced Surface"
+        page_purpose_title = "이 페이지의 역할"
+        main_title = "`Main`을 먼저 볼 때"
+        main_intro = "field semantics를 읽을 때는 여기서 시작한다. longitudinal frame, family, gain, transverse profile, support ceiling을 먼저 본다."
+        main_intro += " 먼저 `progression_tilted`를 `Fixed` scale로 읽는다."
+        advanced_title = "`Advanced Surface`를 여는 때"
         advanced_intro = (
-            "이 섹션은 canonical 의미보다 morphology 품질과 비용을 다듬는다. "
-            "split/merge handoff, bend locality, discretization 거동을 만질 때만 쓴다."
+            "semantics가 먼저 잡힌 뒤에만 연다. 이 섹션은 discretization, support kernel, modulation, split/merge handoff 품질을 다룬다."
         )
-        interpretation_title = "읽는 규칙"
+        interpretation_title = "파라미터 효과 읽기"
         interpretation_items = [
             "<code>higher is better</code>는 score sign 자체다.",
             "<code>Fixed</code>는 읽는 기준이고, <code>Normalized</code>는 탐색용 보조 모드다.",
+            "<code>Diff</code>는 항상 <code>candidate - baseline</code>이다.",
             "<code>drivable boundary</code>는 overlay다. base heatmap에 더하지 않는다.",
             "<code>Obstacle / Rule / Dynamic</code>는 costmap 시각화다. base preference와 같은 층이 아니다.",
             "<code>Raster</code>는 continuous field를 local map 위에서 샘플링한 시각화다.",
         ]
+        groups_title = "Parameter groups"
+        groups_intro = "필요한 그룹을 이미 알고 있다면 여기서 바로 이동한다."
+        groups_links = [
+            ("Longitudinal", "#group-longitudinal"),
+            ("Transverse", "#group-transverse"),
+            ("Support / Gate", "#group-support-gate"),
+            ("Advanced Surface", "#group-advanced-surface"),
+            ("Discretization", "#group-discretization"),
+            ("Support Kernel", "#group-support-kernel"),
+            ("Modulation", "#group-modulation"),
+            ("Handoff", "#group-handoff"),
+        ]
         detail_title = "세부 참고"
-        detail_intro = "아래 lookup card는 값을 올리거나 내릴지 빠르게 판단할 때 쓴다."
+        detail_intro = "아래 lookup card는 값을 올릴지 내릴지 빠르게 결정할 때 쓴다."
 
-    decision_html = "".join(
-        f"<tr><th>{html.escape(left)}</th><td>{right}</td></tr>" for left, right in decision_rows
-    )
-    start_steps_html = "".join(f"<li>{step}</li>" for step in start_steps)
     interpretation_html = "".join(f"<li>{item}</li>" for item in interpretation_items)
+    groups_links_html = "".join(
+        f'<li><a href="{target}">{html.escape(label)}</a></li>' for label, target in groups_links
+    )
     return f"""
     <html>
       <head>
@@ -721,6 +716,18 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
             border-radius: 8px;
             padding: 12px 14px;
             margin: 10px 0 16px 0;
+          }}
+          .link-list {{
+            columns: 2;
+            margin: 8px 0 16px 0;
+            padding-left: 20px;
+          }}
+          .link-list li {{
+            margin-bottom: 4px;
+          }}
+          a {{
+            color: #1d4ed8;
+            text-decoration: none;
           }}
           .summary-table, .detail-table, .decision-table {{
             width: 100%;
@@ -750,32 +757,29 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
       </head>
       <body>
         <h1>{title}</h1>
+        <h2 id="page-purpose">{page_purpose_title}</h2>
         <p>{intro_paragraph}</p>
         <div class="callout">
-          <h2 style="margin-top:0;">{start_here}</h2>
-          <ol>{start_steps_html}</ol>
+          <p style="margin-top:0;">{_inline_code_html(PARAMETER_GUIDE_INTRO[lang].splitlines()[0])}</p>
+          <p style="margin-bottom:0;">{_inline_code_html(PARAMETER_GUIDE_INTRO[lang].splitlines()[1])}</p>
         </div>
-        <h2>{before_title}</h2>
-        <ul>{intro_items}</ul>
-        <h2>{main_vs_advanced}</h2>
-        <table class="decision-table">{decision_html}</table>
-        <h2>{main_title}</h2>
-        <table class="summary-table">
-          <tr>
-            <th>{"Parameter" if lang == LANG_EN else "파라미터"}</th>
-            <th>{"What it changes" if lang == LANG_EN else "무엇이 바뀌는가"}</th>
-            <th>{"Raise it when" if lang == LANG_EN else "올릴 때"}</th>
-            <th>{"Practical Band" if lang == LANG_EN else "권장 구간"}</th>
-          </tr>
-          {''.join(main_rows)}
-        </table>
-        <h2>{advanced_title}</h2>
-        <p>{advanced_intro}</p>
-        {''.join(advanced_sections)}
-        <h2>{interpretation_title}</h2>
+        <h2 id="when-main">{main_title}</h2>
+        <p>{_inline_code_html(main_intro)}</p>
+        {_summary_table(("longitudinal_frame", "longitudinal_family", "longitudinal_gain", "lookahead_scale", "longitudinal_shape"), anchor="group-longitudinal", title=section_title(lang, "longitudinal"))}
+        {_summary_table(("transverse_family", "transverse_scale", "transverse_shape"), anchor="group-transverse", title=section_title(lang, "transverse"))}
+        {_summary_table(("support_ceiling",), anchor="group-support-gate", title=section_title(lang, "support_gate"))}
+        <h2 id="when-advanced">{advanced_title}</h2>
+        <p>{_inline_code_html(advanced_intro)}</p>
+        <h3 id="group-advanced-surface">{section_title(lang, "advanced")}</h3>
+        <p>{_inline_code_html(advanced_intro)}</p>
+        <h2 id="read-effects">{interpretation_title}</h2>
         <ul>{interpretation_html}</ul>
-        <h2>{detail_title}</h2>
-        <p>{detail_intro}</p>
+        <h2 id="parameter-groups">{groups_title}</h2>
+        <p>{_inline_code_html(groups_intro)}</p>
+        <ul class="link-list">{groups_links_html}</ul>
+        {''.join(advanced_sections)}
+        <h2 id="detailed-reference">{detail_title}</h2>
+        <p>{_inline_code_html(detail_intro)}</p>
         {''.join(detail_sections)}
       </body>
     </html>

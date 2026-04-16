@@ -1,144 +1,137 @@
+<a id="parameter-lab-guide"></a>
 # Parameter Lab 안내
 
-이 문서는 Parameter Lab을 실제로 어떻게 쓰는지 설명한다. 여기서 답하려는 질문은 세 가지다. 이 도구가 무엇을 위한 것인지, baseline과 candidate를 어떻게 비교하는지, 화면에 보이는 heatmap과 guide를 어떻게 읽어야 하는지다.
+이 문서는 Parameter Lab 안에서 어디서 시작하고 무엇을 먼저 봐야 하는지 빠르게 설명한다. 핵심 질문은 세 가지다. 이 도구가 무엇을 위한 것인지, 어디서 시작해야 하는지, 그리고 지금 화면을 어떻게 읽어야 하는지다.
 
-Parameter Lab은 geometry를 편집하는 studio가 아니다. 같은 semantic snapshot과 같은 effective local context 위에서 field 파라미터를 바꾸며 morphology를 비교하고, 그 비교를 export로 남기는 연구용 도구다.
+Parameter Lab은 geometry 편집기가 아니다. 같은 semantic snapshot과 같은 effective local context 위에서 field morphology를 비교하고, 그 비교를 export bundle로 남기는 해석 도구다.
 
-## 이 문서가 필요한 경우
+<a id="what-this-tool-is-for"></a>
+## 이 도구는 무엇을 하는가
 
-- 앱을 처음 열었는데 어디서 시작해야 할지 모르겠을 때
-- `Single`, `Compare`, `Diff`, `Profile` 중 무엇을 먼저 봐야 할지 정하고 싶을 때
-- `Guide`와 `Parameter Help`의 역할 차이를 알고 싶을 때
-- preset, channel, scale, export가 각각 무엇을 바꾸는지 확인하고 싶을 때
+- 같은 case 위에서 `Baseline`과 `Candidate`를 비교한다.
+- `progression_tilted`와 debug channel을 같은 local map 위에서 읽는다.
+- 입력 geometry를 바꾸지 않고 split, merge, bend, multilane 거동을 본다.
+- 나중에 다시 열 수 있는 comparison bundle을 export한다.
 
-## 빠른 시작
+<a id="start-here"></a>
+## 먼저 여기서 시작
+
+처음에는 아래 순서를 그대로 따르면 된다.
+
+1. case 하나를 고르고 양쪽에 그대로 유지한다.
+2. `progression_tilted`를 `Fixed` scale로 읽는다.
+3. `Main`에서 한 항목만 바꾸고 `Apply`를 누른 뒤 `Diff`를 본다.
+
+“이 화면에서 지금 무엇을 해야 하는가”는 `Guide`가 답한다. “이 knob를 올리면 무엇이 바뀌는가”는 `Parameter Help`가 답한다.
+
+<a id="quick-actions"></a>
+## 빠른 액션
+
+가장 짧은 시작 경로는 이렇다.
 
 1. `conda activate driving-preference-field`
 2. repo root에서 `PYTHONPATH=src python -m driving_preference_field parameter-lab`
 3. case를 고른다.
 4. baseline preset과 candidate preset을 고른다.
-5. `progression_tilted`를 `Fixed` scale로 먼저 본다.
-6. 필요하면 우측 `Parameters`에서 한 항목만 바꾸고 `Apply`를 누른다.
-7. `Diff`와 `Profile`로 확인한 뒤 `Export Comparison`으로 비교를 저장한다.
+5. `progression_tilted`를 `Fixed` scale로 본다.
+6. 파라미터 하나를 바꾸고 `Apply`를 누른다.
+7. `Diff`로 확인한 뒤 `Export Comparison`으로 저장한다.
 
-실무적으로는 한 번에 한 변수만 바꾸는 편이 좋다. case, ego/window, preset, parameter를 동시에 바꾸면 차이의 원인을 읽기 어렵다.
-
-## 화면 읽기
-
-### 상단 툴바
-
-상단 툴바는 자주 쓰는 액션만 둔다.
-
-- `Reload Case`
-  - 현재 case를 다시 읽고 비교를 다시 계산한다.
-- `Export Comparison`
-  - 현재 baseline/candidate 비교, preset snapshot, profile 결과를 함께 export한다.
-- `Reset View`
-  - 현재 canvas의 pan/zoom만 초기화한다.
-- `channel`
-  - 지금 볼 채널을 고른다.
-- `scale`
-  - 색의 의미를 고른다.
-- `language`
-  - 앱 전체와 `Guide`/`Parameter Help` 언어를 영어/한국어로 전환한다.
-- `Guide`
-  - 이 문서를 앱 안에서 연다.
-
-기본 shortcut은 다음과 같다.
+기본 shortcut:
 
 - `F5`: Reload Case
 - `Ctrl+Shift+E`: Export Comparison
 - `Ctrl+0`: Reset View
 - `F1`: Guide
 
-### 좌측 `Workspace`
+<a id="how-to-read-the-screen"></a>
+## 화면 읽기
+
+<a id="top-toolbar"></a>
+### 상단 툴바
+
+상단 툴바에는 자주 쓰는 액션만 둔다.
+
+- `Reload Case`: 현재 case를 다시 읽고 비교를 다시 계산한다.
+- `Export Comparison`: 현재 baseline/candidate 비교 bundle을 저장한다.
+- `Reset View`: 현재 canvas의 pan/zoom을 초기화한다.
+- `channel`: 지금 볼 raster channel을 고른다.
+- `scale`: 색 범위를 어떻게 읽을지 고른다.
+- `language`: 앱, `Guide`, `Parameter Help`를 영어/한국어로 전환한다.
+- `Guide`: 이 문서를 앱 안에서 연다.
+
+<a id="workspace"></a>
+### `Workspace`
 
 좌측 `Workspace`는 결과를 읽는 공간이다.
 
-- `Presets`
-  - baseline/candidate preset을 고르고 저장하고 복사한다.
-- `Summary`
-  - 현재 비교 상태를 요약해서 보여준다.
-- `Profile`
-  - line cut과 profile PNG를 본다.
-- `Layers`
-  - overlay visibility를 켜고 끈다.
+- `Presets`: baseline/candidate preset을 고르고 저장하고 복사한다.
+- `Summary`: 현재 비교 상태를 요약해서 본다.
+- `Profile`: line cut과 preview plot을 본다.
+- `Layers`: overlay visibility를 조절한다.
 
-좌측은 읽는 공간이다. 파라미터 조정은 우측 `Parameters` 도크에서만 한다.
+좌측은 읽는 공간이고, 우측은 조정 공간이다.
 
-### 우측 `Parameters`
+<a id="parameters"></a>
+### `Parameters`
 
 우측 `Parameters`는 조정 공간이다.
 
-- `Main`
-  - field semantics를 직접 읽을 때 먼저 만지는 항목이다.
-- `Advanced Surface`
-  - morphology, discretization, kernel, handoff 같은 구현 품질 튜닝 항목이다.
+- `Main`: field semantics를 읽을 때 먼저 쓰는 항목
+- `Advanced Surface`: morphology 품질, discretization, support kernel, modulation, handoff를 다룰 때 여는 항목
 
-규칙은 단순하다. 먼저 `Main`으로 의미를 잡고, 그래도 split/merge, bend, locality 같은 품질 문제가 남을 때만 `Advanced Surface`를 연다.
+규칙은 단순하다. 먼저 `Main`으로 semantics를 잡고, 그래도 품질 문제가 남을 때만 `Advanced Surface`를 연다.
 
-## 먼저 무엇을 봐야 하나
+<a id="canvas-views"></a>
+### canvas 보기
 
-### 1. `progression_tilted`
+raster는 continuous field를 local map 위에서 샘플링한 결과다. field contract 자체가 아니다.
 
-항상 `progression_tilted`를 먼저 본다. 이 채널이 현재 base field의 대표 score다. canonical score sign은 `higher is better`다.
+- `Single`: 한 쪽을 단독으로 본다.
+- `Compare`: morphology 차이를 나란히 본다.
+- `Diff`: `candidate - baseline` 차이만 본다.
 
-### 2. `Fixed` scale
+cyan progression guide overlay는 field 자체가 아니라 raw input polyline이다. `sensor_patch_open`에서 약간 기울어져 보이는 것은 rendering bug가 아니라 입력 정의 자체다.
 
-처음에는 `Fixed` scale을 쓴다. baseline과 candidate가 같은 색-값 대응을 공유하므로 비교가 쉬워진다. `Normalized`는 탐색용 보조 모드다.
-
-### 3. `Diff`
-
-`Diff`는 항상 `candidate - baseline`이다. diff가 양수면 candidate가 더 높고, 음수면 baseline이 더 높다.
-
-### 4. guide overlay
-
-cyan progression guide는 현재 field가 아니라 raw input polyline이다. 예를 들어 `sensor_patch_open`의 guide가 약간 기울어져 보이는 것은 rendering bug가 아니라 입력이 `[-0.5, 0.0] -> [2.5, 0.15]`로 정의돼 있기 때문이다.
-
+<a id="common-tasks"></a>
 ## 자주 하는 작업
 
+<a id="compare-baseline-and-candidate"></a>
 ### `Baseline`과 `Candidate` 비교
 
 1. 같은 case를 유지한다.
 2. baseline preset과 candidate preset을 고른다.
 3. `progression_tilted`를 `Fixed` scale로 본다.
-4. `Compare`에서 morphology 차이를 본다.
-5. `Diff`에서 차이 방향을 본다.
+4. `Compare`에서 morphology를 본다.
+5. `Diff`에서 부호와 크기를 본다.
 6. 필요하면 `Profile`에서 line cut을 본다.
 
-### 파라미터 한 개만 바꿔 보기
+<a id="change-one-parameter"></a>
+### 파라미터 하나만 바꾸기
 
 1. 우측 `Parameters`에서 한 항목만 바꾼다.
-2. 바로 계산되지 않는다. `Apply`를 눌러야 반영된다.
-3. 결과가 마음에 들지 않으면 `Reset`으로 패널 값을 되돌린다.
+2. `Apply`를 눌러 staged edit를 반영한다.
+3. 취소하려면 `Reset`을 누른다.
 
-case 변경, case control apply/reset, preset load, baseline/candidate copy는 즉시 재계산될 수 있다. 반대로 spinbox, dropdown 같은 세부 파라미터 편집은 `staged edit -> Apply` 흐름이다.
+case 변경, case control apply/reset, preset load, baseline/candidate copy는 바로 재계산될 수 있다. 반대로 세부 파라미터는 `staged edit -> Apply` 흐름이다.
 
+<a id="read-split-merge-and-bend-cases"></a>
 ### split, merge, bend 읽기
 
 - split/merge는 `multiple progression guides`로 표현한다.
-- raster는 continuous field를 local map 위에서 샘플링한 결과다.
-- guide overlay와 heatmap이 같은 모양일 필요는 없다.
-- split 직전이나 merge 직전 shape가 입력 semantics의 결과인지, tuning artifact인지 먼저 나눠 본다.
+- heatmap과 guide overlay가 같은 모양일 필요는 없다.
+- split/merge의 모양은 입력 semantics 때문일 수도 있고 tuning artifact 때문일 수도 있다.
+- shape를 버그로 보기 전에 이 둘을 먼저 나눠서 본다.
 
-### `Profile` 보기
+<a id="read-profiles"></a>
+### `Profile` 읽기
 
-`Profile` 탭은 tuning panel이 아니라 inspection panel이다. baseline, candidate, diff를 각각 PNG preview와 line-cut 데이터로 보여준다. 그래프가 viewport보다 크면 스크롤로 읽는다.
+`Profile`은 tuning panel이 아니라 inspection panel이다. baseline, candidate, diff를 line-cut 데이터와 preview plot으로 보여준다. preview가 viewport보다 크면 스크롤해서 읽는다.
 
-## `Guide`와 `Parameter Help`의 차이
+<a id="export"></a>
+## 내보내기
 
-둘은 역할이 다르다.
-
-- `Guide`
-  - 이 도구를 어디서 시작하고, 무엇을 보고, 어떤 순서로 쓰는지 설명한다.
-- `Parameter Help`
-  - 우측 `Parameters` 패널의 각 knob가 무엇을 바꾸는지 설명한다.
-
-즉, “이 화면에서 지금 무엇을 해야 하는가”는 `Guide`가 답하고, “이 파라미터를 올리면 무엇이 바뀌는가”는 `Parameter Help`가 답한다.
-
-## `Export Comparison`으로 남기는 것
-
-comparison export에는 최소한 다음이 남는다.
+`Export Comparison`에는 최소한 다음이 들어간다.
 
 - case path
 - selected channel
@@ -149,38 +142,19 @@ comparison export에는 최소한 다음이 남는다.
 - profile summary
 - qualitative note
 
-profile inspection export에는 다음이 포함된다.
+profile inspection export에는 다음도 포함된다.
 
 - `profile_baseline.png`
 - `profile_candidate.png`
 - `profile_diff.png`
 - `profile_data.json`
 
-즉 export는 스크린샷 한 장이 아니라, 같은 비교를 다시 복원할 수 있는 bundle이다.
+즉 export는 스크린샷이 아니라, 같은 비교를 다시 검토할 수 있는 bundle이다.
 
-## 현재 구현 범위
+<a id="limits"></a>
+## 제한사항
 
-현재 Parameter Lab은 다음을 포함한다.
-
-- case 선택
-- generic adapter input path 직접 열기
-- case-level ego/window control
-- baseline / candidate parameter 패널
-- single / compare / diff view
-- preset 저장 / 불러오기 / 복사
-- summary metrics 표시
-- qualitative note 입력
-- comparison export
-- fixed / normalized scale mode
-- `progression_tilted` 기본 selected channel
-- profile inspection 탭
-- debug view (`s_hat`, `n_hat`, longitudinal/transverse/support/alignment component)
-
-현재 GUI는 canonical 전체를 다 노출하지는 않지만, `progression_tilted`를 읽는 데 필요한 `Main`과 현재 구현 morphology를 다듬는 `Advanced Surface`를 함께 노출한다. drivable boundary는 overlay로 읽고, obstacle / rule / dynamic cost는 costmap 성격의 별도 채널로만 본다.
-
-## 현재 제한사항
-
-다음은 현재 Parameter Lab 범위에 포함하지 않는다.
+현재 Parameter Lab 범위에 포함하지 않는 것은 다음과 같다.
 
 - geometry 편집
 - progression guide 편집
@@ -189,10 +163,11 @@ profile inspection export에는 다음이 포함된다.
 - Gazebo / RViz / MPPI integration
 - studio canvas
 - interactive drawing
-- 3D preview 본체화
+- full 3D preview tooling
 
-GUI/PNG raster는 local map 위에서 연속 함수를 샘플링한 결과다. Parameter Lab은 downstream integration tool이 아니라 whole-space field morphology를 읽고 비교하는 해석 도구로 유지한다.
+이 도구는 local map 위에서 whole-space field morphology를 읽고 비교하는 데 집중한다.
 
+<a id="read-next"></a>
 ## 더 읽을 문서
 
 - [파라미터 노출 정책](../explanation/parameter_exposure_policy.md)

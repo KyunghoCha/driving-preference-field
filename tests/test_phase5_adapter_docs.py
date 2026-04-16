@@ -124,10 +124,12 @@ def test_key_truths_survive_in_both_languages() -> None:
     assert "whole-space preference field" in overview_ko
     assert "Phase 5 complete, Phase 6 preparation" in overview_en
     assert "Phase 5 완료, Phase 6 준비 상태" in overview_ko
-    assert "Quick start" in guide_en
-    assert "빠른 시작" in guide_ko
-    assert "Guide vs Parameter Help" in guide_en
-    assert "`Guide`와 `Parameter Help`의 차이" in guide_ko
+    assert "Start here" in guide_en
+    assert "먼저 여기서 시작" in guide_ko
+    assert "Quick actions" in guide_en
+    assert "빠른 액션" in guide_ko
+    assert "How to read the screen" in guide_en
+    assert "화면 읽기" in guide_ko
     assert "higher is better" in runtime_en
     assert "higher is better" in runtime_ko
 

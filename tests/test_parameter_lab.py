@@ -140,12 +140,12 @@ def test_guide_and_parameter_help_keep_distinct_roles_in_both_languages() -> Non
     guide_en = guide_doc_path(ROOT, LANG_EN).read_text(encoding="utf-8")
     guide_ko = guide_doc_path(ROOT, LANG_KO).read_text(encoding="utf-8")
 
-    assert "This page explains the controls" in help_en
+    assert "This page is the control reference" in help_en
     assert "이 도움말은 오른쪽" in help_ko
-    assert "Quick start" in guide_en
-    assert "빠른 시작" in guide_ko
-    assert "what each control changes" in help_en
-    assert "각 항목이 무엇을 바꾸는지" in help_ko
+    assert "Start here" in guide_en
+    assert "먼저 여기서 시작" in guide_ko
+    assert "when to touch a knob" in help_en
+    assert "언제 만져야 하는지" in help_ko
 
 
 def test_high_risk_ui_modules_do_not_hardcode_product_labels() -> None:
@@ -540,8 +540,10 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert window._parameter_help_dialog.height() >= 680
     help_text = window._parameter_help_dialog._text.toPlainText()
     assert "Parameter Help" in help_text
-    assert "Start Here" in help_text
-    assert "Main vs Advanced" in help_text
+    assert "What This Page Is For" in help_text
+    assert "When to Use Main" in help_text
+    assert "When to Open Advanced Surface" in help_text
+    assert "Parameter Groups" in help_text
     assert "Detailed Reference" in help_text
     assert "practical band" in help_text.lower()
     assert "technical range" in help_text.lower()
@@ -556,6 +558,8 @@ def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     assert "raster" in help_text.lower()
     assert "longitudinal" in help_text.lower()
     assert "transverse" in help_text.lower()
+    assert "support / gate" in help_text.lower()
+    assert "parameter groups" in help_text.lower()
     assert ("prototype" + "_ridge") not in help_text
     assert ("surface" + "_v2") not in help_text
     assert window._baseline_panel._note_label.text() == PANEL_NOTE_TEXT[DEFAULT_LANGUAGE]
@@ -581,9 +585,16 @@ def test_toolbar_docs_opens_parameter_lab_docs_browser(qtbot) -> None:
     assert window._lab_help_dialog.windowTitle() == "Guide"
     help_text = window._lab_help_dialog._text.toPlainText()
     assert "Parameter Lab Guide" in help_text
-    assert "Quick start" in help_text
+    assert "Start here" in help_text
+    assert "Quick actions" in help_text
     assert "How to read the screen" in help_text
-    assert "Guide vs Parameter Help" in help_text
+    assert "What this tool is for" in help_text
+    assert window._lab_help_dialog._jump_selector.count() > 5
+    assert window._lab_help_dialog._jump_label.text() == "Jump to"
+    jump_index = window._lab_help_dialog._jump_selector.findData("common-tasks")
+    assert jump_index != -1
+    window._lab_help_dialog._jump_selector.setCurrentIndex(jump_index)
+    assert window._lab_help_dialog._current_anchor == "common-tasks"
 
     window._lab_help_dialog._text.setSource(QUrl("../explanation/parameter_exposure_policy.md"))
     qtbot.waitUntil(
@@ -635,7 +646,8 @@ def test_language_switch_retranslates_ui_and_persists(qtbot) -> None:
         lambda: window._lab_help_dialog is not None and window._lab_help_dialog.isVisible(),
         timeout=15000,
     )
-    assert "빠른 시작" in window._lab_help_dialog._text.toPlainText()
+    assert "먼저 여기서 시작" in window._lab_help_dialog._text.toPlainText()
+    assert window._lab_help_dialog._jump_label.text() == "바로 이동"
 
     window.close()
 
