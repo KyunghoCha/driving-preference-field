@@ -67,6 +67,7 @@ baseline과 candidate는 특정 버전 이름이 아니라 비교 역할이다.
 기본 실험 집합:
 
 - `straight_corridor`
+- `two_lane_straight`
 - `left_bend`
 - `u_turn`
 - `split_branch`
@@ -138,3 +139,10 @@ generic adapter fixture:
 - 최적 수식의 최종 확정
 - downstream integration 자체
 - optimizer-specific tuning을 이 문서 기준으로 고정하는 일
+
+## 보류 중인 장면
+
+- 교차로:
+  - progression guide를 어떤 단위로 나눌지 더 검토가 필요하다.
+- 회전교차로:
+  - circulation ordering과 entry/exit 표현을 아직 고정하지 않았다.
