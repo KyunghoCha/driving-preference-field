@@ -28,7 +28,6 @@ from .evaluator import (
 from .field_runtime import FieldRuntime, build_field_runtime
 from .input_loader import LoadedSemanticInput, detect_input_kind, load_semantic_input
 from .presets import DEFAULT_PRESET_DIR, load_preset, save_preset
-from .rendering import RenderArtifacts, render_case
 from .source_adapter import GenericAdapterValidationError, load_generic_snapshot
 
 __all__ = [
@@ -64,3 +63,17 @@ __all__ = [
     "render_case",
     "save_preset",
 ]
+
+
+def __getattr__(name: str):
+    if name in {"RenderArtifacts", "render_case"}:
+        from .rendering import RenderArtifacts, render_case
+
+        globals().update(
+            {
+                "RenderArtifacts": RenderArtifacts,
+                "render_case": render_case,
+            }
+        )
+        return globals()[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

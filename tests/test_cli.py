@@ -1,5 +1,8 @@
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 
 from driving_preference_field.cli import _load_trajectory_arg, main
 
@@ -149,3 +152,30 @@ def test_parameter_lab_cli_starts_and_returns_zero(monkeypatch) -> None:
     exit_code = main(["parameter-lab", "--case", str(case_path)])
 
     assert exit_code == 0
+
+
+def test_parameter_lab_import_path_does_not_import_matplotlib() -> None:
+    script = """
+import json
+import sys
+import driving_preference_field
+payload = {"package": "matplotlib" in sys.modules}
+import driving_preference_field.cli
+payload["cli"] = "matplotlib" in sys.modules
+import driving_preference_field.ui.parameter_lab_window
+payload["window"] = "matplotlib" in sys.modules
+print(json.dumps(payload, sort_keys=True))
+"""
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(ROOT / "src")
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload == {"cli": False, "package": False, "window": False}

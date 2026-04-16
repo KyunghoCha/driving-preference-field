@@ -34,7 +34,7 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     _wait_for_result(qtbot, window)
 
     assert window._comparison_result is not None
-    assert window._profile_result is not None
+    assert window._profile_result is None
     assert window._baseline_view.scene() is not None
     assert window._candidate_view.scene() is not None
     assert window._left_tabs.count() == 4
@@ -81,8 +81,25 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._case_dock.minimumWidth() < 300
     assert window._left_stack_dock.minimumWidth() < 300
     summary = json.loads(window._summary_panel._text.toPlainText())
-    assert summary["profile"]["available"] is True
+    assert summary["profile"]["available"] is False
     assert summary["profile"]["selected_channel"] == "progression_tilted"
+
+    window.close()
+
+
+def test_profile_panel_builds_on_demand_when_profile_tab_is_selected(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    assert window._profile_result is None
+    window._left_tabs.setCurrentIndex(2)
+
+    qtbot.waitUntil(lambda: window._profile_result is not None, timeout=15000)
+    summary = json.loads(window._summary_panel._text.toPlainText())
+    assert summary["profile"]["available"] is True
 
     window.close()
 
@@ -494,5 +511,28 @@ def test_profile_panel_scrollbars_activate_for_large_preview_and_reset_on_placeh
             timeout=15000,
         )
     assert window._left_stack_dock.minimumWidth() < 300
+
+    window.close()
+
+
+def test_profile_panel_degrades_gracefully_when_plot_rendering_fails(qtbot, monkeypatch) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    import driving_preference_field.profile_inspection as profile_inspection
+
+    def _raise(*_args, **_kwargs):
+        raise RuntimeError("synthetic render failure")
+
+    monkeypatch.setattr(profile_inspection, "profile_plot_png_bytes", _raise)
+    window._left_tabs.setCurrentIndex(2)
+
+    qtbot.waitUntil(
+        lambda: "synthetic render failure" in window._profile_panel.toolTip(),
+        timeout=15000,
+    )
+    assert "synthetic render failure" in window._profile_panel.toolTip()
 
     window.close()

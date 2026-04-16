@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import os
-import sys
+import logging
+from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtGui import QPixmap
@@ -19,11 +19,14 @@ from PyQt6.QtWidgets import (
 )
 
 from driving_preference_field.contracts import QueryContext
-from driving_preference_field.profile_inspection import ComparisonProfileResult, ProfileSpec, profile_plot_png_bytes
+from driving_preference_field.profile_contracts import ProfileSpec
+
+if TYPE_CHECKING:
+    from driving_preference_field.profile_contracts import ComparisonProfileResult
 
 
-_PROFILE_PLOTS_ENABLED = os.environ.get("DPF_ENABLE_PROFILE_PLOTS") == "1" or sys.platform != "win32"
-_PROFILE_PLOTS_DISABLED_MESSAGE = "Windows profile preview is temporarily disabled."
+LOGGER = logging.getLogger(__name__)
+_PROFILE_PREVIEW_UNAVAILABLE_MESSAGE = "Profile preview unavailable."
 
 
 class _ProfileImageWidget(QWidget):
@@ -153,24 +156,32 @@ class ProfilePanelWidget(QWidget):
             self._baseline_widget.set_png(None)
             self._candidate_widget.set_png(None)
             self._diff_widget.set_png(None)
+            self.setToolTip("")
             return
         self._line_label.setText(
             f"{result.spec.axis} line | {result.spec.coordinate_axis}={result.spec.coordinate:.3f} | selected={selected_channel}"
         )
-        if not _PROFILE_PLOTS_ENABLED:
-            self._baseline_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
-            self._candidate_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
-            self._diff_widget.set_png(None, empty_text=_PROFILE_PLOTS_DISABLED_MESSAGE)
-            return
-        self._baseline_widget.set_png(
-            profile_plot_png_bytes(result, selected_channel=selected_channel, view="baseline")
-        )
-        self._candidate_widget.set_png(
-            profile_plot_png_bytes(result, selected_channel=selected_channel, view="candidate")
-        )
-        self._diff_widget.set_png(
-            profile_plot_png_bytes(result, selected_channel=selected_channel, view="diff")
-        )
+        try:
+            from driving_preference_field.profile_inspection import profile_plot_png_bytes
+
+            self._baseline_widget.set_png(
+                profile_plot_png_bytes(result, selected_channel=selected_channel, view="baseline")
+            )
+            self._candidate_widget.set_png(
+                profile_plot_png_bytes(result, selected_channel=selected_channel, view="candidate")
+            )
+            self._diff_widget.set_png(
+                profile_plot_png_bytes(result, selected_channel=selected_channel, view="diff")
+            )
+            self.setToolTip("")
+        except Exception as exc:  # pragma: no cover - exercised by UI test with monkeypatch
+            LOGGER.exception("Profile preview rendering failed: %s", exc)
+            message = f"{_PROFILE_PREVIEW_UNAVAILABLE_MESSAGE} Plot rendering failed for this view."
+            tooltip = f"Profile preview failed: {exc}"
+            self._baseline_widget.set_png(None, empty_text=message)
+            self._candidate_widget.set_png(None, empty_text=message)
+            self._diff_widget.set_png(None, empty_text=message)
+            self.setToolTip(tooltip)
 
     def _on_axis_changed(self) -> None:
         self._update_spin_bounds()

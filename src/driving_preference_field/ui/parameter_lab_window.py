@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
@@ -33,12 +35,6 @@ from driving_preference_field.config import (
 )
 from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample
 from driving_preference_field.input_loader import load_semantic_input
-from driving_preference_field.profile_inspection import (
-    ComparisonProfileResult,
-    build_comparison_profile,
-    export_profile_bundle,
-    summarize_profile_result,
-)
 from driving_preference_field.presets import (
     DEFAULT_PRESET_DIR,
     can_overwrite_preset,
@@ -47,7 +43,6 @@ from driving_preference_field.presets import (
     load_preset,
     save_preset,
 )
-from driving_preference_field.rendering import render_case, render_diff_image, summarize_diff_array
 from driving_preference_field.ui.async_raster_evaluator import AsyncRasterEvaluator, RasterComparisonResult
 from driving_preference_field.ui.canvas_view import RasterCanvasView, raster_to_qimage
 from driving_preference_field.ui.parameter_guide import parameter_help_html
@@ -66,6 +61,9 @@ from driving_preference_field.visualization_scale import (
     format_display_range,
     resolve_display_range,
 )
+
+if TYPE_CHECKING:
+    from driving_preference_field.profile_contracts import ComparisonProfileResult
 
 
 CHANNEL_OPTIONS = {
@@ -92,6 +90,15 @@ SCALE_MODE_OPTIONS = {
 }
 
 PARAMETER_HELP_TEXT = parameter_help_html()
+LOGGER = logging.getLogger(__name__)
+
+
+def _summarize_diff_array(data) -> dict[str, float]:
+    return {
+        "min": float(data.min()),
+        "max": float(data.max()),
+        "mean": float(data.mean()),
+    }
 
 
 @dataclass
@@ -285,6 +292,9 @@ class ParameterLabWindow(QMainWindow):
     def export_current_comparison(self) -> Path | None:
         if self._comparison_result is None:
             return None
+        from driving_preference_field.profile_inspection import export_profile_bundle
+        from driving_preference_field.rendering import render_case, render_diff_image
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         export_root = self._repo_root / "artifacts/lab_exports" / self._current_case_path.stem / timestamp
         baseline_dir = export_root / "baseline"
@@ -328,6 +338,8 @@ class ParameterLabWindow(QMainWindow):
             export_root / "candidate_preset.yaml",
         )
         profile_payload = {"available": False, "selected_channel": self._selected_channel}
+        if self._profile_result is None:
+            self._refresh_profile_panel()
         profile_result = self._current_profile_result()
         if profile_result is not None:
             profile_payload = export_profile_bundle(
@@ -357,6 +369,7 @@ class ParameterLabWindow(QMainWindow):
         self._left_tabs.addTab(self._profile_panel, "Profile")
         self._left_tabs.addTab(self._layer_panel, "Layers")
         self._left_tabs.setDocumentMode(True)
+        self._left_tabs.currentChanged.connect(self._on_left_tab_changed)
         self._left_stack_dock = self._add_dock("Workspace", self._left_tabs, Qt.DockWidgetArea.LeftDockWidgetArea)
 
         self._parameter_tabs = QTabWidget()
@@ -704,7 +717,10 @@ class ParameterLabWindow(QMainWindow):
     def _on_comparison_ready(self, _generation: int, result: RasterComparisonResult) -> None:
         self._comparison_result = result
         self._refresh_views()
-        self._refresh_profile_panel()
+        self._profile_result = None
+        self._profile_panel.set_profile_result(None, selected_channel=self._selected_channel)
+        if self._left_tabs.currentWidget() is self._profile_panel:
+            self._refresh_profile_panel()
         if self._reset_views_pending:
             self._reset_views()
             self._reset_views_pending = False
@@ -717,8 +733,15 @@ class ParameterLabWindow(QMainWindow):
         self._status_label.setText("computing" if busy else "idle")
 
     def _on_profile_spec_changed(self, _axis: str, _coordinate: float) -> None:
-        self._refresh_profile_panel()
+        self._profile_result = None
+        if self._left_tabs.currentWidget() is self._profile_panel:
+            self._refresh_profile_panel()
         self._refresh_summary()
+
+    def _on_left_tab_changed(self, _index: int) -> None:
+        if self._left_tabs.currentWidget() is self._profile_panel and self._profile_result is None:
+            self._refresh_profile_panel()
+            self._refresh_summary()
 
     def _update_hover(self, x: float, y: float) -> None:
         self._hover_label.setText(f"(x, y)=({x:.3f}, {y:.3f})")
@@ -827,13 +850,21 @@ class ParameterLabWindow(QMainWindow):
             self._profile_result = None
             self._profile_panel.set_profile_result(None, selected_channel=self._selected_channel)
             return
-        self._profile_result = build_comparison_profile(
-            self._comparison_result.baseline_raster,
-            self._comparison_result.candidate_raster,
-            spec=self._profile_panel.profile_spec(),
-            selected_channel=self._selected_channel,
-        )
-        self._profile_panel.set_profile_result(self._profile_result, selected_channel=self._selected_channel)
+        try:
+            from driving_preference_field.profile_inspection import build_comparison_profile
+
+            self._profile_result = build_comparison_profile(
+                self._comparison_result.baseline_raster,
+                self._comparison_result.candidate_raster,
+                spec=self._profile_panel.profile_spec(),
+                selected_channel=self._selected_channel,
+            )
+            self._profile_panel.set_profile_result(self._profile_result, selected_channel=self._selected_channel)
+        except Exception as exc:
+            LOGGER.exception("Profile comparison build failed: %s", exc)
+            self._profile_result = None
+            self._profile_panel.set_profile_result(None, selected_channel=self._selected_channel)
+            self._profile_panel.setToolTip(f"Profile comparison unavailable: {exc}")
 
     def _refresh_summary(self) -> None:
         if self._comparison_result is None:
@@ -881,7 +912,7 @@ class ParameterLabWindow(QMainWindow):
     def _current_profile_result(self) -> ComparisonProfileResult | None:
         if self._comparison_result is None:
             return None
-        if self._profile_result is None:
+        if self._profile_result is None and self._left_tabs.currentWidget() is self._profile_panel:
             self._refresh_profile_panel()
         return self._profile_result
 
@@ -892,6 +923,8 @@ class ParameterLabWindow(QMainWindow):
                 "available": False,
                 "selected_channel": self._selected_channel,
             }
+        from driving_preference_field.profile_inspection import summarize_profile_result
+
         summary = summarize_profile_result(result, selected_channel=self._selected_channel)
         return {
             "available": True,
@@ -929,7 +962,7 @@ class ParameterLabWindow(QMainWindow):
                 else candidate_selected - baseline_selected
             ),
             "progression_total_delta": candidate_state.base_preference_total - baseline_state.base_preference_total,
-            "diff_raster_summary": summarize_diff_array(self._selected_diff_array()),
+            "diff_raster_summary": _summarize_diff_array(self._selected_diff_array()),
         }
 
     def _visualization_payload(self) -> dict[str, object]:
@@ -1009,7 +1042,7 @@ class ParameterLabWindow(QMainWindow):
             candidate_state_summary=self._state_summary_payload(candidate_state),
             diff_summary={
                 **self._diff_summary_payload(baseline_state, candidate_state),
-                "raster": summarize_diff_array(self._selected_diff_array()),
+                "raster": _summarize_diff_array(self._selected_diff_array()),
                 "visualization": self._visualization_payload(),
             },
             profile_summary=profile_summary,

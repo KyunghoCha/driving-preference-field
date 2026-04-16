@@ -128,12 +128,10 @@ try {
     $pythonPath = Join-Path $projectRoot "src"
     $environmentOverrides = @{
         "PYTHONPATH" = $pythonPath
-        "DPF_ENABLE_PROFILE_PLOTS" = "0"
     }
 
     Write-Log "PYTHONPATH=$pythonPath"
     Write-Log "CASE_PATH=$caseFullPath"
-    Write-Log "DPF_ENABLE_PROFILE_PLOTS=0"
 
     $probePath = Join-Path $env:TEMP "driving_preference_field_probe.py"
     $probeScript = @"

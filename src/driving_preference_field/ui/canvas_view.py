@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 
-import matplotlib
 import numpy as np
 from PyQt6.QtCore import QPoint, QPointF, Qt, pyqtSignal
 from PyQt6.QtGui import QColor, QImage, QPainter, QPen, QPixmap, QTransform
@@ -15,6 +14,7 @@ from PyQt6.QtWidgets import (
 )
 
 from driving_preference_field.contracts import DirectedPolyline, QueryWindow, SemanticInputSnapshot, StateSample
+from driving_preference_field.ui.colormaps import sample_colormap
 
 
 LAYER_KEYS = (
@@ -187,7 +187,7 @@ def raster_to_qimage(
         else:
             normalized = (working - data_min) / (data_max - data_min)
     normalized = np.clip(normalized, 0.0, 1.0)
-    rgba = matplotlib.colormaps[cmap_name](normalized, bytes=True)
+    rgba = sample_colormap(cmap_name, normalized, bytes=True)
     image = QImage(
         rgba.data,
         rgba.shape[1],

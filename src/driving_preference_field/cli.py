@@ -10,7 +10,6 @@ from .config import DEFAULT_FIELD_CONFIG
 from .contracts import StateSample, TrajectorySample
 from .evaluator import evaluate_state, evaluate_trajectory
 from .input_loader import load_semantic_input, summarize_loaded_input
-from .rendering import render_case
 from .source_adapter import serialize_canonical_bundle
 
 
@@ -205,6 +204,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "render-case":
+        from .rendering import render_case
+
         case_name = str(snapshot.metadata.get("name", Path(args.case).stem))
         artifacts = render_case(
             snapshot,

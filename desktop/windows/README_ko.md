@@ -77,8 +77,6 @@ Windows 실행기 안내
   - `%USERPROFILE%\anaconda3\envs\driving-preference-field\python.exe`
 - Case
   - `cases/toy/straight_corridor.yaml`
-- Profile preview
-  - Windows에서는 `DPF_ENABLE_PROFILE_PLOTS=0`로 기본 비활성화
 
 문제 발생 시 확인
 
@@ -94,3 +92,4 @@ Windows 실행기 안내
 - 앞으로 Windows 실행기 수정은 `desktop/windows/` 안에서만 하면 됨
 - 아이콘은 `assets/parameter_lab_launcher.ico` 하나를 Windows와 공용으로 참조함
 - 바탕화면에는 바로가기만 있으면 됨
+- profile preview가 실패해도 Parameter Lab 본체는 떠야 함

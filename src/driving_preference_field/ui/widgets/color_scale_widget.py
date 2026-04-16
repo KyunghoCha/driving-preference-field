@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import matplotlib
 from PyQt6.QtCore import QRectF, Qt
 from PyQt6.QtGui import QColor, QLinearGradient, QPainter, QPen
 from PyQt6.QtWidgets import QWidget
+
+from driving_preference_field.ui.colormaps import colormap_stops
 
 
 class ColorScaleWidget(QWidget):
@@ -36,10 +37,8 @@ class ColorScaleWidget(QWidget):
         bar_y = top_margin
 
         gradient = QLinearGradient(bar_x, bar_y + bar_height, bar_x, bar_y)
-        cmap = matplotlib.colormaps[self._cmap_name]
-        for idx in range(16):
-            t = idx / 15.0
-            r, g, b, a = cmap(t)
+        for t, rgba in colormap_stops(self._cmap_name):
+            r, g, b, a = rgba
             gradient.setColorAt(t, QColor.fromRgbF(r, g, b, a))
 
         rect = QRectF(bar_x, bar_y, bar_width, bar_height)

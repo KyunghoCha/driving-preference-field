@@ -30,10 +30,10 @@ Notes
 
 - These launchers are reproduction-layer assets only
 - They must not change field semantics, config semantics, or preset semantics
-- Windows currently sets `DPF_ENABLE_PROFILE_PLOTS=0` by default because the
-  profile preview path is still unstable there
 - The default case is `cases/toy/straight_corridor.yaml`
 - Override the Python executable on Windows with `DPF_PYTHON_EXE` if needed
+- Profile preview is optional tooling. If plotting dependencies fail, Parameter
+  Lab should still launch and degrade the preview pane instead of crashing.
 
 Windows
 
