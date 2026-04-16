@@ -292,19 +292,6 @@ def test_profile_panel_degrades_gracefully_when_preview_rendering_fails(qtbot, m
 
     widget.set_profile_result(result, selected_channel="progression_tilted")
 
-    qtbot.waitUntil(
-        lambda: widget._baseline_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view.",
-        timeout=3000,
-    )
-    qtbot.waitUntil(
-        lambda: widget._candidate_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view.",
-        timeout=3000,
-    )
-    qtbot.waitUntil(
-        lambda: widget._diff_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view.",
-        timeout=3000,
-    )
-
     assert widget._baseline_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view."
     assert widget._candidate_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view."
     assert widget._diff_widget._label.text() == "Profile preview unavailable.\nPlot rendering failed for this view."
