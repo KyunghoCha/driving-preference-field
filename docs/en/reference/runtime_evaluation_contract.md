@@ -31,7 +31,7 @@ The runtime can expose current-implementation detail channels such as longitudin
 
 ## Current implementation
 
-The current implementation projects each query point onto the smoothed guide to anchor a local arclength neighborhood, then builds guide-local coordinates and scores from a softened Gaussian anchor blend inside that neighborhood. The runtime still takes a pointwise hard max envelope across guides. `progression_transverse_component` includes handoff smoothing for inspection quality. Obstacle / rule / dynamic channels remain separate cost-like views.
+The current implementation builds guide-local coordinates and scores from progression guides, then takes a pointwise hard max envelope across guides. `progression_transverse_component` includes handoff smoothing for inspection quality. Obstacle / rule / dynamic channels remain separate cost-like views.
 
 ## Visualization
 

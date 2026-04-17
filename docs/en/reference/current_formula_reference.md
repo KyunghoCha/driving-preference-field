@@ -14,31 +14,15 @@ The runtime evaluates guide-local blended coordinates and a guide-local score, t
 
 ### Guide-local anchor coordinates
 
-Each progression guide is resampled into anchors. The current implementation uses Gaussian anchor blending to estimate local guide coordinates such as `s_hat`, `n_hat`, and the local tangent. Before those anchors are blended, the runtime first projects the query point onto the smoothed guide to get a local arclength reference `s_ref`.
+Each progression guide is resampled into anchors. The current implementation uses Gaussian anchor blending to estimate local guide coordinates such as `s_hat`, `n_hat`, and the local tangent.
 
 ### Guide-local Gaussian weights
 
-Anchor weights stay local to a guide. They shape support and local coordinate estimation, and they are normalized within the guide-local computation. The current implementation now applies a soft arclength-locality gate around the projection-selected branch neighborhood instead of blending equally across the whole guide.
-
-Projection-derived local arclength reference:
-
-`s_ref = sum_k q_k * s_proj_k`
-
-`q_k ∝ exp(-0.5 * d_k^2 / sigma_proj^2)`
-
-Guide-local raw weight:
-
-`r_i = w_i^guide * c_i * exp(-0.5 * ((tau_i / sigma_t)^2 + (nu_i / sigma_n)^2))`
-
-Soft arclength-locality gate:
-
-`g_i = exp(-0.5 * ((|s_i - s_ref| / sigma_s)^2))`
-
-`r_i <- r_i * g_i`
+Anchor weights stay local to a guide. They shape support and local coordinate estimation, and they are normalized within the guide-local computation.
 
 ### Guide-local coordinate
 
-The runtime derives `s_hat`, `n_hat`, and a local tangent from the same softened guide-local anchor blend. These coordinates define the longitudinal and transverse reading for that guide, so the locality gate affects support, coordinates, and score together rather than mixing local coordinates with global support.
+The runtime derives `s_hat`, `n_hat`, and a local tangent from the guide-local anchor blend. These coordinates define the longitudinal and transverse reading for that guide.
 
 ### Guide-local longitudinal frame
 

@@ -1,15 +1,11 @@
 from pathlib import Path
 
-import numpy as np
-import pytest
-
 from driving_preference_field.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
 from driving_preference_field.channels import (
     progression_tilted,
     progression_tilted_details,
 )
 from driving_preference_field.contracts import StateSample
-from driving_preference_field.field_runtime import build_field_runtime
 from driving_preference_field.presets import load_preset
 from driving_preference_field.toy_loader import load_toy_snapshot
 
@@ -275,78 +271,6 @@ def test_progression_u_turn_keeps_hairpin_continuity_and_center_high_return_leg(
         return_off_axis,
         config=config,
     )
-
-
-def test_progression_u_turn_centerline_n_hat_stays_local_to_visible_guide() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
-    config = _canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0)
-
-    for x_value in (1.0, 2.0, 3.0):
-        lower = progression_tilted_details(
-            snapshot,
-            context,
-            StateSample(x=x_value, y=0.0, yaw=0.0),
-            config=config,
-        )
-        upper = progression_tilted_details(
-            snapshot,
-            context,
-            StateSample(x=x_value, y=3.2, yaw=3.141592653589793),
-            config=config,
-        )
-        assert abs(lower["n_hat"]) <= 0.08
-        assert abs(upper["n_hat"]) <= 0.08
-
-    lower_turn_entry = progression_tilted_details(
-        snapshot,
-        context,
-        StateSample(x=4.0, y=0.0, yaw=0.0),
-        config=config,
-    )
-    upper_turn_entry = progression_tilted_details(
-        snapshot,
-        context,
-        StateSample(x=4.0, y=3.2, yaw=3.141592653589793),
-        config=config,
-    )
-    assert abs(lower_turn_entry["n_hat"]) <= 0.25
-    assert abs(upper_turn_entry["n_hat"]) <= 0.25
-
-
-def test_progression_u_turn_transverse_ridge_tracks_visible_legs() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
-    runtime = build_field_runtime(
-        snapshot,
-        context,
-        config=_canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0),
-    )
-
-    def ridge_y(x_value: float, y_min: float, y_max: float) -> float:
-        y_values = np.linspace(y_min, y_max, 801, dtype=float)
-        x_values = np.full_like(y_values, x_value)
-        transverse = runtime.query_progression_points(x_values, y_values)["progression_transverse_component"]
-        return float(y_values[int(np.argmax(transverse))])
-
-    for x_value in (1.0, 2.0, 3.0):
-        assert ridge_y(x_value, -1.5, 1.2) == pytest.approx(0.0, abs=0.03)
-        assert ridge_y(x_value, 2.0, 4.5) == pytest.approx(3.2, abs=0.03)
-
-    assert ridge_y(4.0, -1.5, 1.2) == pytest.approx(0.0, abs=0.24)
-    assert ridge_y(4.0, 2.0, 4.5) == pytest.approx(3.2, abs=0.24)
-
-
-def test_progression_u_turn_soft_locality_keeps_gap_row_smooth() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
-    runtime = build_field_runtime(
-        snapshot,
-        context,
-        config=_canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0),
-    )
-    x_values = np.linspace(3.2, 5.1, 40, dtype=float)
-    y_values = np.full_like(x_values, 1.6)
-    progression = runtime.query_progression_points(x_values, y_values)["progression_tilted"]
-
-    assert float(np.max(np.abs(np.diff(progression)))) < 0.08
 
 
 def test_strong_longitudinal_can_prefer_farther_return_leg_in_u_turn() -> None:
