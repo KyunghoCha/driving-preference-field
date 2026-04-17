@@ -19,6 +19,8 @@ Default working discipline:
 - review for stale residue, unused knobs, dead formula paths, and docs/code mismatch
 - if a task proposes changes to `AGENTS.md`, skills, operating docs, experiment workflow docs, or user-facing semantics, first review terminology consistency, evidence and rationale, factual accuracy, clarity, overlap or contradiction risk, and overall rationality, then discuss the proposal and get approval before mutating those surfaces
 - if a user proposes a repo-level intuition, heuristic, role definition, or workflow thought, discuss it first and, once approved, capture the user's original messages under `docs/raw/notes/`, preserve enough surrounding user context to resolve referential fragments, update `docs/raw/owner_thought_tracker.md`, and update `docs/raw/owner_design_notebook.md` as clean design prose before translating the idea into canonical docs
+- if the user explicitly designates the current active thread as the authoritative source for those notes, prefer the current thread and any confirmed materialized cluster over speculative historical `.codex` archaeology
+- treat `docs/raw/owner_design_notebook.md` as raw-grounded clean design prose, not as a free-standing interpretation layer
 - treat no-touch or out-of-scope boundaries as batch-local defaults, not permanent law; if better evidence appears, update the boundary explicitly with the change
 - when code has non-obvious intent or a deliberate tradeoff, capture that intent in naming, a short comment, or a docstring; do not add comments that only restate obvious code
 

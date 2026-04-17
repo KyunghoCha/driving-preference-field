@@ -12,16 +12,17 @@
 - [Owner Thought 변화 추적](./owner_thought_tracker.md)
   - 아이디어가 언제 어떻게 바뀌었는지 주제별로 짧게 누적한다.
 - [Owner Design Notebook](./owner_design_notebook.md)
-  - raw나 tracker를 읽지 않아도 최신 사용자 설계 생각을 한 번에 파악할 수 있게, 메타를 줄인 clean design prose로 정리한다.
+  - raw나 tracker를 읽지 않아도 최신 사용자 설계 생각을 한 번에 파악할 수 있게, raw-grounded clean design prose로 정리한다.
 
 ## source policy
 
 - raw note의 기본 source는 사용자 채팅 원문 verbatim 발췌다.
 - 가능하면 `session id`, `session date`, `$HOME/.codex/...` 기준 source location을 함께 적는다.
-- active session이 아직 `$HOME/.codex/sessions/...`에 materialize되지 않았다면, 그 상태를 note에 명시하고 현재 thread context를 source로 쓴다.
+- active session이 아직 `$HOME/.codex/sessions/...`에 materialize되지 않았다면, 그 상태를 note에 명시하고 current active thread context를 source로 쓴다.
+- 사용자가 현재 active thread를 authoritative source로 지정하면, speculative historical `.codex` archaeology보다 current active thread와 confirmed materialized cluster를 먼저 쓴다.
 - `.codex` 로그 전체를 문서에 복사하지 않는다. 필요한 발췌만 남긴다.
 - `1번`, `2번`, `그거`, `이거`, `저거`처럼 referential fragment가 나오면, 해당 지시 대상을 복원할 수 있도록 앞뒤 사용자 메시지도 함께 발췌한다.
-- historical backfill은 `.codex` 세션을 넓게 검토하되, DPF thought에 실질적으로 기여한 것으로 확신할 수 있는 대화만 올린다.
+- wider historical backfill은 별도 배치에서만 하고, source confidence가 낮으면 올리지 않는다.
 
 ## boundary
 
@@ -31,6 +32,7 @@
 
 현재 포함된 raw note:
 
+- [2026-03-17-progression-from-geometric-gate-intuition](./notes/2026-03-17-progression-from-geometric-gate-intuition.md)
 - [2026-04-17-longitudinal-vs-transverse-weighting](./notes/2026-04-17-longitudinal-vs-transverse-weighting.md)
 - [2026-04-17-dpf-as-progress-preference-device](./notes/2026-04-17-dpf-as-progress-preference-device.md)
 - [2026-04-17-raw-thought-capture-workflow](./notes/2026-04-17-raw-thought-capture-workflow.md)

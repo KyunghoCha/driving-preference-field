@@ -1,4 +1,4 @@
-# 설계 문서 형태와 historical backfill 범위
+# 설계 문서 형태와 current-thread-first source 범위
 
 ## Date
 
@@ -6,12 +6,12 @@
 
 ## Topic
 
-- `owner design doc shape and historical backfill`
+- `owner design doc shape and current-thread-first source`
 
 ## Source sessions
 
-- current active Codex session on 2026-04-18 in VSCode; the active session was not yet materialized under `$HOME/.codex/sessions/...` at edit time
-- broad review of materialized `.codex` sessions and archived sessions from `2026-02-23` to `2026-04-13`; reviewed as source candidates only, not copied wholesale
+- current active DPF thread after the gate-intuition cluster; later portions of the thread were not yet materialized under `$HOME/.codex/sessions/...` at edit time
+- early source anchor confirmed in `$HOME/.codex/sessions/2026/03/18/rollout-2026-03-18T03-56-06-019cfd27-be1f-7671-a901-4be788cca7bd.jsonl`
 
 ## User original messages
 
@@ -23,13 +23,17 @@
 
 > 이렇게 보니까 부끄럽네 ㅋㅋ 쨌든 대화를 다 뽑아온게 아니구나 아직 할거야 아니면 못하는거야?
 
+> /home/ckh/Projects/driving-preference-field/docs/raw/owner_design_notebook.md 얘는 raw/notes 를 기준으로 해야되 꼭 그러고 있어?
+
+> 그리고 이 세션의 대화만 뽑으면 될거 같은데 그게 뭔지는 알잖아 그거기 열어서 쭉 올라가면 되지 딱히 다른데서 설계나 개념 대화를 하진 않았어
+
 ## Assistant context (optional)
 
 - 당시 대화에서 assistant는 `owner_design_notebook.md`가 raw나 tracker와 다른 역할을 가져야 한다는 점을 분리했다. raw는 원문 보존, tracker는 변화 추적, design 문서는 최신 사용자 설계 thinking의 clean prose라는 식으로 역할을 나눴다.
-- broad `.codex` review를 통해 materialized session 범위를 넓게 훑었지만, 현재 시점에서는 older DPF philosophy/design 대화로 확실히 식별되는 source가 충분히 복구되지 않았다는 점도 확인됐다. 따라서 current active DPF cluster가 여전히 가장 강한 source다.
+- 이후 사용자가 design 문서는 raw/notes를 기준으로 해야 하고, broad historical archaeology보다 현재 세션 자체를 authoritative source로 쓰는 쪽이 맞다고 더 명확히 잠갔다.
 
 ## Open questions at the time
 
-- older DPF 대화가 이후 `.codex`에 더 명확히 materialize되면 raw/tracker에 어디까지 추가할지
+- active thread later segment가 materialize된 뒤 source 표기를 언제 갱신할지
 - design 문서와 canonical explanation 사이의 거리를 얼마나 유지할지
 - raw/tracker/design의 세 층을 앞으로 어떤 주기로 같이 갱신할지

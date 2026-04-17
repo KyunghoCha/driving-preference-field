@@ -12,7 +12,7 @@ Task-first pages and reference-first pages should not be mixed. A guide that tur
 
 The same concept may appear in more than one document, but the density should match the page role. Repetition is acceptable when it helps a newcomer enter the topic or helps a reference page stand on its own. Contradiction is not acceptable.
 
-`docs/raw/` is the owner-origin capture layer for Korean raw notes, change tracking, and a non-canonical owner design document. It is intentionally non-canonical. Use it to preserve source material and idea history, not to replace explanation, reference, how-to, or status pages.
+`docs/raw/` is the owner-origin capture layer for Korean raw notes, change tracking, and a non-canonical owner design document. It is intentionally non-canonical. Use it to preserve source material and idea history, not to replace explanation, reference, how-to, or status pages. The owner design document should stay raw-grounded latest prose, not an independent interpretation layer.
 
 When a proposed doc change affects repo-wide terminology, operating workflow, AI guidance, or other user-facing semantics, it should be reviewed before it is applied. That review should check terminology consistency, evidence and rationale, factual accuracy, clarity, and whether the new wording overlaps with or contradicts existing pages.
 

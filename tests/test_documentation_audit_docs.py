@@ -145,9 +145,13 @@ def test_raw_owner_notes_follow_expected_template() -> None:
 
 
 def test_raw_owner_notes_expand_referential_fragments_with_surrounding_messages() -> None:
+    gate_note = _read("docs/raw/notes/2026-03-17-progression-from-geometric-gate-intuition.md")
     progress_note = _read("docs/raw/notes/2026-04-17-dpf-as-progress-preference-device.md")
     weighting_note = _read("docs/raw/notes/2026-04-17-longitudinal-vs-transverse-weighting.md")
 
+    assert "게이트를 지나면 다음 노드로 갈아타는 방식" in gate_note
+    assert "게이트 지나면 다음 노드로 가는건 어때" in gate_note
+    assert "게이트 지날 때 범위 내에 있으면" in gate_note
     assert "1번은 파라미터로 조정하면 되는거고" in progress_note
     assert "진행방향 성분이 메인으로 가고" in progress_note
     assert "2변은 진행 선호를 주는 장치지" in progress_note
@@ -160,10 +164,11 @@ def test_owner_design_notebook_tracks_latest_user_framing() -> None:
     for heading in (
         "## DPF가 하는 일",
         "## DPF가 하지 않는 일",
+        "## 진행을 읽는 기준과 게이트 직관",
         "## 입력 경로의 역할",
         "## 진행방향 성분과 횡방향 성분",
         "## planner / behavior와의 책임 경계",
-        "## branch, merge, reverse 같은 경우를 보는 관점",
+        "## branch, merge, reverse를 보는 관점",
     ):
         assert heading in notebook
     assert "현재 사용자 framing" not in notebook
@@ -183,3 +188,4 @@ def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
         assert "owner_design_notebook.md" in body
         assert "repo-level intuition" in body
         assert "clean design prose" in body
+        assert "current active thread" in body or "current thread" in body
