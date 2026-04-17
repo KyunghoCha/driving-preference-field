@@ -1,0 +1,7 @@
+interface:
+  display_name: "DPF Working Rules"
+  short_description: "Load DPF operating docs before repo changes"
+  default_prompt: "Use $dpf-working-rules to load the DPF operating docs, study relevant external references first, and then define the baseline, hypothesis, and verification boundary for this repo task."
+
+policy:
+  allow_implicit_invocation: true

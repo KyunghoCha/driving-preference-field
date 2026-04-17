@@ -10,6 +10,7 @@ Before changing code, formulas, tests, docs, or experiment workflow, read:
 
 Default working discipline:
 
+- when network access is available, first study the relevant official docs or other strong external references before changing architecture, terminology, workflow, or user-facing behavior
 - start from a clean baseline
 - keep one meaningful hypothesis per branch or worktree
 - separate refactors from behavior changes
