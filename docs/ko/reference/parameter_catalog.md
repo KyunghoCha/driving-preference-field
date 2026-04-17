@@ -20,7 +20,7 @@
 
 ## Advanced
 
-`Advanced Surface`는 현재 실제로 노출돼 있는 연구용 knob 모음이다. morphology 품질, discretization locality, support kernel, handoff behavior를 더 세밀하게 조정할 때 쓰지만, `Main`보다 먼저 만질 대상은 아니다.
+`Advanced Surface`는 현재 실제로 노출돼 있는 연구용 knob 모음이다. morphology 품질, discretization locality, support kernel, guide-aware transverse inspection smoothing을 더 세밀하게 조정할 때 쓰지만, `Main`보다 먼저 만질 대상은 아니다.
 
 - discretization
   - `anchor_spacing_m`
