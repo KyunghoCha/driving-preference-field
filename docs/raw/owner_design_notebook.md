@@ -1,6 +1,6 @@
 # Owner Design Notebook
 
-이 문서는 현재 세션에서 게이트 직관부터 이어진 raw note를 바탕으로, 지금 시점의 사용자 설계 생각을 메타 없이 정리한 비-canonical 설계 문서다.
+이 문서는 현재 세션에서 게이트 직관부터 이어진 raw note를 바탕으로, 지금 시점의 사용자 설계 생각을 메타 없이 정리한 비-canonical 설계 문서다. 설계가 어떻게 형성됐는지는 별도의 `Owner Design History`에서 다루고, 이 문서는 지금 남아 있는 최신 설계 thinking만 다룬다.
 
 ## DPF가 하는 일
 

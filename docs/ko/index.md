@@ -63,7 +63,7 @@
 | [Phase 5 Adapter 제안 이력](./reading/history/phase5_adapter_proposal.md) | 제안 이력 | 예전 adapter 논의를 추적할 때 |
 | [외부 참고 자료](./reading/references/external_references.md) | 외부 참고 로그 | 외부 근거를 다시 확인할 때 |
 | [문서 스타일 참고 자료](./reading/references/documentation_style_references.md) | 공식 글쓰기 참고 | 문서 스타일 기준을 다시 볼 때 |
-| [사용자 raw 기록](../raw/README.md) | 사용자 thought raw 기록, 변화 추적, raw-grounded 최신 설계 문서 | 사용자 원문 생각, 변화 기록, 최신 사용자 설계 thinking을 참고하되 canonical truth로 읽지 않을 때 |
+| [사용자 raw 기록](../raw/README.md) | 사용자 thought raw 기록, 변화 추적, 최신 설계 문서, 설계 발전 문서 | 사용자 원문 생각, 변화 기록, 설계 발전 과정, 최신 사용자 설계 thinking을 참고하되 canonical truth로 읽지 않을 때 |
 | [Archive 참고 자료](./reading/history/archive/archive_references.md) | archive 위치 안내 | archive 메모 위치를 찾을 때 |
 | [Archive score field 메모](./reading/history/archive/archive_score_field_notes.md) | archive 메모 | 과거 메모를 추적할 때 |
 

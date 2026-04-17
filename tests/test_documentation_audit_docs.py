@@ -177,6 +177,25 @@ def test_owner_design_notebook_tracks_latest_user_framing() -> None:
     assert "메타를 줄인 clean design prose" not in notebook
 
 
+def test_owner_design_history_tracks_design_evolution() -> None:
+    history = _read("docs/raw/owner_design_history.md")
+
+    for heading in (
+        "## 문제가 처음 보인 방식",
+        "## 게이트 직관과 progression의 출발점",
+        "## node 도달보다 consume / 통과를 중시하게 된 흐름",
+        "## DPF를 progress-preference device로 읽게 된 전환",
+        "## longitudinal와 transverse에 대한 역할 재정의",
+        "## planner / behavior와의 책임 경계가 분리된 과정",
+        "## 현재 시점의 설계 위치",
+    ):
+        assert heading in history
+    assert "### First raised" not in history
+    assert "### Current framing" not in history
+    assert "## Source sessions" not in history
+    assert "관련 raw notes" not in history
+
+
 def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
     agents = _read("AGENTS.md")
     repo_skill = _read("plugins/dpf-working-rules/skills/dpf-working-rules/SKILL.md")
@@ -186,6 +205,8 @@ def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
         assert "docs/raw/notes/" in body
         assert "owner_thought_tracker.md" in body
         assert "owner_design_notebook.md" in body
+        assert "owner_design_history.md" in body
         assert "repo-level intuition" in body
         assert "clean design prose" in body
+        assert "clean design history prose" in body
         assert "current active thread" in body or "current thread" in body

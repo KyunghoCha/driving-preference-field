@@ -13,6 +13,8 @@
   - 아이디어가 언제 어떻게 바뀌었는지 주제별로 짧게 누적한다.
 - [Owner Design Notebook](./owner_design_notebook.md)
   - raw나 tracker를 읽지 않아도 최신 사용자 설계 생각을 한 번에 파악할 수 있게, raw-grounded clean design prose로 정리한다.
+- [Owner Design History](./owner_design_history.md)
+  - 문제 인식부터 현재까지 설계 생각이 어떤 전환점을 거쳐 형성됐는지, 핵심 이정표만 남기는 clean history prose로 정리한다.
 
 ## source policy
 
@@ -29,6 +31,7 @@
 - current implementation을 정의하지 않는다.
 - canonical contract나 public claim을 직접 바꾸지 않는다.
 - EN/KO parity 대상이 되지 않는다.
+- 최신 설계 정리는 `owner_design_notebook.md`, 설계 발전 서사는 `owner_design_history.md`가 맡는다.
 
 현재 포함된 raw note:
 

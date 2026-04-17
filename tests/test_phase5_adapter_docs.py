@@ -97,6 +97,7 @@ def test_raw_owner_thought_surface_is_linked_and_noncanonical() -> None:
     raw_readme = _read("docs/raw/README.md")
     raw_tracker = _read("docs/raw/owner_thought_tracker.md")
     raw_notebook = _read("docs/raw/owner_design_notebook.md")
+    raw_history = _read("docs/raw/owner_design_history.md")
     en_index = _read("docs/en/index.md")
     ko_index = _read("docs/ko/index.md")
 
@@ -104,6 +105,7 @@ def test_raw_owner_thought_surface_is_linked_and_noncanonical() -> None:
     assert "사용자 원문" in raw_readme
     assert "./owner_thought_tracker.md" in raw_readme
     assert "./owner_design_notebook.md" in raw_readme
+    assert "./owner_design_history.md" in raw_readme
     assert "current active thread" in raw_readme
     assert "./notes/2026-03-17-progression-from-geometric-gate-intuition.md" in raw_readme
     assert "./notes/2026-04-17-longitudinal-vs-transverse-weighting.md" in raw_readme
@@ -112,10 +114,11 @@ def test_raw_owner_thought_surface_is_linked_and_noncanonical() -> None:
     assert "./notes/2026-04-18-owner-design-doc-shape-and-backfill.md" in raw_readme
     assert "../raw/README.md" in en_index
     assert "../raw/README.md" in ko_index
-    assert "owner design doc" in en_index
-    assert "최신 설계 문서" in ko_index
+    assert "design history" in en_index
+    assert "설계 발전 문서" in ko_index
     assert "progression / gate intuition" in raw_tracker
     assert "Owner Design Notebook" in raw_notebook
+    assert "Owner Design History" in raw_history
 
 
 def test_language_portals_expose_same_spine() -> None:

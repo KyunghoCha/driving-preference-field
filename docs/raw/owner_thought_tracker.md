@@ -1,6 +1,6 @@
 # Owner Thought 변화 추적
 
-이 문서는 사용자 원문 thought가 어떻게 바뀌었는지 추적하는 non-canonical 문서다. 원문 보존은 `notes/`가 담당하고, 최신 사용자 framing 요약은 [Owner Design Notebook](./owner_design_notebook.md)이 담당한다. 이 문서는 그 둘 사이에서 현재 세션 안의 변화 순서를 짧게 누적한다.
+이 문서는 사용자 원문 thought가 어떻게 바뀌었는지 추적하는 non-canonical 문서다. 원문 보존은 `notes/`가 담당하고, 최신 사용자 framing 요약은 [Owner Design Notebook](./owner_design_notebook.md)이 담당한다. 설계 발전 서사는 [Owner Design History](./owner_design_history.md)이 맡는다. 이 문서는 그 둘 사이에서 현재 세션 안의 변화 순서를 짧게 누적한다.
 
 ## progression / gate intuition
 
