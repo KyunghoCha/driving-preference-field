@@ -78,7 +78,7 @@ Use the left side to read. Use the right side to change parameters.
 The right `Parameters` dock is the control area.
 
 - `Main`: start here when you are interpreting field semantics directly
-- `Advanced Surface`: open only when you are tuning morphology quality, discretization, support kernels, modulation, or handoff behavior
+- `Advanced Surface`: open only when you are tuning morphology quality, discretization, support kernels, or weak modulation behavior
 
 The rule is simple: lock semantics with `Main` first, then open `Advanced Surface` only if a quality issue still remains.
 
