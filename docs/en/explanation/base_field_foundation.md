@@ -28,7 +28,7 @@ Support, confidence, and gate-like effects still matter, but they are secondary.
 
 ## How the current implementation approximates the concept
 
-The current implementation approximates the base field through `progression_tilted` and related guide-local detail channels. It uses progression guides to build local coordinates and a score surface, then exposes that result as the base preference. Drivable boundaries are treated as overlay and support. Obstacle, rule, and dynamic actor signals are kept in separate cost-like layers rather than folded into the base score.
+The current implementation approximates the base field through `progression_tilted` and related pooled detail channels. It uses progression guides as anchor structure for one pooled blended coordinate field, then exposes that result as the base preference. Drivable boundaries are treated as overlay and support. Obstacle, rule, and dynamic actor signals are kept in separate cost-like layers rather than folded into the base score.
 
 ## The layer this field is responsible for
 

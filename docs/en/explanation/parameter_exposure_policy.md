@@ -8,7 +8,7 @@ This repo therefore uses three tiers.
 
 `Main` parameters are the controls a user should touch first when reading field meaning. These are the knobs that directly change longitudinal framing, longitudinal family, transverse family, or main scale-like behavior. They belong in the visible parameter panel because they are part of how the user interprets the field.
 
-`Advanced` parameters are still legitimate tuning knobs, but they are research controls rather than day-one controls. Discretization density, support kernel shape, modulation ranges, and handoff smoothing belong here. These values can matter a lot, but they usually matter after a user already understands the main semantic controls.
+`Advanced` parameters are still legitimate tuning knobs, but they are research controls rather than day-one controls. Discretization density, support kernel shape, and weak modulation ranges belong here. These values can matter a lot, but they usually matter after a user already understands the main semantic controls.
 
 `Internal` values are not a GUI surface. Numerical epsilons, cache guards, and low-level implementation constants exist to keep the runtime safe or predictable. Exposing them would increase confusion more than it would improve understanding.
 

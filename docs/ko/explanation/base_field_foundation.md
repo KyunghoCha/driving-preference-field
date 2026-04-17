@@ -42,7 +42,7 @@ progression 축과 횡방향 profile이 base field의 주성분이다. support, 
 
 ## 현재 구현은 이 개념을 어떻게 근사하는가
 
-현재 구현의 progression surface는 guide마다 Gaussian anchor blend로 local coordinate를 만들고, guide-local score를 만든 뒤 hard max envelope로 합친다. exported transverse만 handoff 구간에서 부드럽게 읽고, score와 나머지 debug coordinate는 dominant guide 기준으로 유지한다.
+현재 구현의 progression surface는 progression guide를 anchor 구조로 사용하되, anchor 전체를 하나의 pooled blended coordinate field로 평가한다. exported transverse는 inspection 전용 근사가 아니라 score에 실제로 들어가는 pooled transverse와 동일하게 유지한다.
 
 visible guide endpoint는 semantic start/end로 읽지 않고 짧은 virtual continuation을 둔다. 목적은 endpoint 근처에 fake end-cap이 생겨 semantic meaning을 잘못 암시하는 것을 줄이는 데 있다.
 

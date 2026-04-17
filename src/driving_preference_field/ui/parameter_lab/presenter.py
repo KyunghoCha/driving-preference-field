@@ -90,7 +90,7 @@ def visualization_payload(comparison_result, *, selected_channel: str, scale_mod
     return {
         "scale_mode": scale_mode,
         "score_sign": "higher is better",
-        "progression_surface_kind": "guide-local blended coordinates with hard max envelope",
+        "progression_surface_kind": "pooled blended coordinates with soft progress gating",
         "raster_role": "visualization only",
         "selected_channel_unit": display_unit(selected_channel),
         "diff_unit": display_unit(selected_channel, diff=True),
@@ -134,7 +134,7 @@ def summary_payload(
         "scale_mode": scale_mode,
         "score_sign": "higher is better",
         "diff_meaning": "candidate - baseline",
-        "progression_surface_kind": "guide-local blended coordinates with hard max envelope",
+        "progression_surface_kind": "pooled blended coordinates with soft progress gating",
         "raster_role": "visualization only",
         **effective_context_payload(state.working_context),
         "baseline_preset_name": state.baseline_state.preset_name,

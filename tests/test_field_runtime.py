@@ -289,9 +289,8 @@ def test_field_runtime_surface_tuning_change_propagates_into_surface_output() ->
         context,
         config=_canonical_config(
             surface_tuning=SurfaceTuningConfig(
-                transverse_handoff_support_ratio=0.6,
-                transverse_handoff_score_delta=0.4,
-                transverse_handoff_temperature=0.12,
+                sigma_n_scale=2.2,
+                alignment_range=0.12,
             )
         ),
     )
@@ -299,7 +298,30 @@ def test_field_runtime_surface_tuning_change_propagates_into_surface_output() ->
     baseline_payload = baseline.query_state(state)
     candidate_payload = candidate.query_state(state)
 
-    assert candidate_payload.diagnostics["field_config"]["surface_tuning"]["transverse_handoff_temperature"] == 0.12
+    assert candidate_payload.diagnostics["field_config"]["surface_tuning"]["sigma_n_scale"] == 2.2
     assert candidate_payload.diagnostics["progression_transverse_component"] != pytest.approx(
         baseline_payload.diagnostics["progression_transverse_component"]
     )
+
+
+def test_field_runtime_transverse_component_matches_score_term() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    config = _canonical_config(
+        longitudinal_family="tanh",
+        longitudinal_shape=2.0,
+        longitudinal_gain=1.4,
+    )
+    runtime = build_field_runtime(snapshot, context, config=config)
+    payload = runtime.query_state(StateSample(x=4.8, y=3.0, yaw=1.2))
+
+    support_alignment = (
+        payload.diagnostics["progression_support_mod"] * payload.diagnostics["progression_alignment_mod"]
+    )
+    assert support_alignment > 0.0
+
+    reconstructed_transverse = (
+        payload.base_channels["progression_tilted"] / support_alignment
+        - config.progression.longitudinal_gain * payload.diagnostics["progression_longitudinal_component"]
+    )
+
+    assert payload.diagnostics["progression_transverse_component"] == pytest.approx(reconstructed_transverse)

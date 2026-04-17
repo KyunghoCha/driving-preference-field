@@ -37,12 +37,8 @@ The `Advanced Surface` section contains research knobs that are parameterizable 
   - `support_range`
   - `alignment_base`
   - `alignment_range`
-- handoff
-  - `transverse_handoff_support_ratio`
-  - `transverse_handoff_score_delta`
-  - `transverse_handoff_temperature`
 
-These are useful for morphology quality, discretization locality, and handoff behavior, but they are not the first controls a user should reach for.
+These are useful for morphology quality, discretization locality, and weak modulation behavior, but they are not the first controls a user should reach for.
 
 ## View / tool candidates
 
