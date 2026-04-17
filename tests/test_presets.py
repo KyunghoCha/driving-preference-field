@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from driving_preference_field.config import ComparisonPreset, FieldConfig, SurfaceTuningConfig
 from driving_preference_field.presets import (
     can_overwrite_preset,
@@ -84,7 +82,7 @@ def test_saved_preset_roundtrip_preserves_surface_tuning(tmp_path) -> None:
             surface_tuning=SurfaceTuningConfig(
                 anchor_spacing_m=0.3,
                 spline_min_subdivisions=16,
-                alignment_range=0.08,
+                transverse_handoff_temperature=0.08,
             )
         ),
         metadata={"role": "baseline"},
@@ -94,21 +92,3 @@ def test_saved_preset_roundtrip_preserves_surface_tuning(tmp_path) -> None:
     loaded = load_preset(saved)
 
     assert loaded == preset
-
-
-def test_loading_preset_with_removed_handoff_keys_fails_explicitly(tmp_path) -> None:
-    path = tmp_path / "removed_handoff.yaml"
-    path.write_text(
-        """
-preset_name: removed_handoff
-field_config:
-  surface_tuning:
-    transverse_handoff_temperature: 0.08
-metadata:
-  role: baseline
-""".strip(),
-        encoding="utf-8",
-    )
-
-    with pytest.raises(ValueError, match="removed keys"):
-        load_preset(path)

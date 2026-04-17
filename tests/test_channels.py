@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from driving_preference_field.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
 from driving_preference_field.channels import (
     progression_tilted,
@@ -119,7 +117,7 @@ def test_progression_follows_bend_guide_better_than_off_curve_point() -> None:
     )
 
 
-def test_progression_split_branch_gap_stays_supported_without_hole() -> None:
+def test_progression_split_branch_gap_is_filled_without_hole() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
     config = _canonical_config()
     upper_branch = StateSample(x=5.2, y=1.4, yaw=0.55)
@@ -134,19 +132,19 @@ def test_progression_split_branch_gap_stays_supported_without_hole() -> None:
         outer_upper,
         config=config,
     )
+    assert progression_tilted(snapshot, context, upper_branch, config=config) > progression_tilted(
+        snapshot,
+        context,
+        branch_gap,
+        config=config,
+    )
     assert progression_tilted(snapshot, context, lower_branch, config=config) > progression_tilted(
         snapshot,
         context,
-        outer_upper,
+        branch_gap,
         config=config,
     )
     assert progression_tilted(snapshot, context, branch_gap, config=config) > 0.0
-    assert progression_tilted(snapshot, context, branch_gap, config=config) > progression_tilted(
-        snapshot,
-        context,
-        outer_upper,
-        config=config,
-    )
     assert progression_tilted(snapshot, context, divergence_onset, config=config) > 0.0
 
 
@@ -236,37 +234,27 @@ def test_progression_merge_midline_is_nonzero_continuous_surface() -> None:
     assert progression_tilted(snapshot, context, lower, config=config) > 0.0
 
 
-def test_transverse_component_matches_the_term_used_inside_the_score() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
-    state = StateSample(x=4.8, y=3.0, yaw=1.2)
-    config = _canonical_config(
-        longitudinal_family="tanh",
-        longitudinal_shape=2.0,
-        longitudinal_gain=1.4,
+def test_surface_tuning_changes_transverse_handoff_without_changing_public_channel_contract() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/merge_like_patch.yaml")
+    state = StateSample(x=2.6, y=-0.1, yaw=0.2)
+    baseline = progression_tilted_details(snapshot, context, state, config=_canonical_config())
+    tuned = progression_tilted_details(
+        snapshot,
+        context,
+        state,
+        config=_canonical_config(
+            surface_tuning=SurfaceTuningConfig(
+                transverse_handoff_support_ratio=0.1,
+                transverse_handoff_score_delta=0.5,
+                transverse_handoff_temperature=0.2,
+            )
+        ),
     )
 
-    details = progression_tilted_details(snapshot, context, state, config=config)
-    support_alignment = details["support_mod"] * details["alignment_mod"]
-    assert support_alignment > 0.0
-
-    reconstructed_transverse = (
-        details["score"] / support_alignment
-        - config.progression.longitudinal_gain * details["longitudinal_component"]
-    )
-
-    assert details["transverse_component"] == pytest.approx(reconstructed_transverse)
+    assert set(tuned) == set(baseline)
+    assert tuned["transverse_component"] != baseline["transverse_component"]
 
 
-def test_u_turn_transverse_prefers_inside_apex_over_outer_right_ridge() -> None:
-    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
-    config = _canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0)
-    inside_apex = StateSample(x=4.8, y=1.6, yaw=1.57)
-    outer_right_ridge = StateSample(x=5.4, y=1.6, yaw=1.57)
-
-    inside_details = progression_tilted_details(snapshot, context, inside_apex, config=config)
-    outer_details = progression_tilted_details(snapshot, context, outer_right_ridge, config=config)
-
-    assert inside_details["transverse_component"] > outer_details["transverse_component"]
 
 
 def test_progression_u_turn_keeps_hairpin_continuity_and_center_high_return_leg() -> None:
@@ -314,7 +302,7 @@ def test_no_progression_reference_preset_disables_progression_channel() -> None:
     assert progression_tilted(snapshot, context, state, config=preset.field_config) == 0.0
 
 
-def test_two_lane_straight_stays_supported_across_lane_midpoint() -> None:
+def test_two_lane_straight_creates_lane_centers_with_valley_between_them() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/two_lane_straight.yaml")
     config = _canonical_config(longitudinal_frame="local_absolute", longitudinal_gain=1.0)
     lower_lane = StateSample(x=3.0, y=-0.6, yaw=0.0)
@@ -327,7 +315,5 @@ def test_two_lane_straight_stays_supported_across_lane_midpoint() -> None:
     upper_score = progression_tilted(snapshot, context, upper_lane, config=config)
     outer_score = progression_tilted(snapshot, context, outer_edge, config=config)
 
-    assert lower_score > outer_score
-    assert midpoint_score > outer_score
-    assert upper_score > outer_score
-    assert midpoint_score >= min(lower_score, upper_score)
+    assert lower_score > midpoint_score > outer_score
+    assert upper_score > midpoint_score > outer_score

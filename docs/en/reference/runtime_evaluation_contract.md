@@ -22,7 +22,7 @@ The runtime evaluates the active progression field under the current `FieldConfi
 
 - `higher is better`
 - the base field remains progression-centered
-- the exported transverse channel remains the exact transverse term used inside the score
+- hard max envelope semantics remain part of the current implementation unless the docs and code move together
 - base-field meaning stays distinct from obstacle/rule/dynamic cost-like layers
 
 ## Layer-wise evaluator contract
@@ -31,7 +31,7 @@ The runtime can expose current-implementation detail channels such as longitudin
 
 ## Current implementation
 
-The current implementation evaluates one pooled blended progress field across all progression anchors. It computes a provisional pooled progress estimate, applies soft progress gating, then reads the final pooled `s_hat` and tangent. The exported `n_hat` and `progression_transverse_component` are then read from a local progress window around that final `s_hat` by reconstructing a local cross-section from nearby anchors, and `progression_transverse_component` is the exact transverse term that also goes into `progression_tilted`. Obstacle / rule / dynamic channels remain separate cost-like views.
+The current implementation builds guide-local coordinates and scores from progression guides, then takes a pointwise hard max envelope across guides. `progression_transverse_component` includes handoff smoothing for inspection quality. Obstacle / rule / dynamic channels remain separate cost-like views.
 
 ## Visualization
 

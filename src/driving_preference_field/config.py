@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, field
 from typing import Any
 
 
@@ -31,6 +31,9 @@ class SurfaceTuningConfig:
     support_range: float = 0.05
     alignment_base: float = 0.95
     alignment_range: float = 0.05
+    transverse_handoff_support_ratio: float = 0.25
+    transverse_handoff_score_delta: float = 0.20
+    transverse_handoff_temperature: float = 0.05
 
 
 @dataclass(frozen=True)
@@ -43,21 +46,8 @@ class FieldConfig:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "FieldConfig":
-        progression_payload = dict(payload.get("progression", {}) or {})
-        surface_payload = dict(payload.get("surface_tuning", {}) or {})
-        progression = ProgressionConfig(**_validated_namespace_payload("progression", progression_payload, ProgressionConfig))
-        surface_tuning = SurfaceTuningConfig(
-            **_validated_namespace_payload(
-                "surface_tuning",
-                surface_payload,
-                SurfaceTuningConfig,
-                removed_keys=(
-                    "transverse_handoff_support_ratio",
-                    "transverse_handoff_score_delta",
-                    "transverse_handoff_temperature",
-                ),
-            )
-        )
+        progression = ProgressionConfig(**dict(payload.get("progression", {}) or {}))
+        surface_tuning = SurfaceTuningConfig(**dict(payload.get("surface_tuning", {}) or {}))
         return cls(progression=progression, surface_tuning=surface_tuning)
 
 
@@ -94,24 +84,3 @@ def progression_family_label(progression: ProgressionConfig) -> str:
 
 
 DEFAULT_FIELD_CONFIG = FieldConfig()
-
-
-def _validated_namespace_payload(
-    namespace: str,
-    payload: dict[str, Any],
-    config_type: type,
-    *,
-    removed_keys: tuple[str, ...] = (),
-) -> dict[str, Any]:
-    valid_keys = {item.name for item in fields(config_type)}
-    removed = tuple(sorted(key for key in removed_keys if key in payload))
-    if removed:
-        raise ValueError(
-            f"{namespace} uses removed keys that are no longer supported: {', '.join(removed)}"
-        )
-    unknown = tuple(sorted(key for key in payload if key not in valid_keys))
-    if unknown:
-        raise ValueError(
-            f"{namespace} contains unknown keys: {', '.join(unknown)}"
-        )
-    return payload

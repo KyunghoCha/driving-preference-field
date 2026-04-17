@@ -46,7 +46,7 @@ Frame, family, gain, horizon, and shape.
 
 ### Transverse
 
-Family, scale, and shape.
+Family, scale, shape, and handoff behavior.
 
 ### Support / confidence / continuity
 

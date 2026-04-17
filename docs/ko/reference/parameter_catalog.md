@@ -20,7 +20,7 @@
 
 ## Advanced
 
-`Advanced Surface`는 현재 실제로 노출돼 있는 연구용 knob 모음이다. morphology 품질, discretization locality, support kernel, weak modulation behavior를 더 세밀하게 조정할 때 쓰지만, `Main`보다 먼저 만질 대상은 아니다.
+`Advanced Surface`는 현재 실제로 노출돼 있는 연구용 knob 모음이다. morphology 품질, discretization locality, support kernel, handoff behavior를 더 세밀하게 조정할 때 쓰지만, `Main`보다 먼저 만질 대상은 아니다.
 
 - discretization
   - `anchor_spacing_m`
@@ -37,6 +37,10 @@
   - `support_range`
   - `alignment_base`
   - `alignment_range`
+- handoff
+  - `transverse_handoff_support_ratio`
+  - `transverse_handoff_score_delta`
+  - `transverse_handoff_temperature`
 
 이 항목들은 구현 상수에서 config field로 승격됐고, 지금은 접힌 `Advanced Surface` 섹션에서 조정한다. 즉 “숨겨진 후보”가 아니라 “노출은 했지만 2단계로 밀어 둔 파라미터”로 읽는 것이 맞다.
 
@@ -50,6 +54,7 @@ overlay visibility, scale normalization, interpolation style, export presentatio
 
 - `_EPS`
 - `_EFFECTIVE_ANCHOR_WEIGHT_EPS`
+- dominant guide tie-break 규칙
 - surface cache/batch 같은 low-level helper 값
 
 이 항목들은 존재를 숨기진 않지만 GUI control로 노출하지 않는다.
