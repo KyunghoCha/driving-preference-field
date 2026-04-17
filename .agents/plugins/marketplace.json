@@ -1,0 +1,20 @@
+{
+  "name": "driving-preference-field-local",
+  "interface": {
+    "displayName": "Driving Preference Field Local"
+  },
+  "plugins": [
+    {
+      "name": "dpf-working-rules",
+      "source": {
+        "source": "local",
+        "path": "./plugins/dpf-working-rules"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Coding"
+    }
+  ]
+}

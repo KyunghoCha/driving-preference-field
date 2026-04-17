@@ -2,6 +2,10 @@
 
 `driving-preference-field`의 한국어 문서 포털이다. 현재 프로젝트 상태는 `Phase 5 완료, Phase 6 준비 상태`다.
 
+## AI workflow
+
+이 repo에는 AI/Codex 작업용 workflow guard가 있다. agent-facing file은 영문 [../../AGENTS.md](../../AGENTS.md)와 [../../plugins/dpf-working-rules/](../../plugins/dpf-working-rules/) 아래만 유지한다.
+
 ## 처음 읽는 순서
 
 1. [프로젝트 개요](./explanation/project_overview.md)

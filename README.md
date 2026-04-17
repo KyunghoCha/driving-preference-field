@@ -32,6 +32,8 @@ This repo is not currently responsible for planner integration, Gazebo/RViz hook
 - English portal: [docs/en/index.md](./docs/en/index.md)
 - Korean portal: [docs/ko/index.md](./docs/ko/index.md)
 
+AI / Codex work in this repo starts from [AGENTS.md](./AGENTS.md). The repo-local workflow guard then routes changes through the operating-principles and experiment-plan docs before implementation.
+
 Recommended newcomer reading order:
 
 1. [Project Overview](./docs/en/explanation/project_overview.md)

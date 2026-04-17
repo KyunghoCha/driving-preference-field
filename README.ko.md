@@ -32,6 +32,8 @@
 - 영어 포털: [docs/en/index.md](./docs/en/index.md)
 - 한국어 포털: [docs/ko/index.md](./docs/ko/index.md)
 
+이 repo에는 AI/Codex 작업용 workflow guard가 있다. agent-facing instructions는 영문 [AGENTS.md](./AGENTS.md)와 [plugins/dpf-working-rules/](./plugins/dpf-working-rules/) 아래에만 유지한다.
+
 처음 읽는 순서:
 
 1. [프로젝트 개요](./docs/ko/explanation/project_overview.md)

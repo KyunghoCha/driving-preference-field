@@ -2,6 +2,10 @@
 
 This is the English documentation portal for `driving-preference-field`. The current project state is `Phase 5 complete, Phase 6 preparation`.
 
+## AI Workflow
+
+If you are using Codex or another AI agent for repo work, start from [../../AGENTS.md](../../AGENTS.md). The agent-facing workflow guard is maintained in English under [../../plugins/dpf-working-rules/](../../plugins/dpf-working-rules/).
+
 ## Newcomer Spine
 
 1. [Project Overview](./explanation/project_overview.md)
