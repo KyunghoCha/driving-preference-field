@@ -6,6 +6,8 @@
 
 이 repo의 문서는 역할이 다르다. `explanation`은 왜 이런 개념이 필요한지 설명하고, `reference`는 계약과 사실을 빠르게 찾게 하고, `how-to`는 실제 작업을 수행하게 하고, `status`는 현재 phase와 비범위를 고정하고, `reading`은 history와 관찰을 남기고, `internal`은 운영 메모를 다룬다. 역할이 다른 문서가 같은 내용을 같은 밀도로 반복하면 독자도 AI도 현재 truth를 복원하기 어려워진다.
 
+`docs/raw/`는 사용자 원문 thought와 변화 추적을 보존하는 owner-origin capture layer다. 이 surface는 의도적으로 non-canonical이며, explanation/reference/how-to/status 문서를 대체하지 않는다.
+
 문서 변경이 repo 전반의 용어, 운영 workflow, AI guidance, user-facing semantics에 영향을 준다면 먼저 검토하고 대화한 뒤 반영하는 편이 맞다. 그때는 용어 일관성, 근거와 이유, 사실 정확성, 명확성, 기존 페이지와의 중복이나 충돌 위험을 먼저 본다.
 
 한 문단은 한 질문만 다루는 편이 좋다. 정의, 이유, 예외, 결론을 한 문단에 다 넣으면 사람은 핵심을 놓치고, AI는 문장 단위는 읽어도 문단 논리 구조를 잃기 쉽다. 한 문단이 답하는 질문을 하나로 유지하고, 새 질문이 시작되면 문단도 새로 나누는 것이 맞다.

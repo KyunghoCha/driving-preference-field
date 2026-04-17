@@ -18,6 +18,7 @@ Default working discipline:
 - record intent, baseline, hypothesis, non-goals, and verification boundaries with the change
 - review for stale residue, unused knobs, dead formula paths, and docs/code mismatch
 - if a task proposes changes to `AGENTS.md`, skills, operating docs, experiment workflow docs, or user-facing semantics, first review terminology consistency, evidence and rationale, factual accuracy, clarity, overlap or contradiction risk, and overall rationality, then discuss the proposal and get approval before mutating those surfaces
+- if a user proposes a repo-level intuition, heuristic, role definition, or workflow thought, discuss it first and, once approved, capture the user's original messages under `docs/raw/` before translating the idea into canonical docs
 - treat no-touch or out-of-scope boundaries as batch-local defaults, not permanent law; if better evidence appears, update the boundary explicitly with the change
 - when code has non-obvious intent or a deliberate tradeoff, capture that intent in naming, a short comment, or a docstring; do not add comments that only restate obvious code
 

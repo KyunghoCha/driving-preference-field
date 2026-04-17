@@ -21,6 +21,8 @@ def test_writing_principles_exist_in_both_languages() -> None:
     assert "문서의 목적은 독자의 질문에 답하는 것" in ko
     assert "documentation_style_references.md" in en
     assert "documentation_style_references.md" in ko
+    assert "`docs/raw/`" in en
+    assert "`docs/raw/`" in ko
 
 
 def test_parameter_exposure_policy_and_catalog_exist_in_both_languages() -> None:
@@ -122,3 +124,28 @@ def test_korean_public_docs_keep_mixed_terms_in_inline_product_labels() -> None:
                     violations.append(f"{path.relative_to(ROOT)} -> `{label}`")
 
     assert not violations, "\n".join(violations)
+
+
+def test_raw_owner_notes_follow_expected_template() -> None:
+    notes = sorted((ROOT / "docs" / "raw" / "notes").glob("*.md"))
+    assert notes
+    required_headings = (
+        "## Date",
+        "## Topic",
+        "## Source sessions",
+        "## User original messages",
+        "## Open questions at the time",
+    )
+    for path in notes:
+        text = path.read_text(encoding="utf-8")
+        for heading in required_headings:
+            assert heading in text, f"{path.relative_to(ROOT)} missing {heading}"
+
+
+def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
+    agents = _read("AGENTS.md")
+    repo_skill = _read("plugins/dpf-working-rules/skills/dpf-working-rules/SKILL.md")
+
+    for body in (agents, repo_skill):
+        assert "docs/raw/" in body
+        assert "repo-level intuition" in body

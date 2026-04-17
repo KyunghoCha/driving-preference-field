@@ -26,6 +26,7 @@ This skill is a router, not the source of truth. Keep it short. Read the repo do
 - Study external references first when the task needs terminology, workflow, UX/help, or architecture decisions.
 - Review for stale residue, unused knobs, dead formula paths, and docs/code mismatch.
 - If the task proposes changes to `AGENTS.md`, skills, operating docs, experiment workflow docs, or user-facing semantics, first review terminology consistency, evidence and rationale, factual accuracy, clarity, overlap or contradiction risk, and overall rationality, then discuss the proposal and get approval before mutating those surfaces.
+- If a user proposes a repo-level intuition, heuristic, role definition, or workflow thought, discuss it first and, once approved, capture the user's original messages under `docs/raw/` before translating the idea into canonical docs.
 - Treat no-touch or out-of-scope boundaries as batch-local defaults, not permanent law.
 - When code has non-obvious intent or a deliberate tradeoff, capture that intent in naming, a short comment, or a docstring. Do not comment obvious code.
 
