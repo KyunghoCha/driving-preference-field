@@ -66,6 +66,7 @@ class FieldRuntime:
             "field_config": self.config.to_dict(),
             "progression_frame": self.config.progression.longitudinal_frame,
             "progression_anchor_count": progression_details["anchor_count"],
+            "progression_effective_anchor_count": progression_details["effective_anchor_count"],
             "progression_support_sum": progression_details["support_sum"],
             "progression_support_mod": progression_details["support_mod"],
             "progression_alignment_mod": progression_details["alignment_mod"],

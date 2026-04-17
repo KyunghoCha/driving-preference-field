@@ -44,14 +44,10 @@ class SurfaceGuide:
 
 @dataclass(frozen=True)
 class SurfaceIndex:
-    signature: tuple[tuple[object, ...], ...]
     guides: tuple[SurfaceGuide, ...]
-    guide_points: tuple[tuple[str, tuple[Point2, ...]], ...]
     guide_ids: tuple[str, ...]
     guide_anchor_ranges: tuple[tuple[int, int], ...]
-    max_guide_length: float
-    min_progress_extent: float
-    max_progress_extent: float
+    guide_progress_extents: tuple[tuple[float, float], ...]
     anchor_points: np.ndarray
     anchor_tangents: np.ndarray
     anchor_normals: np.ndarray
@@ -59,7 +55,6 @@ class SurfaceIndex:
     anchor_guide_lengths: np.ndarray
     anchor_guide_weights: np.ndarray
     anchor_confidences: np.ndarray
-    anchor_guide_indices: np.ndarray
 
 
 @dataclass(frozen=True)
@@ -122,6 +117,7 @@ class ProgressionSurfaceRuntime:
             return {
                 "score": 0.0,
                 "anchor_count": 0,
+                "effective_anchor_count": 0,
                 "support_sum": 0.0,
                 "support_mod": 0.0,
                 "alignment_mod": 0.0,
@@ -146,7 +142,8 @@ class ProgressionSurfaceRuntime:
         )
         return {
             "score": float(arrays["score"][0]),
-            "anchor_count": int(arrays["effective_anchor_count"][0]),
+            "anchor_count": int(arrays["anchor_count"][0]),
+            "effective_anchor_count": int(arrays["effective_anchor_count"][0]),
             "support_sum": float(arrays["support_sum"][0]),
             "support_mod": float(arrays["support_mod"][0]),
             "alignment_mod": float(arrays["alignment_mod"][0]),
@@ -265,6 +262,7 @@ class ProgressionSurfaceRuntime:
                 "alignment_mod": empty,
                 "longitudinal_component": empty,
                 "transverse_component": empty,
+                "anchor_count": empty.astype(int),
                 "effective_anchor_count": empty.astype(int),
             }
 
@@ -277,6 +275,7 @@ class ProgressionSurfaceRuntime:
             "alignment_mod": [],
             "longitudinal_component": [],
             "transverse_component": [],
+            "anchor_count": [],
             "effective_anchor_count": [],
         }
         internal_chunks: dict[str, list[np.ndarray]] = {
@@ -304,6 +303,7 @@ class ProgressionSurfaceRuntime:
             chunks["alignment_mod"].append(selected["alignment_mod"])
             chunks["longitudinal_component"].append(selected["longitudinal_component"])
             chunks["transverse_component"].append(selected["transverse_component"])
+            chunks["anchor_count"].append(selected["anchor_count"])
             chunks["effective_anchor_count"].append(selected["effective_anchor_count"])
             if include_internal:
                 internal_chunks["_guide_scores"].append(selected["guide_scores"])
@@ -336,6 +336,7 @@ def progression_surface_details(
         return {
             "score": 0.0,
             "anchor_count": 0,
+            "effective_anchor_count": 0,
             "support_sum": 0.0,
             "support_mod": 0.0,
             "alignment_mod": 0.0,
@@ -471,8 +472,9 @@ def _guide_local_result(
     tangent_norm = np.linalg.norm(tangent_hat, axis=1, keepdims=True)
     tangent_hat = tangent_hat / np.clip(tangent_norm, _EPS, None)
 
-    guide_min_progress_extent = float(np.min(surface.anchor_cumulative_s[start:stop]))
-    guide_max_progress_extent = float(np.max(surface.anchor_cumulative_s[start:stop]))
+    # Cache guide progress extents once in the surface index instead of
+    # rescanning each guide's anchor slice on every query.
+    guide_min_progress_extent, guide_max_progress_extent = surface.guide_progress_extents[guide_index]
     progress_span = max(guide_max_progress_extent - guide_min_progress_extent, _EPS)
     if config.longitudinal_frame == "local_absolute":
         u_value = np.clip((s_hat - guide_min_progress_extent) / progress_span, 0.0, 1.0)
@@ -538,6 +540,7 @@ def _select_dominant_guide(
             "alignment_mod": zeros,
             "longitudinal_component": zeros,
             "transverse_component": zeros,
+            "anchor_count": np.zeros((0,), dtype=int),
             "effective_anchor_count": np.zeros((0,), dtype=int),
             "guide_scores": np.zeros((0, 0), dtype=float),
             "guide_support_sums": np.zeros((0, 0), dtype=float),
@@ -593,6 +596,12 @@ def _select_dominant_guide(
         dominant_weight,
     )
     smoothed_transverse = np.sum(normalized_transverse_weights * stacked_transverse, axis=0)
+    # Keep both counts so downstream diagnostics can distinguish "how many
+    # anchors exist on the dominant guide" from "how many materially blended".
+    selected_anchor_count = np.asarray(
+        [guide_results[index].anchor_count for index in best_indices],
+        dtype=int,
+    )
 
     return {
         "score": _select("score"),
@@ -603,6 +612,7 @@ def _select_dominant_guide(
         "alignment_mod": _select("alignment_mod"),
         "longitudinal_component": _select("longitudinal_component"),
         "transverse_component": smoothed_transverse,
+        "anchor_count": selected_anchor_count,
         "effective_anchor_count": _select("effective_anchor_count").astype(int),
         "guide_scores": guide_scores,
         "guide_support_sums": guide_support_sums,
@@ -706,7 +716,6 @@ def _surface_signature(
 def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> SurfaceIndex:
     guides: list[SurfaceGuide] = []
     guide_ids: list[str] = []
-    guide_points: list[tuple[str, tuple[Point2, ...]]] = []
 
     anchor_points: list[Point2] = []
     anchor_tangents: list[Point2] = []
@@ -715,8 +724,8 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
     anchor_guide_lengths: list[float] = []
     anchor_guide_weights: list[float] = []
     anchor_confidences: list[float] = []
-    anchor_guide_indices: list[int] = []
     guide_anchor_ranges: list[tuple[int, int]] = []
+    guide_progress_extents: list[tuple[float, float]] = []
 
     tuning_marker = signature[0]
     if not tuning_marker or tuning_marker[0] != "__surface_tuning__":
@@ -741,10 +750,8 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             weight=float(weight),
             confidence=float(confidence),
         )
-        guide_index = len(guides)
         guides.append(guide)
         guide_ids.append(guide.guide_id)
-        guide_points.append((guide.guide_id, guide.points))
         guide_anchor_start = len(anchor_points)
         for cumulative_s, point, tangent in _anchor_points_with_continuation(
             smooth_points,
@@ -759,19 +766,24 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             anchor_guide_lengths.append(guide.guide_length)
             anchor_guide_weights.append(guide.weight)
             anchor_confidences.append(guide.confidence)
-            anchor_guide_indices.append(guide_index)
-        guide_anchor_ranges.append((guide_anchor_start, len(anchor_points)))
+        guide_anchor_stop = len(anchor_points)
+        guide_anchor_ranges.append((guide_anchor_start, guide_anchor_stop))
+        if guide_anchor_stop == guide_anchor_start:
+            guide_progress_extents.append((0.0, 0.0))
+        else:
+            guide_progress_extents.append(
+                (
+                    float(min(anchor_cumulative_s[guide_anchor_start:guide_anchor_stop])),
+                    float(max(anchor_cumulative_s[guide_anchor_start:guide_anchor_stop])),
+                )
+            )
 
     if not anchor_points:
         return SurfaceIndex(
-            signature=signature,
             guides=tuple(guides),
-            guide_points=tuple(guide_points),
             guide_ids=tuple(guide_ids),
-            guide_anchor_ranges=tuple(),
-            max_guide_length=0.0,
-            min_progress_extent=0.0,
-            max_progress_extent=0.0,
+            guide_anchor_ranges=tuple(guide_anchor_ranges),
+            guide_progress_extents=tuple(guide_progress_extents),
             anchor_points=np.zeros((0, 2), dtype=float),
             anchor_tangents=np.zeros((0, 2), dtype=float),
             anchor_normals=np.zeros((0, 2), dtype=float),
@@ -779,19 +791,14 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             anchor_guide_lengths=np.zeros((0,), dtype=float),
             anchor_guide_weights=np.zeros((0,), dtype=float),
             anchor_confidences=np.zeros((0,), dtype=float),
-            anchor_guide_indices=np.zeros((0,), dtype=int),
         )
 
     cumulative_array = np.asarray(anchor_cumulative_s, dtype=float)
     return SurfaceIndex(
-        signature=signature,
         guides=tuple(guides),
-        guide_points=tuple(guide_points),
         guide_ids=tuple(guide_ids),
         guide_anchor_ranges=tuple(guide_anchor_ranges),
-        max_guide_length=max(anchor_guide_lengths),
-        min_progress_extent=float(np.min(cumulative_array)),
-        max_progress_extent=float(np.max(cumulative_array)),
+        guide_progress_extents=tuple(guide_progress_extents),
         anchor_points=np.asarray(anchor_points, dtype=float),
         anchor_tangents=np.asarray(anchor_tangents, dtype=float),
         anchor_normals=np.asarray(anchor_normals, dtype=float),
@@ -799,7 +806,6 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         anchor_guide_lengths=np.asarray(anchor_guide_lengths, dtype=float),
         anchor_guide_weights=np.asarray(anchor_guide_weights, dtype=float),
         anchor_confidences=np.asarray(anchor_confidences, dtype=float),
-        anchor_guide_indices=np.asarray(anchor_guide_indices, dtype=int),
     )
 
 

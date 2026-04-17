@@ -46,6 +46,19 @@ def test_field_runtime_state_query_matches_evaluator_semantics() -> None:
     assert payload.diagnostics["progression_n_hat"] == result.diagnostics["progression_n_hat"]
 
 
+def test_field_runtime_anchor_count_diagnostics_distinguish_total_and_effective_counts() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    runtime = build_field_runtime(snapshot, context)
+    state = StateSample(x=4.7, y=2.0, yaw=1.0)
+
+    payload = runtime.query_state(state)
+
+    assert "progression_anchor_count" in payload.diagnostics
+    assert "progression_effective_anchor_count" in payload.diagnostics
+    assert payload.diagnostics["progression_anchor_count"] >= 0
+    assert 0 <= payload.diagnostics["progression_effective_anchor_count"] <= payload.diagnostics["progression_anchor_count"]
+
+
 def test_field_runtime_cache_does_not_create_semantic_drift() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
     config = _canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0)

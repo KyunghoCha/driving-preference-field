@@ -51,6 +51,7 @@ def test_state_diagnostics_include_progression_fields_only() -> None:
     result = evaluate_state(snapshot, context, state)
 
     assert "progression_anchor_count" in result.diagnostics
+    assert "progression_effective_anchor_count" in result.diagnostics
     assert "progression_support_mod" in result.diagnostics
     assert "progression_alignment_mod" in result.diagnostics
     assert "progression_dominant_guides" in result.diagnostics

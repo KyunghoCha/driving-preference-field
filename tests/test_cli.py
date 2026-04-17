@@ -41,6 +41,7 @@ def test_evaluate_state_outputs_layerwise_result(capsys) -> None:
     assert exit_code == 0
     assert "base_preference_channels" in payload
     assert "progression_anchor_count" in payload["diagnostics"]
+    assert "progression_effective_anchor_count" in payload["diagnostics"]
     assert "progression_dominant_guides" in payload["diagnostics"]
     assert "base_preference_total" in payload["diagnostics"]
 
