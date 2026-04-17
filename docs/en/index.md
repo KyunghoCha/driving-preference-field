@@ -19,7 +19,7 @@ This is the English documentation portal for `driving-preference-field`. The cur
 | Document | Role | When to read it |
 | --- | --- | --- |
 | [Project Overview](./explanation/project_overview.md) | project intent | start here if you are new |
-| [Engineering Operating Principles](./explanation/engineering_operating_principles.md) | repo operating rules | read before changing code or docs |
+| [Engineering Operating Principles](./explanation/engineering_operating_principles.md) | repo operating heuristics | read before changing code, docs, or experiment direction |
 | [Documentation Writing Principles](./explanation/documentation_writing_principles.md) | writing rules | read before rewriting docs |
 | [Parameter Exposure Policy](./explanation/parameter_exposure_policy.md) | knob exposure policy | read before adding or hiding controls |
 | [Research Scope](./explanation/research_scope.md) | scope boundary | read before expanding claims |
@@ -49,7 +49,7 @@ This is the English documentation portal for `driving-preference-field`. The cur
 | --- | --- | --- |
 | [Roadmap](./status/roadmap.md) | phase truth | read for current phase and next milestones |
 | [Project Status](./status/project_status.md) | current snapshot | read for recently completed work |
-| [Experiment Plan](./status/experiment_plan.md) | experiment procedure | read before morphology comparison runs |
+| [Experiment Plan](./status/experiment_plan.md) | experiment execution and comparison discipline | read before starting, recording, or reviewing experiments |
 
 ## Reading
 

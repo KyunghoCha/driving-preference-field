@@ -1,41 +1,49 @@
 # 운영 원칙
 
-이 문서는 `driving-preference-field`를 설계하고 구현할 때 무엇을 먼저 지켜야 하는지 설명한다. 여기서 다루는 것은 코드 스타일 취향이 아니라, repo 전체의 drift를 막고 SSOT를 유지하기 위한 판단 기준이다. README, canonical 문서, 구현, 테스트, 실험 기록은 모두 이 원칙 위에서 맞아야 한다.
+이 문서는 repo가 drift 없이 움직이기 위한 기본 방향을 적는다. 법전처럼 영원히 고정된 규칙을 나열하려는 문서가 아니다. 더 좋은 근거와 더 나은 운영 방식이 생기면 이 문서 자체도 바뀔 수 있다. 중요한 것은 복종이 아니라, `driving-preference-field`의 code health와 계약 일관성을 계속 더 좋게 만드는 것이다.
 
-## 1. 증상보다 원인을 먼저 본다
+## 1. 증상보다 원인에서 시작한다
 
-눈앞의 현상만 가리는 patch는 넣지 않는다. 증상이 보이면 먼저 어떤 개념 드리프트, 어떤 layer 경계, 어떤 runtime 가정에서 왔는지 본다. 단기 workaround가 필요해도 본질 원인과 분리해 기록해야 한다.
+눈앞의 현상만 가리는 patch는 기본 선택이 아니다. 증상이 보이면 먼저 어떤 개념 드리프트, 어떤 layer 경계, 어떤 runtime 가정에서 왔는지 본다. 단기 workaround가 필요해도 본질 원인과 분리해 기록하는 편이 맞다.
 
-특정 그림이나 특정 파일에 매몰되지 않는 것도 같은 이유다. 수식 하나가 이상해 보여도 입력 semantics, composition, visualization, preset, tooling을 같이 의심해야 한다. 한 부분만 만져 해결된 것처럼 보이면 전체 계약을 다시 확인한다.
-
-모르는 것은 추측으로 메우지 않는다. local truth가 있으면 먼저 읽고, 그래도 불명확하면 검색해 근거를 확보한다. 끝까지 불명확하면 불확실성을 문서와 답변에 직접 남긴다.
+문서도 같다. 독자가 헷갈린다면 보통 필요한 것은 note를 더 얹는 일이 아니라 canonical 문서를 더 분명하게 쓰고, stale wording을 제거하고, 계약을 명시적으로 만드는 일이다.
 
 ## 2. 문서와 현재 정의를 같이 움직인다
 
-이 repo에서는 문서가 구현보다 뒤따라가면 안 된다. 설계가 바뀌면 관련 canonical 문서가 같은 배치에서 같이 움직여야 한다. 구현을 먼저 밀어 넣고 나중에 설명을 맞추는 방식은 허용하지 않는다.
+이 repo에서는 explanation, reference, how-to, status, UI help가 모두 working contract의 일부다. 코드가 current behavior를 바꾸면 그 behavior를 정의하거나 설명하는 문서도 같은 배치에서 같이 움직이는 편이 맞다. 문서가 canonical meaning을 바꾼다면 그 meaning을 구현한다고 주장하는 코드도 같이 확인되어야 한다.
 
-canonical 문서는 현재 truth를 직접 정의해야 한다. 특정 예시나 특정 과거 문서, 특정 구현체를 빌려 핵심 개념을 설명하지 않는다. 역사적 맥락, 대안 비교, proposal history는 reading 자료로 분리하고, canonical은 지금 정의와 지금 계약만 말해야 한다.
+중요한 것은 완벽한 동시성보다 silent drift를 막는 것이다. repo가 말하는 것과 실제 동작이 조용히 벌어지지 않게 하는 것이 기본 목표다.
 
-의도도 채팅 로그에만 남기지 않는다. 왜 이런 field를 정의하는지, 왜 layer를 분리하는지, 왜 runtime contract를 그렇게 두는지는 문서와 주석에 직접 남긴다. 문서만 읽어도 current canonical과 현재 구현을 복원할 수 있어야 한다.
+## 3. 내부를 건드리기 전에 범위를 줄인다
 
-## 3. 범위를 먼저 자른다
+요청은 먼저 실제 문제를 풀 수 있는 가장 작은 coherent slice로 줄이는 편이 좋다. scope가 흐려지면 구현 품질도 같이 흐려진다. 이 repo는 canonical meaning, runtime contract, current implementation, tooling, downstream integration을 한 번에 다 건드릴 때보다 한 layer씩 안정화할 때 더 잘 좋아진다.
 
-한 번에 다 하려 하지 않는다. 현재 단계에서 무엇을 하지 않을지도 같이 적고, 구현 범위를 넘는 것은 next step으로 남긴다. 지금 질문이 base field 자체인지, optimizer 결합인지, UI/툴 문제인지 먼저 구분해야 한다.
+그래서 future work를 current truth로 너무 일찍 올리지 않는다. research idea, adapter debate, downstream concern은 실제로 active contract에 들어오기 전까지 reading/history나 backlog에 두는 편이 맞다.
 
-연구용 비교는 코드 분기보다 config와 preset을 우선한다. 같은 case와 같은 semantic snapshot 위에서 baseline과 candidate를 비교하고, 함수 family와 gain 실험도 코드 수정 반복보다 도구와 preset 기록을 통해 반복 가능하게 만든다.
+## 4. SSOT는 플랫폼과 downstream보다 위에 둔다
 
-시각화도 같은 기준으로 본다. 예뻐 보이는 화면보다 해석 가능한 스케일을 우선하고, 무엇이 base field이고 무엇이 costmap/overlay인지 같은 뜻이 섞이지 않게 한다.
+플랫폼 차이가 canonical meaning이 되면 안 된다. Linux, Windows 같은 환경은 launcher, packaging, troubleshooting에서 차이가 날 수 있지만 field semantics, config semantics, preset semantics는 그 위에 있어야 한다. 플랫폼 문제는 가능하면 dependency graph, capability detection, runtime fallback 같은 재현 계층에서 해결한다.
 
-## 4. SSOT를 플랫폼보다 위에 둔다
+같은 논리는 SSC 같은 downstream consumer에도 적용된다. downstream이 설계를 검증할 수는 있어도, repo 자신의 계약을 조용히 대체하면 안 된다.
 
-archive repo와 현재 repo의 역할을 섞지 않는다. archive 실험 결과를 새 canonical truth로 승격하지 않고, 한국어 user-facing 문서와 영어 internal note가 조용히 다른 의미를 가지지 않게 한다. drift 방지는 기능 추가보다 먼저 지켜야 하는 기본 규칙이다.
+## 5. 실험은 clean baseline에서 분리한다
 
-다른 머신에서 한 작업도 같은 SSOT에 남긴다. Ubuntu, Windows, 다른 workstation에서 한 작업이라도 canonical 의미 변경은 같은 repo 문서 SSOT에 기록해야 한다. merge 전에 관련 문서를 같이 갱신한다.
+실험적 수정은 clean baseline에서 시작하고, 한 번에 한 가지 의미 있는 가설만 검증하는 편이 좋다. Git 사용 방식은 바뀔 수 있지만 운영 원칙은 같다. dirty state 위에 실험을 계속 덧칠해서, 어느 시도가 어떤 효과를 냈는지 설명할 수 없게 만드는 방향은 피한다.
 
-크로스플랫폼 차이는 의미가 아니라 재현 방식으로만 다룬다. 운영체제 차이로 field semantics, config semantics, preset semantics가 달라지면 안 된다. 플랫폼 차이는 환경 준비, 경로 처리, launcher, CI 같은 재현 계층에서 해결하고, 특정 OS에서 우연히 맞는 동작을 canonical truth로 올리지 않는다.
+이 원칙은 DPF morphology 실험에서 특히 중요하다. 수식, support logic, coordinate definition, visualization이 서로 얽혀 있기 때문에, 분리와 추적 가능성을 편의보다 우선하는 쪽이 맞다.
 
-## 5. 변경은 작게, 검증은 끝까지
+## 6. 변경은 작게 묶고 검증은 끝까지 한다
 
-도구나 문서를 고칠 때도 같은 원칙을 쓴다. 먼저 현재 구조를 읽고, 바꿔야 할 층만 건드리고, regression으로 다시 잠근다. 필요 없는 중복 UI, 중복 문서, 중복 설정은 늘리지 않는다.
+작은 변경은 이해하기 쉽고, 리뷰하기 쉽고, 되돌리기도 쉽다. broad rewrite 자체가 가장 작은 coherent move가 아니라면, repo는 좁고 testable한 배치를 우선한다. 검증도 끝까지 가야 한다. docs, UI, runtime, export, experiment tooling을 건드렸다면 그 표면을 같이 확인해야 배치가 끝난다.
 
-즉 이 repo의 기본 원칙은 단순하다. 원인을 먼저 보고, 문서와 구현을 같이 움직이고, 범위를 먼저 자르고, 플랫폼 차이를 의미 차이로 올리지 않고, 변경 뒤에는 반드시 다시 검증한다.
+다만 예외는 있다. emergency fix, 신뢰할 수 있는 mechanical refactor, merge 대상이 아닌 exploratory spike는 예외가 될 수 있다. 이런 예외를 쓰는 경우에는 shortcut을 썼다는 사실과 이유를 남기는 편이 맞다.
+
+## 7. correctness만 보지 말고 stale residue도 본다
+
+리뷰는 "지금 돌아가나"에서 끝나지 않는다. 실험이 많은 repo는 stale formula path, unused knob, dead branch, outdated doc, 설명할 수 없는 복잡도를 쉽게 쌓는다. 출력이 얼핏 그럴듯해 보여도 이런 것들은 code-health 문제다.
+
+그래서 기본 리뷰 질문은 더 넓다. 이 변경이 repo를 더 읽기 쉽게 만들었는지, 더 비교 가능하게 만들었는지, 더 진화시키기 쉽게 만들었는지를 같이 본다. 그렇지 않다면 방향 자체를 다시 생각하는 편이 맞다.
+
+## 8. 이 문서도 운영과 함께 갱신한다
+
+이 원칙들은 기본값이지 영구 불변 규칙이 아니다. 더 나은 baseline discipline, 더 나은 review 습관, 더 나은 실험 운영 방식이 보이면 이 문서도 명시적으로 같이 갱신한다. 안정적인 SSOT는 중요하지만, 얼어붙은 프로세스는 목표가 아니다.

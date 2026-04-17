@@ -19,7 +19,7 @@
 | 문서 | 역할 | 언제 읽는지 |
 | --- | --- | --- |
 | [프로젝트 개요](./explanation/project_overview.md) | 프로젝트 목적 | 처음 들어올 때 |
-| [운영 원칙](./explanation/engineering_operating_principles.md) | repo 운영 기준 | 코드나 문서를 바꾸기 전에 |
+| [운영 원칙](./explanation/engineering_operating_principles.md) | repo 운영 기준과 기본 휴리스틱 | 코드, 문서, 실험 방향을 바꾸기 전에 |
 | [문서 작성 원칙](./explanation/documentation_writing_principles.md) | 문서 작성 기준 | 문서를 다시 쓸 때 |
 | [파라미터 노출 정책](./explanation/parameter_exposure_policy.md) | knob 노출 기준 | 새 control을 추가하거나 숨기기 전에 |
 | [연구 범위](./explanation/research_scope.md) | 범위 경계 | claim을 넓히기 전에 |
@@ -49,7 +49,7 @@
 | --- | --- | --- |
 | [로드맵](./status/roadmap.md) | phase truth | 현재 phase와 다음 단계를 볼 때 |
 | [진행 상태](./status/project_status.md) | current snapshot | 최근 완료 작업을 확인할 때 |
-| [실험 계획](./status/experiment_plan.md) | experiment procedure | morphology 비교 실험 전에 |
+| [실험 계획](./status/experiment_plan.md) | 실험 실행과 비교 discipline | 실험을 시작하거나 기록하거나 리뷰하기 전에 |
 
 ## 읽을거리
 
