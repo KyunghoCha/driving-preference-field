@@ -71,15 +71,27 @@ commit subject는 무엇이 바뀌었는지를 말하는 편이 좋다. commit b
 
 실험 문맥을 오래 남겨야 한다면 commit body나 trailer에 구조화된 정보를 같이 남긴다. 예를 들면:
 
+- `Intent`: 이번 배치가 무엇을 하려는지 한 문장으로 적기
 - `Baseline`: 기준 code baseline 또는 reference commit
 - `Compare-Against`: 직접 비교한 baseline experiment나 historical state
+- `Non-goals`: 이번 배치에서 의도적으로 바꾸지 않으려는 것
 - `Verification`: 테스트, case, export, 수동 확인 경계
 
-목표는 rigid template를 강제하는 것이 아니다. 나중에 다시 봤을 때 가설, baseline, verification 경계를 복원할 수 있게 만드는 것이다.
+목표는 rigid template를 강제하는 것이 아니다. 나중에 다시 봤을 때 intent, 가설, baseline, non-goals, verification 경계를 복원할 수 있게 만드는 것이다.
+
+## repo contract를 바꾸기 전에 먼저 대화할 것
+
+실험 repo라도, 어떤 변경은 먼저 설명하고 검토한 뒤에 반영하는 편이 맞다.
+
+- `AGENTS.md`, skill, operating docs, experiment workflow docs, user-facing semantics를 바꾸는 제안은 먼저 검토와 토론을 거친 뒤 반영한다.
+- 검토할 때는 용어 일관성, 근거와 이유, 사실 정확성, 명확성, 기존 문서와의 중복이나 충돌 위험, 전체적으로 합리적인지부터 본다.
+- temporary no-touch list나 out-of-scope 같은 경계는 permanent law가 아니라 이번 batch의 working default로만 둔다.
+
+더 좋은 방향이 보이면 batch 경계도, 문서도 같이 바꿀 수 있다. 중요한 것은 몰래 drift시키지 않고 명시적으로 바꾸는 것이다.
 
 ## verify, discard, recombine
 
-코드를 바꾸기 전에 무엇이 좋아져야 하고 무엇이 깨지면 안 되는지부터 정하는 편이 좋다. 보통은 acceptance case, regression surface, non-goal을 먼저 적어 두는 것이 맞다.
+코드를 바꾸기 전에 무엇이 좋아져야 하고 무엇이 깨지면 안 되는지부터 정하는 편이 좋다. 보통은 intent, acceptance case, regression surface, non-goal을 먼저 적어 두는 것이 맞다.
 
 실험이 한 target은 개선했지만 다른 중요한 surface를 망쳤다면, 같은 dirty state 위에 patch를 계속 덧칠하지 않는 편이 좋다. 실패한 방향은 discard하고 clean baseline으로 돌아간 뒤 다시 시작한다. 두 방향이 모두 가치가 있으면, clean baseline에서 의도적으로 recombine한다.
 
@@ -95,6 +107,8 @@ commit subject는 무엇이 바뀌었는지를 말하는 편이 좋다. commit b
 - unnecessary complexity 또는 over-engineering
 
 목표는 완벽함이 아니라, accepted change가 repo를 더 읽기 쉽고 더 비교하기 쉽고 더 진화시키기 쉽게 남기는 것이다.
+
+코드에 non-obvious heuristic, compatibility boundary, deliberate tradeoff가 있다면, review에서는 그 의도가 naming, 짧은 comment, docstring 중 하나로 복원 가능한지도 같이 본다. obvious code를 decorative comment로 덮을 필요는 없다.
 
 ## 공통 케이스
 

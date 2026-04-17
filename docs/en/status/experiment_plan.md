@@ -58,15 +58,27 @@ The commit subject should say what changed. The commit body should say why the c
 
 When the experiment needs durable comparison context, include structured metadata in the commit message body or trailers. Useful fields include:
 
+- `Intent`: the point of the batch in one sentence
 - `Baseline`: the clean code baseline or reference commit
 - `Compare-Against`: the baseline experiment or historical state being compared
+- `Non-goals`: what the batch is intentionally not trying to change
 - `Verification`: the tests, cases, exports, or visual checks used to validate the result
 
-The point is not to force one rigid template. The point is to make the hypothesis, baseline, and verification boundary recoverable later.
+The point is not to force one rigid template. The point is to make the intent, hypothesis, baseline, non-goals, and verification boundary recoverable later.
+
+## When to discuss before changing the repo contract
+
+Some changes should be discussed before they are applied, even in an experimental repository.
+
+- proposals that change `AGENTS.md`, skills, operating docs, experiment workflow docs, or user-facing semantics should be reviewed before mutation
+- that review should check terminology consistency, evidence and rationale, factual accuracy, clarity, overlap or contradiction risk, and overall rationality
+- working boundaries such as temporary no-touch lists or out-of-scope notes are batch-local defaults, not permanent law
+
+If a better direction appears, the batch boundary and the document can both change. The important thing is to change them explicitly, not silently.
 
 ## Verify, discard, and recombine
 
-Before changing the code, decide what should improve and what must not regress. That usually means naming the acceptance cases, the regression surface, and the non-goals up front.
+Before changing the code, decide what should improve and what must not regress. That usually means naming the intent, acceptance cases, regression surface, and non-goals up front.
 
 If the experiment improves one target but damages another important surface, do not keep layering patches on top of the same dirty state. Prefer discarding the failed direction, returning to the clean baseline, and starting the next attempt from there. If two directions both have value, recombine them deliberately from a clean baseline rather than by accident.
 
@@ -82,6 +94,8 @@ Review should catch more than immediate correctness. In this repo, it should als
 - unnecessary complexity or over-engineering
 
 The goal is not perfection. The goal is to make sure each accepted change leaves the repo easier to understand and easier to compare than before.
+
+When the code carries a non-obvious heuristic, compatibility boundary, or deliberate tradeoff, the review should also ask whether that intent is recoverable from naming, a short comment, or a docstring. Obvious code does not need decorative comments.
 
 ## Common cases
 

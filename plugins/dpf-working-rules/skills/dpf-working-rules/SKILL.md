@@ -15,7 +15,7 @@ This skill is a router, not the source of truth. Keep it short. Read the repo do
 2. Read `docs/en/status/experiment_plan.md`.
 3. If the task changes docs, help copy, or other user-facing text, also read `docs/en/explanation/documentation_writing_principles.md`.
 4. When network access is available, review the relevant official docs or other strong external references before changing architecture, terminology, workflow, or user-facing behavior.
-5. State the clean baseline, the current hypothesis, and the verification boundary before making changes.
+5. State the current intent, the clean baseline, the current hypothesis, the non-goals, and the verification boundary before making changes.
 
 ## Guardrails
 
@@ -25,6 +25,9 @@ This skill is a router, not the source of truth. Keep it short. Read the repo do
 - Move docs with current truth.
 - Study external references first when the task needs terminology, workflow, UX/help, or architecture decisions.
 - Review for stale residue, unused knobs, dead formula paths, and docs/code mismatch.
+- If the task proposes changes to `AGENTS.md`, skills, operating docs, experiment workflow docs, or user-facing semantics, first review terminology consistency, evidence and rationale, factual accuracy, clarity, overlap or contradiction risk, and overall rationality, then discuss the proposal and get approval before mutating those surfaces.
+- Treat no-touch or out-of-scope boundaries as batch-local defaults, not permanent law.
+- When code has non-obvious intent or a deliberate tradeoff, capture that intent in naming, a short comment, or a docstring. Do not comment obvious code.
 
 ## Scope
 

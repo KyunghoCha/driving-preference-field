@@ -12,6 +12,10 @@ Task-first pages and reference-first pages should not be mixed. A guide that tur
 
 The same concept may appear in more than one document, but the density should match the page role. Repetition is acceptable when it helps a newcomer enter the topic or helps a reference page stand on its own. Contradiction is not acceptable.
 
+When a proposed doc change affects repo-wide terminology, operating workflow, AI guidance, or other user-facing semantics, it should be reviewed before it is applied. That review should check terminology consistency, evidence and rationale, factual accuracy, clarity, and whether the new wording overlaps with or contradicts existing pages.
+
 Documentation here also has to support AI reconstruction, not only human reading. That means concepts, contracts, and current implementation notes should be explicit enough to survive partial context. AI-friendly writing is not a separate style. It is the same discipline that makes documents easier for humans to scan: direct statements, controlled scope, stable terminology, and minimal hidden assumptions.
 
 When a page needs external writing guidance, the references in `docs/en/reading/references/documentation_style_references.md` and its Korean counterpart are the place to check. Those references are supporting material. This document is the repo’s working writing rule.
+
+These writing principles are defaults, not permanent law. If a clearer structure or a better wording appears, the document can change too. The important thing is to update the wording explicitly and keep overlap or contradiction under control.
