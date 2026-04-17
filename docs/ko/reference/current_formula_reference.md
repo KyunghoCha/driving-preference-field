@@ -34,7 +34,7 @@ progression surface는 local map 전체에 진행 좌표와 횡방향 좌표를 
 
 ### `guide-local` anchor 좌표
 
-각 progression guide는 자기 anchor만으로 local tangent / normal 좌표를 만든다. 이 좌표가 뒤에서 guide-local `s_hat`, `n_hat`를 만드는 기본 재료가 된다.
+각 progression guide는 자기 anchor만으로 local tangent / normal 좌표를 만든다. 이 좌표가 뒤에서 guide-local `s_hat`, `n_hat`를 만드는 기본 재료가 된다. 현재 구현은 anchor를 바로 다 섞지 않고, 먼저 smoothed guide 위에 query point를 projection해서 local arclength reference `s_ref`를 잡는다.
 
 ```math
 \tau_i = \langle p - a_i,\ t_i \rangle
@@ -46,7 +46,23 @@ progression surface는 local map 전체에 진행 좌표와 횡방향 좌표를 
 
 ### `guide-local` Gaussian weight
 
-guide 안에서는 nearest winner를 고르지 않고, Gaussian weight로 anchor를 부드럽게 섞는다. 이 단계가 guide-local coordinate를 만드는 핵심이다.
+guide 안에서는 nearest winner를 고르지 않고, Gaussian weight로 anchor를 부드럽게 섞는다. 다만 지금 구현은 guide 전체 anchor를 같은 강도로 섞지 않고, projection으로 고른 local branch neighborhood 주변에 soft arclength locality gate를 곱는다. 이 단계가 guide-local coordinate를 만드는 핵심이다.
+
+projection에서 얻는 local arclength reference:
+
+`s_ref = sum_k q_k * s_proj_k`
+
+`q_k ∝ exp(-0.5 * d_k^2 / sigma_proj^2)`
+
+guide-local raw weight:
+
+`r_i = w_i^guide * c_i * exp(-0.5 * ((tau_i / sigma_t)^2 + (nu_i / sigma_n)^2))`
+
+soft arclength locality gate:
+
+`g_i = exp(-0.5 * ((|s_i - s_ref| / sigma_s)^2))`
+
+`r_i <- r_i * g_i`
 
 ```math
 r_i = w_i^{guide}\, c_i \exp \left(
@@ -70,7 +86,7 @@ r_i = w_i^{guide}\, c_i \exp \left(
 
 ### `guide-local` 좌표
 
-이 단계에서 guide-local `s_hat`, `n_hat`, `t_hat`를 만든다. 이후 longitudinal / transverse 성분은 dominant guide 기준 coordinate를 사용한다.
+이 단계에서 guide-local `s_hat`, `n_hat`, `t_hat`를 만든다. support와 coordinate, score는 모두 같은 softened weight set을 공유한다. 이후 longitudinal / transverse 성분은 dominant guide 기준 coordinate를 사용한다.
 
 ```math
 \hat{s} = \sum_i \bar{w}_i s_i

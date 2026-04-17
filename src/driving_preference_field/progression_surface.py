@@ -10,7 +10,8 @@ map:
     progression_tilted(p)
       = max_g support_mod_g * alignment_mod_g * (T(|n_hat_g|) + gain * L(u_g))
 
-Guide-local support and coordinates come from Gaussian anchor weights. The
+Guide-local support and coordinates come from Gaussian anchor weights, anchored
+around a projection-selected local branch neighborhood along each guide. The
 exact formula here is a current implementation detail, not the canonical design
 contract. README plus the bilingual current formula references under
 docs/en/reference/current_formula_reference.md and
@@ -446,15 +447,31 @@ def _guide_local_result(
     guide_lengths = surface.anchor_guide_lengths[start:stop][:, None]
     guide_weights = surface.anchor_guide_weights[start:stop][:, None]
     confidences = surface.anchor_confidences[start:stop][:, None]
+    guide_points = surface.anchor_points[start:stop]
+    guide_cumulative_s = surface.anchor_cumulative_s[start:stop]
+    # Smooth the projection reference itself so self-near guides do not create
+    # a hard branch switch before the locality gate is applied.
+    projection_sigma_s = max(2.0 * tuning.anchor_spacing_m, tuning.min_sigma_n)
+    s_ref = _project_points_onto_guide_arclength(
+        guide_points,
+        guide_cumulative_s,
+        x_values,
+        y_values,
+        projection_sigma=projection_sigma_s,
+    )[None, :]
 
     tau = dx * tangent_x + dy * tangent_y
     nu = dx * normal_x + dy * normal_y
 
     sigma_t = np.maximum(tuning.min_sigma_t, guide_lengths * config.lookahead_scale * tuning.sigma_t_scale)
     sigma_n = max(tuning.min_sigma_n, config.transverse_scale * tuning.sigma_n_scale)
+    local_sigma_s = _guide_locality_sigma(guide.guide_length, config, tuning)
     raw_weights = guide_weights * confidences * np.exp(
         -0.5 * (((tau / sigma_t) ** 2) + ((nu / sigma_n) ** 2))
     )
+    anchor_progress_delta = np.abs(cumulative_s - s_ref)
+    locality_gate = np.exp(-0.5 * ((anchor_progress_delta / max(local_sigma_s, _EPS)) ** 2))
+    raw_weights *= locality_gate
     support_sum = np.sum(raw_weights, axis=0)
     blend_weights = raw_weights / np.clip(support_sum, _EPS, None)
 
@@ -650,6 +667,56 @@ def _ego_relative_lookahead(
     tuning: SurfaceTuningConfig,
 ) -> float:
     return max(tuning.min_sigma_t, progress_span * config.lookahead_scale)
+
+
+def _guide_locality_sigma(
+    guide_length: float,
+    config: ProgressionConfig,
+    tuning: SurfaceTuningConfig,
+) -> float:
+    sigma_t = max(tuning.min_sigma_t, guide_length * config.lookahead_scale * tuning.sigma_t_scale)
+    return max(
+        2.0 * tuning.anchor_spacing_m,
+        0.6 * sigma_t,
+        0.5 * tuning.min_sigma_t,
+    )
+
+
+def _project_points_onto_guide_arclength(
+    points: np.ndarray | tuple[Point2, ...],
+    cumulative_s: np.ndarray,
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    *,
+    projection_sigma: float,
+) -> np.ndarray:
+    polyline_points = np.asarray(points, dtype=float)
+    if len(polyline_points) < 2:
+        return np.zeros_like(x_values)
+
+    segment_starts = polyline_points[:-1]
+    segment_ends = polyline_points[1:]
+    segment_vectors = segment_ends - segment_starts
+    segment_lengths = np.linalg.norm(segment_vectors, axis=1)
+    segment_lengths_sq = np.maximum(segment_lengths**2, _EPS)
+
+    dx = x_values[None, :] - segment_starts[:, 0][:, None]
+    dy = y_values[None, :] - segment_starts[:, 1][:, None]
+    segment_dx = segment_vectors[:, 0][:, None]
+    segment_dy = segment_vectors[:, 1][:, None]
+    projection_t = np.clip(
+        (dx * segment_dx + dy * segment_dy) / segment_lengths_sq[:, None],
+        0.0,
+        1.0,
+    )
+    projection_x = segment_starts[:, 0][:, None] + projection_t * segment_dx
+    projection_y = segment_starts[:, 1][:, None] + projection_t * segment_dy
+    distance_sq = (x_values[None, :] - projection_x) ** 2 + (y_values[None, :] - projection_y) ** 2
+    projected_s = cumulative_s[:-1, None] + projection_t * segment_lengths[:, None]
+    projection_scale_sq = max(projection_sigma, _EPS) ** 2
+    projection_weights = np.exp(-0.5 * (distance_sq / projection_scale_sq))
+    normalized_weights = projection_weights / np.clip(np.sum(projection_weights, axis=0), _EPS, None)
+    return np.sum(normalized_weights * projected_s, axis=0)
 
 
 def _longitudinal_value_array(u_value: np.ndarray, config: ProgressionConfig) -> np.ndarray:

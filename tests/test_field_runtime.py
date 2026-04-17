@@ -243,6 +243,48 @@ def test_u_turn_visible_endpoint_does_not_create_fake_end_cap_on_return_leg() ->
     assert beyond_score >= end_score - 0.05
 
 
+def test_field_runtime_u_turn_progression_channels_stay_local_to_visible_guide() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
+    runtime = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0),
+    )
+
+    lower = runtime.query_state(StateSample(x=3.0, y=0.0, yaw=0.0))
+    upper = runtime.query_state(StateSample(x=3.0, y=3.2, yaw=3.141592653589793))
+
+    assert abs(lower.diagnostics["progression_n_hat"]) <= 0.08
+    assert abs(upper.diagnostics["progression_n_hat"]) <= 0.08
+
+    y_values = np.linspace(-1.5, 1.2, 801, dtype=float)
+    x_values = np.full_like(y_values, 3.0)
+    lower_transverse = runtime.query_progression_points(x_values, y_values)["progression_transverse_component"]
+    lower_ridge_y = float(y_values[int(np.argmax(lower_transverse))])
+    assert lower_ridge_y == pytest.approx(0.0, abs=0.03)
+
+    y_values = np.linspace(2.0, 4.5, 801, dtype=float)
+    x_values = np.full_like(y_values, 3.0)
+    upper_transverse = runtime.query_progression_points(x_values, y_values)["progression_transverse_component"]
+    upper_ridge_y = float(y_values[int(np.argmax(upper_transverse))])
+    assert upper_ridge_y == pytest.approx(3.2, abs=0.03)
+
+
+def test_field_runtime_u_turn_progression_tilted_gap_row_stays_smooth() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
+    runtime = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0),
+    )
+
+    x_values = np.linspace(3.2, 5.1, 40, dtype=float)
+    y_values = np.full_like(x_values, 1.6)
+    progression = runtime.query_progression_points(x_values, y_values)["progression_tilted"]
+
+    assert float(np.max(np.abs(np.diff(progression)))) < 0.08
+
+
 def test_field_runtime_respects_zero_progression_support_ceiling() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
     config = _canonical_config(support_ceiling=0.0)
