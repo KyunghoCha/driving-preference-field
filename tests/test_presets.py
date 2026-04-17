@@ -82,7 +82,7 @@ def test_saved_preset_roundtrip_preserves_surface_tuning(tmp_path) -> None:
             surface_tuning=SurfaceTuningConfig(
                 anchor_spacing_m=0.3,
                 spline_min_subdivisions=16,
-                transverse_handoff_temperature=0.08,
+                sigma_t_scale=0.55,
             )
         ),
         metadata={"role": "baseline"},

@@ -148,7 +148,7 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
         advanced_title = "When to Open Advanced Surface"
         advanced_intro = (
             "Open this only after the semantics are clear. "
-            "This section tunes discretization, support kernels, modulation, and split/merge handoff quality."
+            "This section tunes discretization, support kernels, and modulation quality."
         )
         interpretation_title = "How to Read Parameter Effects"
         interpretation_items = [
@@ -169,7 +169,6 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
             ("Discretization", "#group-discretization"),
             ("Support Kernel", "#group-support-kernel"),
             ("Modulation", "#group-modulation"),
-            ("Handoff", "#group-handoff"),
         ]
         detail_title = "Detailed Reference"
         detail_intro = "Use the lookup cards below when you need a fast up/down decision."
@@ -187,7 +186,7 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
         )
         advanced_title = "`Advanced Surface`를 여는 때"
         advanced_intro = (
-            "semantics가 먼저 잡힌 뒤에만 연다. 이 섹션은 discretization, support kernel, modulation, split/merge handoff 품질을 다룬다."
+            "semantics가 먼저 잡힌 뒤에만 연다. 이 섹션은 discretization, support kernel, modulation 품질을 다룬다."
         )
         interpretation_title = "파라미터 효과 읽기"
         interpretation_items = [
@@ -208,7 +207,6 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
             ("Discretization", "#group-discretization"),
             ("Support Kernel", "#group-support-kernel"),
             ("Modulation", "#group-modulation"),
-            ("Handoff", "#group-handoff"),
         ]
         detail_title = "세부 참고"
         detail_intro = "아래 lookup card는 값을 올릴지 내릴지 빠르게 결정할 때 쓴다."

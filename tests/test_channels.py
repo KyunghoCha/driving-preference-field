@@ -234,7 +234,7 @@ def test_progression_merge_midline_is_nonzero_continuous_surface() -> None:
     assert progression_tilted(snapshot, context, lower, config=config) > 0.0
 
 
-def test_surface_tuning_changes_transverse_handoff_without_changing_public_channel_contract() -> None:
+def test_surface_tuning_changes_transverse_shape_without_changing_public_channel_contract() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/merge_like_patch.yaml")
     state = StateSample(x=2.6, y=-0.1, yaw=0.2)
     baseline = progression_tilted_details(snapshot, context, state, config=_canonical_config())
@@ -244,9 +244,8 @@ def test_surface_tuning_changes_transverse_handoff_without_changing_public_chann
         state,
         config=_canonical_config(
             surface_tuning=SurfaceTuningConfig(
-                transverse_handoff_support_ratio=0.1,
-                transverse_handoff_score_delta=0.5,
-                transverse_handoff_temperature=0.2,
+                anchor_spacing_m=0.1,
+                sigma_t_scale=0.6,
             )
         ),
     )

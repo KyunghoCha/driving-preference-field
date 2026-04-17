@@ -10,7 +10,7 @@ PARAMETER_GUIDE_INTRO = {
         "Always start from `progression_tilted` with `Fixed` scale.\n"
         "Read the drivable boundary as an overlay only; do not read it as an additive base score.\n"
         "Treat obstacle / rule / dynamic channels as costmap visualization only.\n"
-        "`Main` changes field semantics directly. `Advanced Surface` is for discretization, kernel, modulation, and handoff tuning.\n"
+        "`Main` changes field semantics directly. `Advanced Surface` is for discretization, kernel, and modulation tuning.\n"
         "The current implementation builds guide-local coordinates and then reads the final field through the maximum guide score.\n"
         "The exact current formula is `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`.\n"
         "Support and alignment are weak secondary modulation terms. They should not dominate morphology.\n"
@@ -22,7 +22,7 @@ PARAMETER_GUIDE_INTRO = {
         "항상 `progression_tilted`를 `Fixed` scale에서 먼저 읽는다.\n"
         "drivable boundary는 overlay로만 읽고 base heatmap에 더하지 않는다.\n"
         "obstacle / rule / dynamic 채널은 costmap 시각화로만 읽는다.\n"
-        "`Main`은 field semantics를 직접 바꾸고, `Advanced Surface`는 discretization, kernel, modulation, handoff 품질을 조정한다.\n"
+        "`Main`은 field semantics를 직접 바꾸고, `Advanced Surface`는 discretization, kernel, modulation 품질을 조정한다.\n"
         "현재 구현은 progression guide 안에서 guide-local coordinate를 만들고, guide별 score 가운데 가장 큰 값을 최종 field로 읽는다.\n"
         "현재 수식은 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.\n"
         "support와 alignment는 shape를 지배하지 않는 약한 보조 modulation이다.\n"
@@ -40,7 +40,6 @@ SECTION_TITLES = {
         "discretization": "Discretization",
         "support_kernel": "Support Kernel",
         "modulation": "Modulation",
-        "handoff": "Handoff",
     },
     LANG_KO: {
         "longitudinal": "Longitudinal",
@@ -50,7 +49,6 @@ SECTION_TITLES = {
         "discretization": "Discretization",
         "support_kernel": "Support Kernel",
         "modulation": "Modulation",
-        "handoff": "Handoff",
     },
 }
 
@@ -361,48 +359,6 @@ PARAMETER_TEXTS: dict[str, dict[str, dict[str, str]]] = {
             "effect_up": "heading alignment의 영향이 더 커진다.",
             "effect_down": "alignment modulation이 더 평평해진다.",
             "tooltip": "alignment modulation 변화량",
-        },
-    },
-    "transverse_handoff_support_ratio": {
-        LANG_EN: {
-            "meaning": "Minimum support ratio, relative to the dominant guide, for a guide to participate in transverse handoff smoothing.",
-            "effect_up": "Candidate guides are filtered more aggressively, so handoff becomes harder.",
-            "effect_down": "More guides participate in smoothing.",
-            "tooltip": "minimum support ratio for handoff candidates",
-        },
-        LANG_KO: {
-            "meaning": "transverse handoff candidate guide를 고를 때 dominant support 대비 최소 비율이다.",
-            "effect_up": "candidate guide가 더 엄격하게 걸러져 handoff가 더 hard해진다.",
-            "effect_down": "더 많은 guide가 handoff smoothing에 참여한다.",
-            "tooltip": "handoff candidate 최소 support 비율",
-        },
-    },
-    "transverse_handoff_score_delta": {
-        LANG_EN: {
-            "meaning": "Allowed score gap from the dominant guide when collecting transverse handoff candidates.",
-            "effect_up": "More nearby guides remain eligible candidates.",
-            "effect_down": "Candidate guides shrink more aggressively.",
-            "tooltip": "allowed score gap for handoff candidates",
-        },
-        LANG_KO: {
-            "meaning": "transverse handoff candidate guide를 고를 때 dominant score와 허용 차이다.",
-            "effect_up": "더 많은 근접 guide가 candidate로 남는다.",
-            "effect_down": "candidate guide가 더 엄격하게 줄어든다.",
-            "tooltip": "handoff candidate score 허용 차",
-        },
-    },
-    "transverse_handoff_temperature": {
-        LANG_EN: {
-            "meaning": "Soft weighting temperature used when blending transverse values across candidate guides.",
-            "effect_up": "Guide handoff spreads more softly.",
-            "effect_down": "Guide handoff collapses harder toward the dominant guide.",
-            "tooltip": "temperature used for handoff smoothing",
-        },
-        LANG_KO: {
-            "meaning": "candidate guide 사이 transverse blending의 soft weighting temperature다.",
-            "effect_up": "guide handoff가 더 부드럽게 퍼진다.",
-            "effect_down": "guide handoff가 dominant guide 쪽으로 더 hard하게 수렴한다.",
-            "tooltip": "handoff smoothing temperature",
         },
     },
 }

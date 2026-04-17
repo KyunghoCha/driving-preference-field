@@ -61,14 +61,6 @@ ADVANCED_PARAMETER_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
             "alignment_range",
         ),
     ),
-    (
-        "handoff",
-        (
-            "transverse_handoff_support_ratio",
-            "transverse_handoff_score_delta",
-            "transverse_handoff_temperature",
-        ),
-    ),
 )
 
 
@@ -85,9 +77,6 @@ ADVANCED_PARAMETER_RANGES: dict[str, tuple[float, float]] = {
     "support_range": (0.0, 1.0),
     "alignment_base": (0.0, 1.0),
     "alignment_range": (0.0, 1.0),
-    "transverse_handoff_support_ratio": (0.0, 1.0),
-    "transverse_handoff_score_delta": (0.0, 2.0),
-    "transverse_handoff_temperature": (0.01, 1.0),
 }
 
 
@@ -327,41 +316,6 @@ PARAMETER_SPECS: dict[str, ParameterSpec] = {
         practical_band="0.0 .. 1.0",
         technical_range="0.0 .. 1.0",
         numeric_range=ADVANCED_PARAMETER_RANGES["alignment_range"],
-        single_step=0.01,
-    ),
-    "transverse_handoff_support_ratio": ParameterSpec(
-        key="transverse_handoff_support_ratio",
-        label="handoff support ratio",
-        section_key="handoff",
-        config_namespace="surface_tuning",
-        tier="advanced",
-        widget_kind="double_spin",
-        practical_band="0.0 .. 1.0",
-        technical_range="0.0 .. 1.0",
-        numeric_range=ADVANCED_PARAMETER_RANGES["transverse_handoff_support_ratio"],
-        single_step=0.01,
-    ),
-    "transverse_handoff_score_delta": ParameterSpec(
-        key="transverse_handoff_score_delta",
-        label="handoff score delta",
-        section_key="handoff",
-        config_namespace="surface_tuning",
-        tier="advanced",
-        widget_kind="double_spin",
-        practical_band="0.0 .. 2.0",
-        technical_range="0.0 .. 2.0",
-        numeric_range=ADVANCED_PARAMETER_RANGES["transverse_handoff_score_delta"],
-    ),
-    "transverse_handoff_temperature": ParameterSpec(
-        key="transverse_handoff_temperature",
-        label="handoff temperature",
-        section_key="handoff",
-        config_namespace="surface_tuning",
-        tier="advanced",
-        widget_kind="double_spin",
-        practical_band="0.01 .. 1.0",
-        technical_range="0.01 .. 1.0",
-        numeric_range=ADVANCED_PARAMETER_RANGES["transverse_handoff_temperature"],
         single_step=0.01,
     ),
 }

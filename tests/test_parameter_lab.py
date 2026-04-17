@@ -86,7 +86,7 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert "transverse_family" in window._baseline_panel._controls
     assert "transverse_scale" in window._baseline_panel._controls
     assert "anchor_spacing_m" in window._baseline_panel._controls
-    assert "transverse_handoff_temperature" in window._baseline_panel._controls
+    assert "transverse_handoff_temperature" not in window._baseline_panel._controls
     assert window._baseline_panel._advanced_toggle.isChecked() is False
     assert window._baseline_panel._advanced_content.isVisible() is False
     assert window._channel_selector.findData("progression_s_hat") != -1
@@ -734,13 +734,13 @@ def test_advanced_surface_controls_apply_reset_and_reload(qtbot, tmp_path) -> No
     assert panel._apply_button.isEnabled() is False
 
     panel._controls["anchor_spacing_m"].setValue(0.3)
-    panel._controls["transverse_handoff_temperature"].setValue(0.08)
+    panel._controls["sigma_t_scale"].setValue(0.5)
     panel._apply_button.click()
     qtbot.waitUntil(
         lambda: abs(window._baseline_config.surface_tuning.anchor_spacing_m - 0.3) < 1e-6,
         timeout=15000,
     )
-    assert abs(window._baseline_config.surface_tuning.transverse_handoff_temperature - 0.08) < 1e-6
+    assert abs(window._baseline_config.surface_tuning.sigma_t_scale - 0.5) < 1e-6
 
     window._preset_root = tmp_path / "presets"
     window._preset_root.mkdir(parents=True, exist_ok=True)
@@ -748,7 +748,7 @@ def test_advanced_surface_controls_apply_reset_and_reload(qtbot, tmp_path) -> No
     window._load_preset_into_side("candidate", str(window._preset_root / "advanced_surface.yaml"))
 
     assert abs(window._candidate_config.surface_tuning.anchor_spacing_m - 0.3) < 1e-6
-    assert abs(window._candidate_config.surface_tuning.transverse_handoff_temperature - 0.08) < 1e-6
+    assert abs(window._candidate_config.surface_tuning.sigma_t_scale - 0.5) < 1e-6
 
     window.close()
 

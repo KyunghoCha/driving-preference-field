@@ -3,6 +3,12 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
+_REMOVED_SURFACE_TUNING_KEYS = (
+    "transverse_handoff_support_ratio",
+    "transverse_handoff_score_delta",
+    "transverse_handoff_temperature",
+)
+
 
 @dataclass(frozen=True)
 class ProgressionConfig:
@@ -31,9 +37,6 @@ class SurfaceTuningConfig:
     support_range: float = 0.05
     alignment_base: float = 0.95
     alignment_range: float = 0.05
-    transverse_handoff_support_ratio: float = 0.25
-    transverse_handoff_score_delta: float = 0.20
-    transverse_handoff_temperature: float = 0.05
 
 
 @dataclass(frozen=True)
@@ -47,7 +50,13 @@ class FieldConfig:
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "FieldConfig":
         progression = ProgressionConfig(**dict(payload.get("progression", {}) or {}))
-        surface_tuning = SurfaceTuningConfig(**dict(payload.get("surface_tuning", {}) or {}))
+        surface_tuning_payload = dict(payload.get("surface_tuning", {}) or {})
+        for key in _REMOVED_SURFACE_TUNING_KEYS:
+            if key in surface_tuning_payload:
+                raise ValueError(
+                    f"surface_tuning.{key} is no longer supported; transverse now follows the dominant guide directly"
+                )
+        surface_tuning = SurfaceTuningConfig(**surface_tuning_payload)
         return cls(progression=progression, surface_tuning=surface_tuning)
 
 

@@ -34,7 +34,7 @@ The runtime supports several longitudinal families such as `tanh`, `linear`, `in
 
 ### Transverse families
 
-The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. The current implementation also applies transverse handoff smoothing across near-dominant guides for the exported transverse inspection channel.
+The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. The exported transverse channel is the dominant guide's actual transverse term; it is not a separate smoothed inspection channel.
 
 ### Secondary modulation
 

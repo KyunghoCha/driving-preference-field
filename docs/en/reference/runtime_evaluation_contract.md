@@ -31,7 +31,7 @@ The runtime can expose current-implementation detail channels such as longitudin
 
 ## Current implementation
 
-The current implementation builds guide-local coordinates and scores from progression guides, then takes a pointwise hard max envelope across guides. `progression_transverse_component` includes handoff smoothing for inspection quality. Obstacle / rule / dynamic channels remain separate cost-like views.
+The current implementation builds guide-local coordinates and scores from progression guides, then takes a pointwise hard max envelope across guides. `progression_transverse_component` is the dominant guide's actual transverse term. Obstacle / rule / dynamic channels remain separate cost-like views.
 
 ## Visualization
 

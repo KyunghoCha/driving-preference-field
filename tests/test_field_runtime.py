@@ -289,9 +289,8 @@ def test_field_runtime_surface_tuning_change_propagates_into_surface_output() ->
         context,
         config=_canonical_config(
             surface_tuning=SurfaceTuningConfig(
-                transverse_handoff_support_ratio=0.6,
-                transverse_handoff_score_delta=0.4,
-                transverse_handoff_temperature=0.12,
+                anchor_spacing_m=0.15,
+                sigma_t_scale=0.5,
             )
         ),
     )
@@ -299,7 +298,7 @@ def test_field_runtime_surface_tuning_change_propagates_into_surface_output() ->
     baseline_payload = baseline.query_state(state)
     candidate_payload = candidate.query_state(state)
 
-    assert candidate_payload.diagnostics["field_config"]["surface_tuning"]["transverse_handoff_temperature"] == 0.12
+    assert candidate_payload.diagnostics["field_config"]["surface_tuning"]["anchor_spacing_m"] == 0.15
     assert candidate_payload.diagnostics["progression_transverse_component"] != pytest.approx(
         baseline_payload.diagnostics["progression_transverse_component"]
     )
