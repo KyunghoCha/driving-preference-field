@@ -22,7 +22,7 @@ Anchor weights are computed across the full pool. A provisional pooled `s_hat0` 
 
 ### Pooled progress coordinate
 
-The runtime derives `s_hat` and a pooled tangent from the final normalized blend. These coordinates define the longitudinal reading and the progress anchor around which the transverse reading is localized.
+The runtime derives `s_hat` and a pooled tangent from the final normalized blend. These coordinates define the longitudinal reading and the progress location used to pick the same-guide neighborhood for the transverse reading.
 
 ### Longitudinal frame
 
@@ -34,7 +34,7 @@ The runtime supports several longitudinal families such as `tanh`, `linear`, `in
 
 ### Transverse families
 
-The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. The exported `progression_transverse_component` is the exact guide-projection transverse term that also goes into the score.
+The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. The exported `progression_transverse_component` is the exact smooth guide-attached transverse term that also goes into the score.
 
 ### Secondary modulation
 
@@ -46,7 +46,7 @@ The active progression score is:
 
 `progression_tilted(p) = support_mod * alignment_mod * (T(|n_hat_guide|) + gain * L(u))`
 
-There is no guide-local hard max envelope in the current implementation. Guide diagnostics such as dominant guides are derived from pooled raw contribution only. `n_hat_guide` is read by projecting the query point onto the nearest resampled progression-guide segment, rather than from a pooled local-window reconstruction.
+There is no guide-local hard max envelope in the current implementation. Guide diagnostics such as dominant guides are derived from pooled raw contribution only. `n_hat_guide` is read by first selecting the nearest resampled guide branch, then softly blending nearby segments on that same guide to reconstruct a smooth guide-attached cross-section.
 
 ## Exception layers
 

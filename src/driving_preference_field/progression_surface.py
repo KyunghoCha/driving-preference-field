@@ -12,9 +12,10 @@ coordinate field across all progression anchors:
 Anchor weights are computed globally, a provisional pooled progress estimate is
 used to apply soft progress gating, and the final progress coordinate field is
 blended across the whole anchor pool. The exported transverse term is then read
-directly from the progression-guide geometry itself by projecting onto the
-nearest resampled guide segment. Exact formulas here are current implementation
-details, not the canonical design contract.
+from the progression-guide geometry itself: the runtime picks the nearest
+resampled guide segment, then reconstructs a smooth same-guide local
+cross-section by softly blending nearby segments on that guide. Exact formulas
+here are current implementation details, not the canonical design contract.
 README plus the bilingual current formula references under
 docs/en/reference/current_formula_reference.md and
 docs/ko/reference/current_formula_reference.md must move with this module when
@@ -62,7 +63,11 @@ class SurfaceIndex:
     segment_starts: np.ndarray
     segment_vectors: np.ndarray
     segment_lengths_sq: np.ndarray
+    segment_tangents: np.ndarray
     segment_normals: np.ndarray
+    segment_s_mid: np.ndarray
+    segment_sigma_t: np.ndarray
+    segment_guide_indices: np.ndarray
 
 
 @dataclass(frozen=True)
@@ -472,7 +477,14 @@ def _pooled_blend_result(
     # Progress ordering remains pooled across the full anchor set, but the
     # cross-section distance follows the guide structure itself instead of a
     # second pooled local-frame reconstruction.
-    n_hat = _guide_geometry_signed_distance(surface, x_values, y_values)
+    n_hat = _guide_geometry_signed_distance(
+        surface,
+        x_values,
+        y_values,
+        s_hat=s_hat,
+        transverse_scale=max(config.transverse_scale, _EPS),
+        sigma_n=sigma_n,
+    )
     transverse_component = _transverse_value_array(np.abs(n_hat) / max(config.transverse_scale, _EPS), config)
     longitudinal_component = _longitudinal_value_array(u_value, config)
 
@@ -593,6 +605,10 @@ def _guide_geometry_signed_distance(
     surface: SurfaceIndex,
     x_values: np.ndarray,
     y_values: np.ndarray,
+    *,
+    s_hat: np.ndarray,
+    transverse_scale: float,
+    sigma_n: float,
 ) -> np.ndarray:
     if surface.segment_starts.size == 0:
         return np.zeros_like(x_values)
@@ -617,8 +633,43 @@ def _guide_geometry_signed_distance(
     signed_distance = offset_x * normal_x + offset_y * normal_y
 
     best_segment = np.argmin(distance_sq, axis=0)
-    sample_indices = np.arange(x_values.size)
-    return signed_distance[best_segment, sample_indices]
+    guide_indices = surface.segment_guide_indices[:, None]
+    nearest_guides = surface.segment_guide_indices[best_segment][None, :]
+    same_guide = guide_indices == nearest_guides
+
+    sigma_t = surface.segment_sigma_t[:, None]
+    progress_gate = np.exp(-0.5 * (((surface.segment_s_mid[:, None] - s_hat[None, :]) / np.clip(sigma_t, _EPS, None)) ** 2))
+    geometry_sigma = max(transverse_scale, sigma_n, _EPS)
+    geometry_gate = np.exp(-0.5 * (distance_sq / (geometry_sigma * geometry_sigma)))
+    local_raw = np.where(same_guide, progress_gate * geometry_gate, 0.0)
+    local_support = np.sum(local_raw, axis=0)
+
+    fallback = np.zeros_like(local_raw)
+    fallback[best_segment, np.arange(x_values.size)] = 1.0
+    local_weights = np.where(
+        local_support[None, :] > _EPS,
+        local_raw / np.clip(local_support[None, :], _EPS, None),
+        fallback,
+    )
+
+    tangent_x = surface.segment_tangents[:, 0][:, None]
+    tangent_y = surface.segment_tangents[:, 1][:, None]
+    local_center_x = np.sum(local_weights * closest_x, axis=0)
+    local_center_y = np.sum(local_weights * closest_y, axis=0)
+    local_tangent = np.stack(
+        (
+            np.sum(local_weights * tangent_x, axis=0),
+            np.sum(local_weights * tangent_y, axis=0),
+        ),
+        axis=1,
+    )
+    local_tangent_norm = np.linalg.norm(local_tangent, axis=1, keepdims=True)
+    local_tangent = local_tangent / np.clip(local_tangent_norm, _EPS, None)
+    local_normal = np.stack((-local_tangent[:, 1], local_tangent[:, 0]), axis=1)
+    return (
+        (x_values - local_center_x) * local_normal[:, 0]
+        + (y_values - local_center_y) * local_normal[:, 1]
+    )
 
 
 def _surface_index(snapshot: SemanticInputSnapshot, tuning: SurfaceTuningConfig) -> SurfaceIndex:
@@ -734,14 +785,22 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             segment_starts=np.zeros((0, 2), dtype=float),
             segment_vectors=np.zeros((0, 2), dtype=float),
             segment_lengths_sq=np.zeros((0,), dtype=float),
+            segment_tangents=np.zeros((0, 2), dtype=float),
             segment_normals=np.zeros((0, 2), dtype=float),
+            segment_s_mid=np.zeros((0,), dtype=float),
+            segment_sigma_t=np.zeros((0,), dtype=float),
+            segment_guide_indices=np.zeros((0,), dtype=int),
         )
 
     cumulative_array = np.asarray(anchor_cumulative_s, dtype=float)
     segment_starts: list[Point2] = []
     segment_vectors: list[Point2] = []
     segment_lengths_sq: list[float] = []
+    segment_tangents: list[Point2] = []
     segment_normals: list[Point2] = []
+    segment_s_mid: list[float] = []
+    segment_sigma_t: list[float] = []
+    segment_guide_indices: list[int] = []
     for start, stop in guide_anchor_ranges:
         if stop - start < 2:
             continue
@@ -758,7 +817,12 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             segment_starts.append(start_point)
             segment_vectors.append(vector)
             segment_lengths_sq.append(length_sq)
+            segment_tangents.append(tangent)
             segment_normals.append(normal)
+            segment_s_mid.append(0.5 * (anchor_cumulative_s[anchor_index] + anchor_cumulative_s[anchor_index + 1]))
+            guide_length = anchor_guide_lengths[anchor_index]
+            segment_sigma_t.append(max(tuning.min_sigma_t, guide_length * tuning.sigma_t_scale))
+            segment_guide_indices.append(anchor_guide_indices[anchor_index])
     return SurfaceIndex(
         guides=tuple(guides),
         guide_ids=tuple(guide_ids),
@@ -775,7 +839,11 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         segment_starts=np.asarray(segment_starts, dtype=float),
         segment_vectors=np.asarray(segment_vectors, dtype=float),
         segment_lengths_sq=np.asarray(segment_lengths_sq, dtype=float),
+        segment_tangents=np.asarray(segment_tangents, dtype=float),
         segment_normals=np.asarray(segment_normals, dtype=float),
+        segment_s_mid=np.asarray(segment_s_mid, dtype=float),
+        segment_sigma_t=np.asarray(segment_sigma_t, dtype=float),
+        segment_guide_indices=np.asarray(segment_guide_indices, dtype=int),
     )
 
 
