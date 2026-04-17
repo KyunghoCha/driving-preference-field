@@ -146,12 +146,23 @@ def test_raw_owner_notes_follow_expected_template() -> None:
 
 def test_raw_owner_notes_expand_referential_fragments_with_surrounding_messages() -> None:
     gate_note = _read("docs/raw/notes/2026-03-17-progression-from-geometric-gate-intuition.md")
+    segment_note = _read("docs/raw/notes/2026-03-17-segment-index-consumption-and-reachable-progress.md")
+    splice_note = _read("docs/raw/notes/2026-03-17-local-splice-and-lane-range.md")
+    contract_note = _read("docs/raw/notes/2026-03-17-segment-first-global-path-contract-and-visualization.md")
     progress_note = _read("docs/raw/notes/2026-04-17-dpf-as-progress-preference-device.md")
     weighting_note = _read("docs/raw/notes/2026-04-17-longitudinal-vs-transverse-weighting.md")
 
     assert "게이트를 지나면 다음 노드로 갈아타는 방식" in gate_note
     assert "게이트 지나면 다음 노드로 가는건 어때" in gate_note
     assert "게이트 지날 때 범위 내에 있으면" in gate_note
+    assert "경로에 인덱스를 붙여서 소비" in segment_note
+    assert "갈 수 있는 길은 갈 수 있게" in segment_note
+    assert "PLEASE IMPLEMENT THIS PLAN" in segment_note
+    assert "ego에서 다음 노드까지만 경로를 다시 만드는 방향" in splice_note
+    assert "범위는 차선범위" in splice_note
+    assert "전역 경로를 생성할 때부터 하나가 아니라 세그먼트들로" in contract_note
+    assert "노드랑 간선형태" in contract_note
+    assert "PLEASE IMPLEMENT THIS PLAN" in contract_note
     assert "1번은 파라미터로 조정하면 되는거고" in progress_note
     assert "진행방향 성분이 메인으로 가고" in progress_note
     assert "2변은 진행 선호를 주는 장치지" in progress_note
@@ -175,6 +186,7 @@ def test_owner_design_notebook_tracks_latest_user_framing() -> None:
     assert "관련 raw notes" not in notebook
     assert "현재 열린 쟁점" not in notebook
     assert "메타를 줄인 clean design prose" not in notebook
+    assert "reference spine" not in notebook
 
 
 def test_owner_design_history_tracks_design_evolution() -> None:
@@ -194,6 +206,10 @@ def test_owner_design_history_tracks_design_evolution() -> None:
     assert "### Current framing" not in history
     assert "## Source sessions" not in history
     assert "관련 raw notes" not in history
+    assert "인덱스를 붙여 consume" in history
+    assert "ego -> current exit node" in history
+    assert "진행 선호를 주는 장치" in history
+    assert "reference spine" not in history
 
 
 def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
@@ -210,3 +226,5 @@ def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
         assert "clean design prose" in body
         assert "clean design history prose" in body
         assert "current active thread" in body or "current thread" in body
+        assert "PLEASE IMPLEMENT THIS PLAN" in body
+        assert "then update `docs/raw/owner_thought_tracker.md`" in body or "then `docs/raw/owner_thought_tracker.md`" in body

@@ -104,14 +104,20 @@ def test_raw_owner_thought_surface_is_linked_and_noncanonical() -> None:
     assert "non-canonical" in raw_readme
     assert "사용자 원문" in raw_readme
     assert "./owner_thought_tracker.md" in raw_readme
-    assert "./owner_design_notebook.md" in raw_readme
     assert "./owner_design_history.md" in raw_readme
+    assert "./owner_design_notebook.md" in raw_readme
     assert "current active thread" in raw_readme
+    assert "PLEASE IMPLEMENT THIS PLAN" in raw_readme
     assert "./notes/2026-03-17-progression-from-geometric-gate-intuition.md" in raw_readme
+    assert "./notes/2026-03-17-segment-index-consumption-and-reachable-progress.md" in raw_readme
+    assert "./notes/2026-03-17-local-splice-and-lane-range.md" in raw_readme
+    assert "./notes/2026-03-17-segment-first-global-path-contract-and-visualization.md" in raw_readme
     assert "./notes/2026-04-17-longitudinal-vs-transverse-weighting.md" in raw_readme
     assert "./notes/2026-04-17-dpf-as-progress-preference-device.md" in raw_readme
     assert "./notes/2026-04-17-raw-thought-capture-workflow.md" in raw_readme
     assert "./notes/2026-04-18-owner-design-doc-shape-and-backfill.md" in raw_readme
+    assert raw_readme.index("./owner_thought_tracker.md") < raw_readme.index("./owner_design_history.md")
+    assert raw_readme.index("./owner_design_history.md") < raw_readme.index("./owner_design_notebook.md")
     assert "../raw/README.md" in en_index
     assert "../raw/README.md" in ko_index
     assert "design history" in en_index

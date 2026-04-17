@@ -9,12 +9,13 @@
 - `notes/`
   - 사용자 채팅 원문에서 repo-level idea, design intuition, workflow thought를 verbatim에 가깝게 발췌해 남긴다.
   - assistant 내용은 맥락 복원이 꼭 필요할 때만 별도 블록으로 분리한다.
+  - 설계 전환을 실제로 고정한 사용자 plan 메시지(`PLEASE IMPLEMENT THIS PLAN` 등)도 raw anchor로 포함할 수 있다.
 - [Owner Thought 변화 추적](./owner_thought_tracker.md)
-  - 아이디어가 언제 어떻게 바뀌었는지 주제별로 짧게 누적한다.
-- [Owner Design Notebook](./owner_design_notebook.md)
-  - raw나 tracker를 읽지 않아도 최신 사용자 설계 생각을 한 번에 파악할 수 있게, raw-grounded clean design prose로 정리한다.
+  - `notes/`에 있는 anchor를 기준으로, 아이디어가 언제 어떻게 바뀌었는지 주제별로 짧게 누적한다.
 - [Owner Design History](./owner_design_history.md)
-  - 문제 인식부터 현재까지 설계 생각이 어떤 전환점을 거쳐 형성됐는지, 핵심 이정표만 남기는 clean history prose로 정리한다.
+  - 문제 인식부터 현재까지 설계 생각이 어떤 전환점을 거쳐 형성됐는지, notes-grounded clean history prose로 핵심 이정표만 남긴다.
+- [Owner Design Notebook](./owner_design_notebook.md)
+  - `notes/`를 읽지 않아도 최신 사용자 설계 생각을 한 번에 파악할 수 있게, notes-grounded clean design prose로 정리한다.
 
 ## source policy
 
@@ -25,6 +26,7 @@
 - `.codex` 로그 전체를 문서에 복사하지 않는다. 필요한 발췌만 남긴다.
 - `1번`, `2번`, `그거`, `이거`, `저거`처럼 referential fragment가 나오면, 해당 지시 대상을 복원할 수 있도록 앞뒤 사용자 메시지도 함께 발췌한다.
 - wider historical backfill은 별도 배치에서만 하고, source confidence가 낮으면 올리지 않는다.
+- 파생 문서는 `notes/`보다 앞서 나가면 안 된다. `owner_thought_tracker.md`, `owner_design_history.md`, `owner_design_notebook.md`는 모두 `notes/`를 먼저 갱신한 뒤 `tracker -> history -> latest design notebook` 순서로 따라간다.
 
 ## boundary
 
@@ -36,6 +38,9 @@
 현재 포함된 raw note:
 
 - [2026-03-17-progression-from-geometric-gate-intuition](./notes/2026-03-17-progression-from-geometric-gate-intuition.md)
+- [2026-03-17-segment-index-consumption-and-reachable-progress](./notes/2026-03-17-segment-index-consumption-and-reachable-progress.md)
+- [2026-03-17-local-splice-and-lane-range](./notes/2026-03-17-local-splice-and-lane-range.md)
+- [2026-03-17-segment-first-global-path-contract-and-visualization](./notes/2026-03-17-segment-first-global-path-contract-and-visualization.md)
 - [2026-04-17-longitudinal-vs-transverse-weighting](./notes/2026-04-17-longitudinal-vs-transverse-weighting.md)
 - [2026-04-17-dpf-as-progress-preference-device](./notes/2026-04-17-dpf-as-progress-preference-device.md)
 - [2026-04-17-raw-thought-capture-workflow](./notes/2026-04-17-raw-thought-capture-workflow.md)

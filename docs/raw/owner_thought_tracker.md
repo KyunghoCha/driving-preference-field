@@ -2,6 +2,40 @@
 
 이 문서는 사용자 원문 thought가 어떻게 바뀌었는지 추적하는 non-canonical 문서다. 원문 보존은 `notes/`가 담당하고, 최신 사용자 framing 요약은 [Owner Design Notebook](./owner_design_notebook.md)이 담당한다. 설계 발전 서사는 [Owner Design History](./owner_design_history.md)이 맡는다. 이 문서는 그 둘 사이에서 현재 세션 안의 변화 순서를 짧게 누적한다.
 
+## segment/index consumption and reachable progress
+
+### First raised
+
+- 2026-03-17
+
+### Current framing
+
+- progression을 처음부터 노드 도달 사건으로 보기보다, 작은 path piece에 인덱스를 붙여 consume하는 방식으로 읽으려는 생각이 먼저 나왔다.
+- 다음 노드로 바로 못 가더라도 갈 수 있는 데까지는 계속 진행해야 한다는 reachable-progress 감각이 같이 올라왔다.
+
+### Key changes by date
+
+- 2026-03-17: `노드 사이의 경로에 인덱스를 붙여서 소비`가 가장 이른 형태로 제안됐다.
+- 2026-03-17: `당장 다음 노드로 못가도 계속 갈 수 있는 길은 진행`이라는 직관이 같이 올라왔다.
+- 2026-03-17: 사용자 plan 메시지에서 ordered segment path와 `current_segment_index` 소비 구조가 더 명시적으로 고정됐다.
+
+### Linked raw notes
+
+- [2026-03-17-segment-index-consumption-and-reachable-progress](./notes/2026-03-17-segment-index-consumption-and-reachable-progress.md)
+
+### Current status
+
+- `under discussion`
+
+### Canonical docs touched (if any)
+
+- 없음
+
+### Open questions
+
+- reachable progress를 DPF progression과 어떤 수준에서 연결할지
+- segment consumption을 path-reading intuition으로만 둘지, 더 일반적인 field semantics로 올릴지
+
 ## progression / gate intuition
 
 ### First raised
@@ -10,14 +44,14 @@
 
 ### Current framing
 
-- progression을 읽는 가장 이른 직관은 `게이트를 넘으면 다음으로 갈아탄다`는 식의 기하학적 gate crossing이다.
-- 정상 범위에서 gate를 넘으면 경로를 다시 만들지 않고 consume하고 넘어가고, local splice는 막혔을 때만 쓰는 조각이라는 생각이 먼저 나왔다.
+- progression을 읽는 가장 이른 단순화는 `게이트를 넘으면 다음으로 갈아탄다`는 식의 기하학적 gate crossing이다.
+- 범위 안에서 gate를 통과했으면 기존 경로를 불필요하게 다시 만들지 않고 그대로 유지하거나 consume하고 넘어가야 한다는 생각이 같이 따라왔다.
 
 ### Key changes by date
 
 - 2026-03-17: `게이트를 지나면 다음 노드로 갈아타기`가 simplest progression rule로 제안됐다.
-- 2026-03-17: `게이트 근처 arm`보다 `gate crossing only + 간단한 보호조건`이 더 단순하고 자연스럽다는 방향이 정리됐다.
-- 2026-03-17: 정상 범위 gate 통과 시에는 경로를 수정하지 않고, 막힌 경우에만 local splice를 쓰는 구분이 명시됐다.
+- 2026-03-17: `게이트 지나면 다음 노드`, `범위 내면 경로 수정 안함`이라는 식으로 조건이 더 단순하게 재말해졌다.
+- 2026-03-17: `범위 내에서 gate를 통과하면 기존 경로 유지`를 다시 확인하는 사용자 질문이 나왔다.
 - 2026-04-18: 이 gate 직관을 DPF 설계 문서의 출발점으로 다시 세우기로 결정했다.
 
 ### Linked raw notes
@@ -35,7 +69,76 @@
 ### Open questions
 
 - gate crossing 직관을 DPF의 progression 정의로 얼마나 직접 연결할지
-- gate consume intuition과 whole-space preference field를 어떤 수준에서 연결할지
+- gate 범위와 consume을 pure geometry로 둘지, preference interpretation까지 올릴지
+
+## local splice and lane corridor
+
+### First raised
+
+- 2026-03-17
+
+### Current framing
+
+- gate consume만으로 부족한 경우에는 전체 경로를 다시 만드는 것이 아니라 `ego -> next`까지만 다시 만드는 local splice가 맞다는 생각이 나왔다.
+- 이 splice는 차선 범위 안에서만 허용해야 한다는 lane-range 직관이 같이 붙었다.
+
+### Key changes by date
+
+- 2026-03-17: `ego에서 다음 노드까지만 경로를 다시 만드는 방향`이 명시됐다.
+- 2026-03-17: `범위는 차선범위`라는 제약이 바로 붙었다.
+- 2026-03-17: 사용자 plan 메시지에서 `ego -> current exit node` local splice와 차선 corridor 조건이 더 명시적으로 고정됐다.
+
+### Linked raw notes
+
+- [2026-03-17-local-splice-and-lane-range](./notes/2026-03-17-local-splice-and-lane-range.md)
+
+### Current status
+
+- `under discussion`
+
+### Canonical docs touched (if any)
+
+- 없음
+
+### Open questions
+
+- local splice를 DPF 설계의 핵심으로 볼지, blocked-case fallback으로 둘지
+- lane range를 structure-preserving prior로 읽을지, execution-side safety boundary로 읽을지
+
+## segment-first global path contract
+
+### First raised
+
+- 2026-03-17
+
+### Current framing
+
+- segment consumption을 behavior 내부 해석으로만 두기보다, 전역 경로를 처음부터 ordered segment path로 두는 쪽이 더 맞다는 생각으로 발전했다.
+- 이 전환과 함께 노드/간선을 명시적으로 시각화해야 한다는 요구도 같이 올라왔다.
+
+### Key changes by date
+
+- 2026-03-17: `전역 경로를 생성할 때부터 세그먼트들로`라는 제안이 나왔다.
+- 2026-03-17: `인덱스와 노드를 소비`, `노드랑 간선형태` 시각화 요구가 같이 붙었다.
+- 2026-03-17: 사용자 plan 메시지에서 global planner가 ordered segment sequence를 발행하고 behavior가 그것을 소비하는 구조가 더 강하게 고정됐다.
+- 2026-03-17: node visualization은 점이어도 되지만 결국 arrow가 더 낫다는 취향 조정이 뒤따랐다.
+
+### Linked raw notes
+
+- [2026-03-17-segment-first-global-path-contract-and-visualization](./notes/2026-03-17-segment-first-global-path-contract-and-visualization.md)
+
+### Current status
+
+- `under discussion`
+
+### Canonical docs touched (if any)
+
+- 없음
+
+### Open questions
+
+- 이 전환을 DPF 쪽에서 metaphor로만 둘지, 입력 경로 역할 정의에 더 직접 반영할지
+- visualization choice와 conceptual contract를 어디까지 분리할지
 
 ## DPF as progress-preference device
 
@@ -50,10 +153,9 @@
 
 ### Key changes by date
 
-- 2026-03-17: gate를 넘으면 다음으로 갈아타는 단순 progression intuition이 먼저 나타났다.
-- 2026-04-17: “진행 선호를 주는 장치”라는 한국어 framing이 초기 raw thought로 기록됐다.
+- 2026-04-17: “진행 선호를 주는 장치”라는 한국어 framing이 raw thought로 기록됐다.
 - 2026-04-17: `corridor fidelity vs optimizer-upstream preference`보다 한국어 표현이 현재 의도를 더 잘 드러낸다는 판단이 대화에서 정리됐다.
-- 2026-04-18: 입력 경로는 reference spine이지 그대로 복제할 궤적은 아니라는 쪽으로 설계 정리가 더 좁혀졌다.
+- 2026-04-18: 입력 경로를 그대로 복제해야 하는 경로라기보다, 어디로 가는 게 더 좋은지 판단할 때 참고하는 기준으로 보는 쪽으로 설계 정리가 더 좁혀졌다.
 
 ### Linked raw notes
 
@@ -86,7 +188,6 @@
 
 ### Key changes by date
 
-- 2026-03-17: progression을 gate crossing으로 단순화하는 직관이 먼저 나왔고, 이는 나중의 longitudinal 중심 문제의식의 앞단에 놓이게 됐다.
 - 2026-04-17: 진행방향 성분이 메인으로 더 강해질 수 있다는 사용자 직관이 raw로 올라왔다.
 - 2026-04-17: `normalized`는 계산을 막는 것이 아니라 visualization range를 다시 펴는 것이라는 구분이 대화에서 분리됐다.
 - 2026-04-18: 이 주제는 단순 tuning보다 DPF가 어떤 종류의 preference field인지 묻는 설계 문제라는 방향이 더 분명해졌다.

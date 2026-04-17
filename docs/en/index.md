@@ -63,7 +63,7 @@ If you are using Codex or another AI agent for repo work, start from [../../AGEN
 | [Phase 5 Adapter Proposal History](./reading/history/phase5_adapter_proposal.md) | proposal history | read when you need the earlier adapter debate |
 | [External References](./reading/references/external_references.md) | references log | read for external grounding |
 | [Documentation Style References](./reading/references/documentation_style_references.md) | writing references | read when checking external writing standards |
-| [Owner Raw Notes](../raw/README.md) | Korean-only raw notes, tracker, latest design doc, and design history | read when you need user-origin ideas, design evolution, and the latest owner design thinking without treating them as canonical truth |
+| [Owner Raw Notes](../raw/README.md) | Korean-only raw notes, tracker, design history, and latest design doc | read when you need user-origin ideas, design evolution, and the latest owner design thinking without treating them as canonical truth |
 | [Archive References](./reading/history/archive/archive_references.md) | archive map | read when tracking archived notes |
 | [Archive Score Field Notes](./reading/history/archive/archive_score_field_notes.md) | archive notes | read only for historical context |
 

@@ -21,10 +21,7 @@
 
 > 그리고 게이트 지날 때 범위 내에 있으면 경로 수정 안하고 하는거 맞지?
 
-## Assistant context (optional)
-
-- 이 구간에서 assistant는 `arm 거리 기반`보다 `gate crossing only + 간단한 보호조건`이 더 단순하고 자연스럽다고 정리했다.
-- 같은 구간에서 정상 범위 gate 통과 시에는 local splice 없이 consume하고 넘어가고, local splice는 막혔을 때만 쓰는 임시 조각이라는 구분도 같이 나왔다.
+> 범위 내에서 게이트를 통과 하면 기존 경로 유지하고 있는거 맞아?
 
 ## Open questions at the time
 
