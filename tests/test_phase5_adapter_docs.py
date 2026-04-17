@@ -107,10 +107,11 @@ def test_raw_owner_thought_surface_is_linked_and_noncanonical() -> None:
     assert "./notes/2026-04-17-longitudinal-vs-transverse-weighting.md" in raw_readme
     assert "./notes/2026-04-17-dpf-as-progress-preference-device.md" in raw_readme
     assert "./notes/2026-04-17-raw-thought-capture-workflow.md" in raw_readme
+    assert "./notes/2026-04-18-owner-design-doc-shape-and-backfill.md" in raw_readme
     assert "../raw/README.md" in en_index
     assert "../raw/README.md" in ko_index
-    assert "owner design notebook" in en_index
-    assert "최신 설계 정리" in ko_index
+    assert "owner design doc" in en_index
+    assert "최신 설계 문서" in ko_index
     assert "Current status" in raw_tracker
     assert "Owner Design Notebook" in raw_notebook
 

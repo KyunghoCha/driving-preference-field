@@ -23,8 +23,8 @@ def test_writing_principles_exist_in_both_languages() -> None:
     assert "documentation_style_references.md" in ko
     assert "`docs/raw/`" in en
     assert "`docs/raw/`" in ko
-    assert "design notebook" in en
-    assert "설계 notebook" in ko
+    assert "design document" in en
+    assert "설계 문서" in ko
 
 
 def test_parameter_exposure_policy_and_catalog_exist_in_both_languages() -> None:
@@ -158,22 +158,28 @@ def test_owner_design_notebook_tracks_latest_user_framing() -> None:
     notebook = _read("docs/raw/owner_design_notebook.md")
 
     for heading in (
-        "## DPF가 책임지는 것",
+        "## DPF가 하는 일",
+        "## DPF가 하지 않는 일",
+        "## 입력 경로의 역할",
         "## 진행방향 성분과 횡방향 성분",
         "## planner / behavior와의 책임 경계",
-        "## raw thought 기록 workflow",
+        "## branch, merge, reverse 같은 경우를 보는 관점",
     ):
         assert heading in notebook
-    assert "현재 사용자 framing" in notebook
-    assert "관련 raw notes" in notebook
-    assert "현재 열린 쟁점" in notebook
+    assert "현재 사용자 framing" not in notebook
+    assert "관련 raw notes" not in notebook
+    assert "현재 열린 쟁점" not in notebook
+    assert "메타를 줄인 clean design prose" not in notebook
 
 
 def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
     agents = _read("AGENTS.md")
     repo_skill = _read("plugins/dpf-working-rules/skills/dpf-working-rules/SKILL.md")
+    home_skill = Path("/home/ckh/.codex/skills/dpf-repo-guard/SKILL.md").read_text(encoding="utf-8")
 
-    for body in (agents, repo_skill):
+    for body in (agents, repo_skill, home_skill):
         assert "docs/raw/notes/" in body
+        assert "owner_thought_tracker.md" in body
         assert "owner_design_notebook.md" in body
         assert "repo-level intuition" in body
+        assert "clean design prose" in body

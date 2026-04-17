@@ -1,7 +1,7 @@
 interface:
   display_name: "DPF Working Rules"
   short_description: "Load DPF operating docs and raw-thought workflow before repo changes"
-  default_prompt: "Use $dpf-working-rules to load the DPF operating docs, study relevant external references first, define the intent, baseline, hypothesis, non-goals, and verification boundary for this repo task, discuss policy/docs/user-facing semantics proposals before mutating them, capture approved owner-origin raw thoughts under docs/raw/notes with enough surrounding user context, and update docs/raw/owner_design_notebook.md before canonicalizing them."
+  default_prompt: "Use $dpf-working-rules to load the DPF operating docs, study relevant external references first, define the intent, baseline, hypothesis, non-goals, and verification boundary for this repo task, discuss policy/docs/user-facing semantics proposals before mutating them, capture approved owner-origin raw thoughts under docs/raw/notes with enough surrounding user context, update docs/raw/owner_thought_tracker.md, and update docs/raw/owner_design_notebook.md as clean design prose before canonicalizing them."
 
 policy:
   allow_implicit_invocation: true

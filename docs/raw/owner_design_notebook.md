@@ -1,124 +1,43 @@
 # Owner Design Notebook
 
-이 문서는 사용자 최신 설계 생각을 주제별 최신본으로 정리하는 non-canonical notebook이다. raw note가 원문 보존을 맡고, tracker가 시간 변화 추적을 맡는다면, 이 문서는 “지금 사용자 생각이 무엇인가”를 한 번에 읽히게 만드는 층이다.
+DPF를 어떤 장치로 보고, 입력 경로와 성분을 어떤 역할로 읽고, planner와 어떤 책임을 나눠 가지는지를 정리한다. 이 문서는 raw note의 원문을 그대로 보존하는 대신, 지금 시점의 사용자 설계 생각이 어디에 무게를 두고 있는지 읽히게 만드는 설계 문서다.
 
-current truth, 구현 계약, public claim은 계속 canonical docs에서만 고정한다. 이 문서는 canonical replacement가 아니라 owner-origin conceptual notebook이다.
+## DPF가 하는 일
 
-## DPF가 책임지는 것
+DPF는 입력 경로를 참고해 어디로 가는 게 더 좋은지 기울여 주는 선호장을 만드는 쪽에 가깝다. 하나의 정답 경로를 미리 고정하고 그 위를 끝까지 따라가게 만드는 장치라기보다, downstream planner가 trajectory를 고를 때 어떤 방향과 어떤 진전이 더 낫다고 볼지를 upstream에서 정리해 주는 층으로 본다.
 
-### 현재 사용자 framing
+이 관점에서 중요한 것은 “입력 경로가 있으니 무조건 그 선을 따라가라”가 아니라, 입력 경로가 진행 방향과 분기 구조를 읽는 기준선을 제공한다는 점이다. DPF는 그 기준선을 바탕으로 whole-space preference를 만든다.
 
-- DPF는 입력 경로를 참고해서 **어디로 가는 게 더 좋은지**를 기울여 주는 장치에 가깝다.
-- detailed path를 강하게 고정하는 책임은 DPF보다 downstream planner / behavior가 더 많이 져야 한다.
+## DPF가 하지 않는 일
 
-### 핵심 문장
+DPF는 detailed path tracking을 끝까지 책임지는 planner가 아니다. 장애물 회피, 차량 동역학, 순간적인 corridor 재구성, 실제 조향/속도 결정을 모두 여기서 끝내려고 하면 downstream planner와 역할이 겹친다.
 
-- “애초에 입력에 경로가 부분이긴 하지만 결국 어디로 가는게 좋냐는거잖아”
-- “행동계획이나 걔들이 책임 지겠지 우리는 그걸 책임지면 안되는거야”
+같은 이유로 DPF는 local corridor를 지나치게 강하게 붙잡는 장치가 되는 것도 피하는 편이 맞다. 경로를 완전히 잃지 않게 방향을 주는 것과, centerline에 끝까지 고정시키는 것은 다른 일이다. 후자는 planner와 behavior 쪽 책임이 더 크다.
 
-### 왜 이 생각이 나왔는가
+## 입력 경로의 역할
 
-- 최근 U-turn, `progression_tilted`, `longitudinal` vs `transverse` 대화에서 DPF가 corridor를 너무 강하게 붙잡는 장치인지, upstream preference를 주는 장치인지가 반복해서 문제로 떠올랐다.
+입력 경로는 DPF가 어디를 참고해서 progression과 branch ordering을 읽을지 알려 주는 reference spine이다. 이 reference spine은 무시해도 되는 장식이 아니지만, 그대로 복제해야 하는 궤적도 아니다.
 
-### 관련 raw notes
-
-- [진행방향 성분과 횡방향 성분 비중](./notes/2026-04-17-longitudinal-vs-transverse-weighting.md)
-- [DPF를 진행 선호 장치로 보는 생각](./notes/2026-04-17-dpf-as-progress-preference-device.md)
-
-### canonical docs와의 관계
-
-- [Base Field 기초](../ko/explanation/base_field_foundation.md)와 닿아 있지만, 아직 canonical wording으로 확정된 상태는 아니다.
-
-### 현재 열린 쟁점
-
-- DPF와 downstream planner 사이의 responsibility boundary를 어디서 자를지
-- local corridor fidelity를 base field가 어디까지 책임져야 하는지
+입력 경로가 있기 때문에 DPF는 “현재 진행이 어느 branch와 연결돼 있는지”, “어느 쪽이 앞선 진전인지”, “reverse나 U-turn 같은 경우에도 어떤 방향을 progression으로 볼지”를 정의할 수 있다. 그러나 그 입력 경로가 곧 실제 주행 경로라는 뜻은 아니다.
 
 ## 진행방향 성분과 횡방향 성분
 
-### 현재 사용자 framing
+현재 사용자 생각에서는 진행방향 성분이 더 주역이고, 횡방향 성분은 구조를 완전히 잃지 않게 받쳐주는 쪽에 가깝다. 즉 transverse는 corridor를 완전히 놓치지 않게 하는 보조 성분이고, longitudinal는 어디로 더 가는 것이 좋은지에 대한 preference를 더 직접적으로 표현하는 성분으로 읽는다.
 
-- `longitudinal`가 더 주역이 되고, `transverse`는 corridor를 완전히 잃지 않게 받쳐주는 정도일 수 있다.
-- path following이 더 중요할 때는 `transverse`를 강하게, 더 효율적인 진전이 중요할 때는 `longitudinal`를 강하게 두는 방향이 자연스럽다.
+이렇게 보면 tuning의 목표도 달라진다. path following이 더 중요하면 transverse 비중을 높일 수 있고, 더 효율적인 진전이나 더 좋은 라인을 고르는 것이 중요하면 longitudinal 비중을 높일 수 있다. 사용자가 여러 case에서 느낀 직관은 후자 쪽에 더 가깝다.
 
-### 핵심 문장
-
-- “진행방향 성분이 메인으로 가고 횡방향성분은 그렇게 강하지 않아도 될거 같아”
-- “경로 따라가는게 중요하면 횡방향성분을 강하게 하고 빨리 가는게 중요하면 진행방향 성분을 강하게 하고”
-
-### 왜 이 생각이 나왔는가
-
-- 실제 case에서 `longitudinal`가 우연히 더 강하게 보였을 때 경로 효율이 더 좋아 보였고, 현재 DPF가 center-following을 과하게 책임지는 것 아닌지 의문이 생겼다.
-
-### 관련 raw notes
-
-- [진행방향 성분과 횡방향 성분 비중](./notes/2026-04-17-longitudinal-vs-transverse-weighting.md)
-
-### canonical docs와의 관계
-
-- 아직 canonical formula 설명이나 parameter guide에 직접 반영되지 않았다.
-
-### 현재 열린 쟁점
-
-- 이것이 단순 parameter tuning인지, DPF object definition인지
-- `Normalized` visualization이 절대 dominance를 얼마나 가리는지
+여기서 `Normalized` visualization은 계산 자체를 막는 것이 아니라, 화면에서 보이는 대비를 다시 펴는 역할로 본다. 따라서 longitudinal를 실제로 더 강하게 두는 것과, normalized 화면에서 그 dominance가 얼마나 선명하게 보이는지는 분리해서 읽어야 한다.
 
 ## planner / behavior와의 책임 경계
 
-### 현재 사용자 framing
+DPF는 planner와 behavior보다 앞단에서 preference를 주는 층이다. detailed path responsibility는 planner와 behavior가 더 많이 가져가야 한다. 사용자의 직관은 일관되게 이 방향을 가리킨다. “어디로 가는 것이 더 좋은가”는 DPF가 기울여 줄 수 있지만, “지금 이 순간 어떤 steering과 speed로 그 라인을 실제로 구현할 것인가”는 downstream 쪽 문제라는 뜻이다.
 
-- DPF는 optimizer/planner upstream에서 preference를 주고, 실제 detailed path responsibility는 planner / behavior가 더 많이 져야 한다.
-- 후진 같은 경우도 진행방향 성분을 반대로 기울이는 식의 framing이 더 자연스럽다는 intuition이 있다.
+이 경계가 분명해야 DPF가 centerline-following device로 과도하게 비대해지지 않는다. 반대로 DPF가 너무 약하면 branch, merge, reverse 같은 경우에 planner가 참고할 preference spine 자체가 사라진다. 따라서 역할을 없애는 것이 아니라, preference와 execution을 구분하는 것이 핵심이다.
 
-### 핵심 문장
+## branch, merge, reverse 같은 경우를 보는 관점
 
-- “후진을 하면 진행방향 성분만 위로 기울게 하면 되는거라 그런식으로 생각을 했거든”
-- “그럼 행동계획이나 걔들이 책임 지겠지 우리는 그걸 책임지면 안되는거야”
+branch와 merge에서는 DPF가 옵션을 너무 일찍 하나로 닫지 않는 편이 맞다. 입력 경로는 branch ordering을 읽는 데 쓰되, field가 곧바로 하나의 corridor 중심선만 남기도록 수축되면 downstream planner가 선택할 여지가 줄어든다.
 
-### 왜 이 생각이 나왔는가
+reverse는 같은 틀 안에서 설명할 수 있다. 사용자의 직관은 reverse를 별도 특수 기능으로 보기보다, 진행방향 성분의 기울기를 반대로 두는 경우로 읽는 쪽에 가깝다. 즉 progression의 방향 정의만 바뀌면 같은 preference-layer 설명 안에 넣을 수 있다는 생각이다.
 
-- DPF가 path-following device와 progress-preference device 사이에서 어디에 가까운지에 대한 대화가 계속 이어졌고, 사용자 쪽에서는 후자에 더 무게를 두는 framing이 반복해서 나왔다.
-
-### 관련 raw notes
-
-- [DPF를 진행 선호 장치로 보는 생각](./notes/2026-04-17-dpf-as-progress-preference-device.md)
-
-### canonical docs와의 관계
-
-- [프로젝트 개요](../ko/explanation/project_overview.md), [Base Field 기초](../ko/explanation/base_field_foundation.md)의 일부 문장과 닿아 있지만, 책임 경계 wording은 아직 이 notebook 쪽이 더 직접적이다.
-
-### 현재 열린 쟁점
-
-- DPF가 planner보다 덜 책임지는 것으로 canonical wording을 좁혀야 하는지
-- reverse / branch / merge behavior를 이 framing에서 어떻게 설명할지
-
-## raw thought 기록 workflow
-
-### 현재 사용자 framing
-
-- raw에는 사용자 채팅 원문을 최대한 그대로 남기고, assistant는 필요할 때만 분리해서 넣는다.
-- raw note와 별도로 최신 사용자 생각을 정리하는 design notebook이 필요하다.
-- `.codex` 기록은 source material로 활용하되, 전체 로그를 그대로 문서화하지 않는다.
-
-### 핵심 문장
-
-- “내가 한 대화들을 넣으라는거지 내가 채팅에 친것들을”
-- “raw에는 내 생각을 넣는게 좋을까 내 채팅을 넣는게 좋을까”
-- “가장 최신에 내 생각들을 추적해서 정리를 하는 느낌이었어”
-
-### 왜 이 생각이 나왔는가
-
-- raw note 1차에서 원문 보존은 시작됐지만, 최신 사용자 철학/개념을 한 번에 읽을 문서가 없고 referential fragment도 남아 있어서 추가 구조가 필요해졌다.
-
-### 관련 raw notes
-
-- [raw thought 기록 workflow](./notes/2026-04-17-raw-thought-capture-workflow.md)
-
-### canonical docs와의 관계
-
-- [문서 작성 원칙](../ko/explanation/documentation_writing_principles.md)과 [실험 계획](../ko/status/experiment_plan.md)의 workflow boundary와 닿지만, canonical replacement는 아니다.
-
-### 현재 열린 쟁점
-
-- `.codex` historical backfill을 어디까지 할지
-- referential fragment를 항상 앞뒤 원문으로 풀지, 일부는 assistant context를 허용할지
+U-turn이나 self-near shape에서 반복해서 문제가 드러난 이유도 이 관점과 연결된다. DPF가 실제 경로를 너무 강하게 붙잡으려 하면, shape artifact와 merge heuristic이 field semantics를 대신하게 된다. 반대로 DPF를 progress-preference device로 읽으면, local morphology 문제와 base-field responsibility를 더 분리해서 볼 수 있다.
