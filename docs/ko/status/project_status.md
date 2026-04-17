@@ -40,7 +40,7 @@
 - progression field는 특정 source 예시에 종속되지 않는다.
 - runtime은 현재 보이는 local map 전체를 analytic하게 평가할 수 있어야 한다.
 - progression field는 최소한 longitudinal term과 transverse term을 가져야 하며, 이 둘은 독립적으로 조정 가능해야 한다.
-- 현재 구현은 soft progress gating을 둔 pooled blended progression field를 사용하고, transverse는 가장 가까운 resampled progression guide segment에 직접 투영해 읽는다.
+- 현재 구현은 soft progress gating을 둔 pooled blended progression field를 사용하고, transverse는 final `s_hat` 주변 local progress window에서 읽는다.
 - 현재 구현 exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.
 - visible guide endpoint는 virtual continuation으로 처리한다.
 - support / alignment는 weak secondary modulation으로만 유지한다.

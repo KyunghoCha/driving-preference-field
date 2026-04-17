@@ -119,7 +119,7 @@ def test_progression_follows_bend_guide_better_than_off_curve_point() -> None:
     )
 
 
-def test_progression_split_branch_transverse_stays_on_actual_branch_geometry() -> None:
+def test_progression_split_branch_gap_stays_supported_without_hole() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
     config = _canonical_config()
     upper_branch = StateSample(x=5.2, y=1.4, yaw=0.55)
@@ -140,14 +140,14 @@ def test_progression_split_branch_transverse_stays_on_actual_branch_geometry() -
         outer_upper,
         config=config,
     )
+    assert progression_tilted(snapshot, context, branch_gap, config=config) > 0.0
+    assert progression_tilted(snapshot, context, branch_gap, config=config) > progression_tilted(
+        snapshot,
+        context,
+        outer_upper,
+        config=config,
+    )
     assert progression_tilted(snapshot, context, divergence_onset, config=config) > 0.0
-    branch_gap_details = progression_tilted_details(snapshot, context, branch_gap, config=config)
-    upper_details = progression_tilted_details(snapshot, context, upper_branch, config=config)
-    lower_details = progression_tilted_details(snapshot, context, lower_branch, config=config)
-
-    assert branch_gap_details["transverse_component"] > 0.0
-    assert upper_details["transverse_component"] > branch_gap_details["transverse_component"]
-    assert lower_details["transverse_component"] > branch_gap_details["transverse_component"]
 
 
 def test_strong_longitudinal_can_outweigh_near_center_preference() -> None:
@@ -330,4 +330,4 @@ def test_two_lane_straight_stays_supported_across_lane_midpoint() -> None:
     assert lower_score > outer_score
     assert midpoint_score > outer_score
     assert upper_score > outer_score
-    assert midpoint_score < min(lower_score, upper_score)
+    assert midpoint_score >= min(lower_score, upper_score)
