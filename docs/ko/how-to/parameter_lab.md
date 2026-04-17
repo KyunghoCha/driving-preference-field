@@ -150,6 +150,7 @@ profile inspection export에는 다음도 포함된다.
 - `profile_data.json`
 
 즉 export는 스크린샷이 아니라, 같은 비교를 다시 검토할 수 있는 bundle이다.
+앱은 export 전에 확인을 한 번 더 묻는다. 파일 시스템에 결과를 쓰고 잠시 시간이 걸릴 수 있기 때문이다.
 
 <a id="limits"></a>
 ## 제한사항

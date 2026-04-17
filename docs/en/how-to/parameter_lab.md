@@ -150,6 +150,7 @@ Profile inspection export includes:
 - `profile_data.json`
 
 Export is therefore not just a screenshot. It is a comparison bundle that can be reviewed later.
+The app asks for confirmation before it writes the export bundle, because export has file-system side effects and can take a moment.
 
 <a id="limits"></a>
 ## Limits

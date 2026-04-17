@@ -522,6 +522,61 @@ def test_saving_reference_preset_name_is_rejected(qtbot, monkeypatch) -> None:
     window.close()
 
 
+def test_export_action_requires_confirmation_before_writing_files(qtbot, monkeypatch, tmp_path) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    called: dict[str, bool] = {"exported": False, "informed": False}
+
+    monkeypatch.setattr(window, "_confirm_export_comparison", lambda: False)
+
+    def _fake_export() -> Path:
+        called["exported"] = True
+        return tmp_path
+
+    def _fake_information(_parent, _title: str, _message: str):
+        called["informed"] = True
+        return 0
+
+    monkeypatch.setattr(window, "export_current_comparison", _fake_export)
+    monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox.information", _fake_information)
+
+    window._export_comparison()
+
+    assert called["exported"] is False
+    assert called["informed"] is False
+
+    window.close()
+
+
+def test_export_action_shows_completion_after_confirmation(qtbot, monkeypatch, tmp_path) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    captured: dict[str, str] = {}
+
+    monkeypatch.setattr(window, "_confirm_export_comparison", lambda: True)
+    monkeypatch.setattr(window, "export_current_comparison", lambda: tmp_path)
+
+    def _fake_information(_parent, title: str, message: str):
+        captured["title"] = title
+        captured["message"] = message
+        return 0
+
+    monkeypatch.setattr("PyQt6.QtWidgets.QMessageBox.information", _fake_information)
+
+    window._export_comparison()
+
+    assert captured["title"] == "Export Complete"
+    assert captured["message"] == str(tmp_path)
+
+    window.close()
+
+
 def test_parameter_panel_help_opens_scrollable_dialog(qtbot) -> None:
     case_path = ROOT / "cases/toy/straight_corridor.yaml"
     window = ParameterLabWindow(case_path=case_path)

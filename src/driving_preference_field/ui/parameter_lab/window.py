@@ -1032,10 +1032,32 @@ class ParameterLabWindow(QMainWindow):
         return None
 
     def _export_comparison(self) -> None:
+        if not self._confirm_export_comparison():
+            return
         export_path = self.export_current_comparison()
         if export_path is None:
             return
         QMessageBox.information(self, t(self._language, "message.export_complete.title"), str(export_path))
+
+    def _confirm_export_comparison(self) -> bool:
+        dialog = QMessageBox(self)
+        dialog.setIcon(QMessageBox.Icon.Question)
+        dialog.setWindowTitle(t(self._language, "message.export_confirm.title"))
+        dialog.setText(t(self._language, "message.export_confirm.body"))
+        dialog.setInformativeText(t(self._language, "message.export_confirm.detail"))
+
+        export_button = dialog.addButton(
+            t(self._language, "message.export_confirm.action"),
+            QMessageBox.ButtonRole.AcceptRole,
+        )
+        dialog.addButton(QMessageBox.StandardButton.Cancel)
+        cancel_button = dialog.button(QMessageBox.StandardButton.Cancel)
+        if cancel_button is not None:
+            dialog.setDefaultButton(cancel_button)
+            dialog.setEscapeButton(cancel_button)
+
+        dialog.exec()
+        return dialog.clickedButton() is export_button
 
     def _show_parameter_help(self) -> None:
         self._help_actions.show_parameter_help(self._language)
