@@ -39,7 +39,7 @@ def test_parameter_exposure_policy_and_catalog_exist_in_both_languages() -> None
         assert "`Internal`" in body
     for body in (catalog_en, catalog_ko):
         assert "anchor_spacing" in body or "anchor_spacing_m" in body
-        assert "alignment_range" in body
+        assert "transverse_handoff_temperature" in body
 
 
 def test_documentation_style_reference_pages_keep_official_sources() -> None:

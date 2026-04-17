@@ -3,17 +3,17 @@ from __future__ import annotations
 """Current progression surface implementation.
 
 This module treats progression guides as the control structure for a continuous
-local-space coordinate field. The runtime evaluates one pooled blended
-coordinate field across all progression anchors:
+local-space coordinate field. The runtime first evaluates guide-local blended
+coordinates and scores, then selects a pointwise max envelope over the local
+map:
 
     progression_tilted(p)
-      = support_mod * alignment_mod * (T(|n_hat|) + gain * L(u))
+      = max_g support_mod_g * alignment_mod_g * (T(|n_hat_g|) + gain * L(u_g))
 
-Anchor weights are computed globally, a provisional pooled progress estimate is
-used to apply soft progress gating, and the final coordinate field is blended
-across the whole anchor pool. Exact formulas here are current implementation
-details, not the canonical design contract. README plus the bilingual current
-formula references under docs/en/reference/current_formula_reference.md and
+Guide-local support and coordinates come from Gaussian anchor weights. The
+exact formula here is a current implementation detail, not the canonical design
+contract. README plus the bilingual current formula references under
+docs/en/reference/current_formula_reference.md and
 docs/ko/reference/current_formula_reference.md must move with this module when
 the implementation changes.
 """
@@ -55,11 +55,12 @@ class SurfaceIndex:
     anchor_guide_lengths: np.ndarray
     anchor_guide_weights: np.ndarray
     anchor_confidences: np.ndarray
-    anchor_guide_indices: np.ndarray
 
 
 @dataclass(frozen=True)
-class PooledBlendResult:
+class GuideBlendResult:
+    guide_index: int
+    guide_id: str
     s_hat: np.ndarray
     n_hat: np.ndarray
     tangent_hat: np.ndarray
@@ -71,7 +72,7 @@ class PooledBlendResult:
     score: np.ndarray
     effective_anchor_count: np.ndarray
     anchor_count: int
-    guide_support_sums: np.ndarray
+
 
 class ProgressionSurfaceRuntime:
     """Cached runtime view over the current progression field implementation."""
@@ -89,8 +90,8 @@ class ProgressionSurfaceRuntime:
         self._config = config.progression
         self._surface_tuning = config.surface_tuning
         self._surface = _surface_index(snapshot, self._surface_tuning)
-        self._ego_s_hat = (
-            _pooled_ego_s_hat(self._surface, context, self._config, self._surface_tuning)
+        self._ego_s_hat_by_guide = (
+            _ego_s_hat_by_guide(self._surface, context, self._config, self._surface_tuning)
             if self._config.longitudinal_frame == "ego_relative"
             else None
         )
@@ -136,6 +137,7 @@ class ProgressionSurfaceRuntime:
         )
         dominant_guides = _dominant_guides(
             self._surface,
+            arrays["_guide_scores"][:, 0],
             arrays["_guide_support_sums"][:, 0],
         )
         return {
@@ -277,35 +279,39 @@ class ProgressionSurfaceRuntime:
             "effective_anchor_count": [],
         }
         internal_chunks: dict[str, list[np.ndarray]] = {
+            "_guide_scores": [],
             "_guide_support_sums": [],
         }
 
         for start in range(0, point_count, _QUERY_BATCH_SIZE):
             stop = min(point_count, start + _QUERY_BATCH_SIZE)
-            pooled = _pooled_blend_result(
+            guide_results = _guide_local_results(
                 self._surface,
                 x_values[start:stop],
                 y_values[start:stop],
                 heading_yaws[start:stop],
                 config=self._config,
                 tuning=self._surface_tuning,
-                ego_s_hat=self._ego_s_hat,
+                ego_s_hat_by_guide=self._ego_s_hat_by_guide,
             )
-            chunks["score"].append(pooled.score)
-            chunks["s_hat"].append(pooled.s_hat)
-            chunks["n_hat"].append(pooled.n_hat)
-            chunks["support_sum"].append(pooled.support_sum)
-            chunks["support_mod"].append(pooled.support_mod)
-            chunks["alignment_mod"].append(pooled.alignment_mod)
-            chunks["longitudinal_component"].append(pooled.longitudinal_component)
-            chunks["transverse_component"].append(pooled.transverse_component)
-            chunks["anchor_count"].append(np.full((stop - start,), pooled.anchor_count, dtype=int))
-            chunks["effective_anchor_count"].append(pooled.effective_anchor_count)
+            selected = _select_dominant_guide(guide_results, tuning=self._surface_tuning)
+            chunks["score"].append(selected["score"])
+            chunks["s_hat"].append(selected["s_hat"])
+            chunks["n_hat"].append(selected["n_hat"])
+            chunks["support_sum"].append(selected["support_sum"])
+            chunks["support_mod"].append(selected["support_mod"])
+            chunks["alignment_mod"].append(selected["alignment_mod"])
+            chunks["longitudinal_component"].append(selected["longitudinal_component"])
+            chunks["transverse_component"].append(selected["transverse_component"])
+            chunks["anchor_count"].append(selected["anchor_count"])
+            chunks["effective_anchor_count"].append(selected["effective_anchor_count"])
             if include_internal:
-                internal_chunks["_guide_support_sums"].append(pooled.guide_support_sums)
+                internal_chunks["_guide_scores"].append(selected["guide_scores"])
+                internal_chunks["_guide_support_sums"].append(selected["guide_support_sums"])
 
         result = {name: np.concatenate(parts) for name, parts in chunks.items()}
         if include_internal:
+            result["_guide_scores"] = np.concatenate(internal_chunks["_guide_scores"], axis=1)
             result["_guide_support_sums"] = np.concatenate(internal_chunks["_guide_support_sums"], axis=1)
         return result
 
@@ -370,7 +376,7 @@ def progression_surface_grid_details(
     return runtime.query_grid(x_coords, y_coords)
 
 
-def _pooled_blend_result(
+def _guide_local_results(
     surface: SurfaceIndex,
     x_values: np.ndarray,
     y_values: np.ndarray,
@@ -378,16 +384,46 @@ def _pooled_blend_result(
     *,
     config: ProgressionConfig,
     tuning: SurfaceTuningConfig,
+    ego_s_hat_by_guide: tuple[float, ...] | None,
+) -> tuple[GuideBlendResult, ...]:
+    return tuple(
+        _guide_local_result(
+            surface,
+            guide_index,
+            x_values,
+            y_values,
+            heading_yaws,
+            config=config,
+            tuning=tuning,
+            ego_s_hat=None if ego_s_hat_by_guide is None else ego_s_hat_by_guide[guide_index],
+        )
+        for guide_index in range(len(surface.guides))
+    )
+
+
+def _guide_local_result(
+    surface: SurfaceIndex,
+    guide_index: int,
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    heading_yaws: np.ndarray,
+    *,
+    config: ProgressionConfig,
+    tuning: SurfaceTuningConfig,
     ego_s_hat: float | None,
-) -> PooledBlendResult:
-    anchor_count = int(surface.anchor_points.shape[0])
+) -> GuideBlendResult:
+    guide = surface.guides[guide_index]
+    start, stop = surface.guide_anchor_ranges[guide_index]
+    anchor_count = stop - start
     if anchor_count == 0:
         zeros = np.zeros_like(x_values)
-        guide_count = len(surface.guides)
-        return PooledBlendResult(
+        tangent_hat = np.zeros((x_values.size, 2), dtype=float)
+        return GuideBlendResult(
+            guide_index=guide_index,
+            guide_id=guide.guide_id,
             s_hat=zeros,
             n_hat=zeros,
-            tangent_hat=np.zeros((x_values.size, 2), dtype=float),
+            tangent_hat=tangent_hat,
             support_sum=zeros,
             support_mod=zeros,
             alignment_mod=zeros,
@@ -396,48 +432,34 @@ def _pooled_blend_result(
             score=zeros,
             effective_anchor_count=np.zeros_like(x_values, dtype=int),
             anchor_count=0,
-            guide_support_sums=np.zeros((guide_count, x_values.size), dtype=float),
         )
 
-    points_x = surface.anchor_points[:, 0][:, None]
-    points_y = surface.anchor_points[:, 1][:, None]
+    points_x = surface.anchor_points[start:stop, 0][:, None]
+    points_y = surface.anchor_points[start:stop, 1][:, None]
     dx = x_values[None, :] - points_x
     dy = y_values[None, :] - points_y
 
-    tangent_x = surface.anchor_tangents[:, 0][:, None]
-    tangent_y = surface.anchor_tangents[:, 1][:, None]
-    normal_x = surface.anchor_normals[:, 0][:, None]
-    normal_y = surface.anchor_normals[:, 1][:, None]
-    cumulative_s = surface.anchor_cumulative_s[:, None]
-    guide_lengths = surface.anchor_guide_lengths[:, None]
-    guide_weights = surface.anchor_guide_weights[:, None]
-    confidences = surface.anchor_confidences[:, None]
+    tangent_x = surface.anchor_tangents[start:stop, 0][:, None]
+    tangent_y = surface.anchor_tangents[start:stop, 1][:, None]
+    normal_x = surface.anchor_normals[start:stop, 0][:, None]
+    normal_y = surface.anchor_normals[start:stop, 1][:, None]
+    cumulative_s = surface.anchor_cumulative_s[start:stop][:, None]
+    guide_lengths = surface.anchor_guide_lengths[start:stop][:, None]
+    guide_weights = surface.anchor_guide_weights[start:stop][:, None]
+    confidences = surface.anchor_confidences[start:stop][:, None]
 
     tau = dx * tangent_x + dy * tangent_y
     nu = dx * normal_x + dy * normal_y
-    s_values = cumulative_s + tau
 
     sigma_t = np.maximum(tuning.min_sigma_t, guide_lengths * config.lookahead_scale * tuning.sigma_t_scale)
     sigma_n = max(tuning.min_sigma_n, config.transverse_scale * tuning.sigma_n_scale)
-    raw0 = guide_weights * confidences * np.exp(
+    raw_weights = guide_weights * confidences * np.exp(
         -0.5 * (((tau / sigma_t) ** 2) + ((nu / sigma_n) ** 2))
     )
-    support_sum0 = np.sum(raw0, axis=0)
-    provisional_weights = np.where(
-        support_sum0[None, :] > _EPS,
-        raw0 / np.clip(support_sum0[None, :], _EPS, None),
-        0.0,
-    )
-    s_hat0 = np.sum(provisional_weights * s_values, axis=0)
-    progress_gate = np.exp(-0.5 * (((s_values - s_hat0[None, :]) / sigma_t) ** 2))
-    raw = raw0 * progress_gate
-    support_sum = np.sum(raw, axis=0)
-    blend_weights = np.where(
-        support_sum[None, :] > _EPS,
-        raw / np.clip(support_sum[None, :], _EPS, None),
-        0.0,
-    )
+    support_sum = np.sum(raw_weights, axis=0)
+    blend_weights = raw_weights / np.clip(support_sum, _EPS, None)
 
+    s_values = cumulative_s + tau
     s_hat = np.sum(blend_weights * s_values, axis=0)
     n_hat = np.sum(blend_weights * nu, axis=0)
     tangent_hat = np.stack(
@@ -450,22 +472,19 @@ def _pooled_blend_result(
     tangent_norm = np.linalg.norm(tangent_hat, axis=1, keepdims=True)
     tangent_hat = tangent_hat / np.clip(tangent_norm, _EPS, None)
 
-    guide_mins = np.asarray([item[0] for item in surface.guide_progress_extents], dtype=float)
-    guide_maxes = np.asarray([item[1] for item in surface.guide_progress_extents], dtype=float)
-    s_min_hat = np.sum(blend_weights * guide_mins[surface.anchor_guide_indices][:, None], axis=0)
-    s_max_hat = np.sum(blend_weights * guide_maxes[surface.anchor_guide_indices][:, None], axis=0)
-    progress_span = np.maximum(s_max_hat - s_min_hat, _EPS)
+    # Cache guide progress extents once in the surface index instead of
+    # rescanning each guide's anchor slice on every query.
+    guide_min_progress_extent, guide_max_progress_extent = surface.guide_progress_extents[guide_index]
+    progress_span = max(guide_max_progress_extent - guide_min_progress_extent, _EPS)
     if config.longitudinal_frame == "local_absolute":
-        u_value = np.clip((s_hat - s_min_hat) / progress_span, 0.0, 1.0)
+        u_value = np.clip((s_hat - guide_min_progress_extent) / progress_span, 0.0, 1.0)
     else:
-        lookahead = _ego_relative_lookahead_array(progress_span, config, tuning)
+        lookahead = max(_ego_relative_lookahead(progress_span, config, tuning), _EPS)
         reference_s = float(ego_s_hat or 0.0)
         u_value = np.clip(np.maximum(0.0, s_hat - reference_s) / lookahead, 0.0, 1.0)
 
-    transverse_component = _transverse_value_array(
-        np.abs(n_hat) / max(config.transverse_scale, _EPS),
-        config,
-    )
+    transverse_ratio = np.abs(n_hat) / max(config.transverse_scale, _EPS)
+    transverse_component = _transverse_value_array(transverse_ratio, config)
     longitudinal_component = _longitudinal_value_array(u_value, config)
 
     heading_x = np.cos(heading_yaws)
@@ -488,15 +507,9 @@ def _pooled_blend_result(
         axis=0,
         dtype=int,
     )
-    guide_support_sums = (
-        np.stack(
-            [np.sum(raw[start:stop], axis=0) for start, stop in surface.guide_anchor_ranges],
-            axis=0,
-        )
-        if surface.guide_anchor_ranges
-        else np.zeros((0, x_values.size), dtype=float)
-    )
-    return PooledBlendResult(
+    return GuideBlendResult(
+        guide_index=guide_index,
+        guide_id=guide.guide_id,
         s_hat=s_hat,
         n_hat=n_hat,
         tangent_hat=tangent_hat,
@@ -508,38 +521,137 @@ def _pooled_blend_result(
         score=score,
         effective_anchor_count=effective_anchor_count,
         anchor_count=anchor_count,
-        guide_support_sums=guide_support_sums,
     )
+
+
+def _select_dominant_guide(
+    guide_results: tuple[GuideBlendResult, ...],
+    *,
+    tuning: SurfaceTuningConfig,
+) -> dict[str, np.ndarray]:
+    if not guide_results:
+        zeros = np.zeros((0,), dtype=float)
+        return {
+            "score": zeros,
+            "s_hat": zeros,
+            "n_hat": zeros,
+            "support_sum": zeros,
+            "support_mod": zeros,
+            "alignment_mod": zeros,
+            "longitudinal_component": zeros,
+            "transverse_component": zeros,
+            "anchor_count": np.zeros((0,), dtype=int),
+            "effective_anchor_count": np.zeros((0,), dtype=int),
+            "guide_scores": np.zeros((0, 0), dtype=float),
+            "guide_support_sums": np.zeros((0, 0), dtype=float),
+        }
+
+    stacked_transverse = np.stack([result.transverse_component for result in guide_results], axis=0)
+    point_count = guide_results[0].score.size
+    guide_scores = np.stack([result.score for result in guide_results], axis=0)
+    guide_support_sums = np.stack([result.support_sum for result in guide_results], axis=0)
+
+    best_indices = np.zeros(point_count, dtype=int)
+    best_scores = guide_scores[0].copy()
+    best_support = guide_support_sums[0].copy()
+    for guide_index in range(1, len(guide_results)):
+        scores = guide_scores[guide_index]
+        supports = guide_support_sums[guide_index]
+        better_score = scores > (best_scores + _EPS)
+        equal_score = np.isclose(scores, best_scores, atol=_EPS, rtol=0.0)
+        better_support = supports > (best_support + _EPS)
+        take = better_score | (equal_score & better_support)
+        best_indices = np.where(take, guide_index, best_indices)
+        best_scores = np.where(take, scores, best_scores)
+        best_support = np.where(take, supports, best_support)
+
+    positions = np.arange(point_count)
+
+    def _select(field_name: str) -> np.ndarray:
+        stacked = np.stack([getattr(result, field_name) for result in guide_results], axis=0)
+        return stacked[best_indices, positions]
+
+    dominant_weight = np.zeros_like(guide_scores)
+    dominant_weight[best_indices, positions] = 1.0
+    candidate_mask = (
+        guide_support_sums >= (tuning.transverse_handoff_support_ratio * best_support[None, :])
+    ) & (
+        guide_scores >= (best_scores[None, :] - tuning.transverse_handoff_score_delta)
+    )
+    candidate_mask[best_indices, positions] = True
+    scaled_score_delta = np.clip(
+        (guide_scores - best_scores[None, :]) / tuning.transverse_handoff_temperature,
+        -60.0,
+        0.0,
+    )
+    transverse_weights = np.where(
+        candidate_mask,
+        guide_support_sums * np.exp(scaled_score_delta),
+        0.0,
+    )
+    transverse_weight_sum = np.sum(transverse_weights, axis=0)
+    normalized_transverse_weights = np.where(
+        transverse_weight_sum[None, :] > _EPS,
+        transverse_weights / np.clip(transverse_weight_sum[None, :], _EPS, None),
+        dominant_weight,
+    )
+    smoothed_transverse = np.sum(normalized_transverse_weights * stacked_transverse, axis=0)
+    # Keep both counts so downstream diagnostics can distinguish "how many
+    # anchors exist on the dominant guide" from "how many materially blended".
+    selected_anchor_count = np.asarray(
+        [guide_results[index].anchor_count for index in best_indices],
+        dtype=int,
+    )
+
+    return {
+        "score": _select("score"),
+        "s_hat": _select("s_hat"),
+        "n_hat": _select("n_hat"),
+        "support_sum": _select("support_sum"),
+        "support_mod": _select("support_mod"),
+        "alignment_mod": _select("alignment_mod"),
+        "longitudinal_component": _select("longitudinal_component"),
+        "transverse_component": smoothed_transverse,
+        "anchor_count": selected_anchor_count,
+        "effective_anchor_count": _select("effective_anchor_count").astype(int),
+        "guide_scores": guide_scores,
+        "guide_support_sums": guide_support_sums,
+    }
 
 
 def _dominant_guides(
     surface: SurfaceIndex,
+    guide_scores: np.ndarray,
     guide_support_sums: np.ndarray,
-) -> tuple[tuple[str, float], ...]:
+) -> tuple[tuple[str, float, float], ...]:
     ranked = sorted(
-        zip(surface.guide_ids, guide_support_sums.tolist(), strict=False),
-        key=lambda item: item[1],
+        zip(surface.guide_ids, guide_scores.tolist(), guide_support_sums.tolist(), strict=False),
+        key=lambda item: (item[1], item[2]),
         reverse=True,
     )
     return tuple(ranked[:3])
 
 
-def _pooled_ego_s_hat(
+def _ego_s_hat_by_guide(
     surface: SurfaceIndex,
     context: QueryContext,
     config: ProgressionConfig,
     tuning: SurfaceTuningConfig,
-) -> float:
-    return float(
-        _pooled_blend_result(
-            surface,
-            np.asarray([context.ego_pose.x], dtype=float),
-            np.asarray([context.ego_pose.y], dtype=float),
-            np.asarray([context.ego_pose.yaw], dtype=float),
-            config=config,
-            tuning=tuning,
-            ego_s_hat=None,
-        ).s_hat[0]
+) -> tuple[float, ...]:
+    return tuple(
+        float(
+            _guide_local_result(
+                surface,
+                guide_index,
+                np.asarray([context.ego_pose.x], dtype=float),
+                np.asarray([context.ego_pose.y], dtype=float),
+                np.asarray([context.ego_pose.yaw], dtype=float),
+                config=config,
+                tuning=tuning,
+                ego_s_hat=None,
+            ).s_hat[0]
+        )
+        for guide_index in range(len(surface.guides))
     )
 
 def _ego_relative_lookahead(
@@ -548,14 +660,6 @@ def _ego_relative_lookahead(
     tuning: SurfaceTuningConfig,
 ) -> float:
     return max(tuning.min_sigma_t, progress_span * config.lookahead_scale)
-
-
-def _ego_relative_lookahead_array(
-    progress_span: np.ndarray,
-    config: ProgressionConfig,
-    tuning: SurfaceTuningConfig,
-) -> np.ndarray:
-    return np.maximum(tuning.min_sigma_t, progress_span * config.lookahead_scale)
 
 
 def _longitudinal_value_array(u_value: np.ndarray, config: ProgressionConfig) -> np.ndarray:
@@ -620,7 +724,6 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
     anchor_guide_lengths: list[float] = []
     anchor_guide_weights: list[float] = []
     anchor_confidences: list[float] = []
-    anchor_guide_indices: list[int] = []
     guide_anchor_ranges: list[tuple[int, int]] = []
     guide_progress_extents: list[tuple[float, float]] = []
 
@@ -649,7 +752,6 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         )
         guides.append(guide)
         guide_ids.append(guide.guide_id)
-        guide_index = len(guides) - 1
         guide_anchor_start = len(anchor_points)
         for cumulative_s, point, tangent in _anchor_points_with_continuation(
             smooth_points,
@@ -664,7 +766,6 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             anchor_guide_lengths.append(guide.guide_length)
             anchor_guide_weights.append(guide.weight)
             anchor_confidences.append(guide.confidence)
-            anchor_guide_indices.append(guide_index)
         guide_anchor_stop = len(anchor_points)
         guide_anchor_ranges.append((guide_anchor_start, guide_anchor_stop))
         if guide_anchor_stop == guide_anchor_start:
@@ -690,7 +791,6 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
             anchor_guide_lengths=np.zeros((0,), dtype=float),
             anchor_guide_weights=np.zeros((0,), dtype=float),
             anchor_confidences=np.zeros((0,), dtype=float),
-            anchor_guide_indices=np.zeros((0,), dtype=int),
         )
 
     cumulative_array = np.asarray(anchor_cumulative_s, dtype=float)
@@ -706,7 +806,6 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         anchor_guide_lengths=np.asarray(anchor_guide_lengths, dtype=float),
         anchor_guide_weights=np.asarray(anchor_guide_weights, dtype=float),
         anchor_confidences=np.asarray(anchor_confidences, dtype=float),
-        anchor_guide_indices=np.asarray(anchor_guide_indices, dtype=int),
     )
 
 

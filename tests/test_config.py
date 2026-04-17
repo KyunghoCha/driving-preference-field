@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from driving_preference_field.config import (
     DEFAULT_FIELD_CONFIG,
     ComparisonPreset,
@@ -87,6 +85,9 @@ def test_field_config_roundtrip_preserves_surface_tuning() -> None:
             support_range=0.1,
             alignment_base=0.85,
             alignment_range=0.15,
+            transverse_handoff_support_ratio=0.3,
+            transverse_handoff_score_delta=0.25,
+            transverse_handoff_temperature=0.08,
         ),
     )
 
@@ -95,19 +96,6 @@ def test_field_config_roundtrip_preserves_surface_tuning() -> None:
     assert FieldConfig.from_dict(payload) == config
     assert payload["surface_tuning"]["anchor_spacing_m"] == 0.35
     assert payload["surface_tuning"]["spline_min_subdivisions"] == 12
-
-
-def test_removed_transverse_handoff_keys_fail_explicitly() -> None:
-    with pytest.raises(ValueError, match="removed keys"):
-        FieldConfig.from_dict(
-            {
-                "surface_tuning": {
-                    "transverse_handoff_support_ratio": 0.3,
-                    "transverse_handoff_score_delta": 0.25,
-                    "transverse_handoff_temperature": 0.08,
-                }
-            }
-        )
 
 
 def test_comparison_preset_roundtrip(tmp_path) -> None:
