@@ -484,3 +484,36 @@
 
 - latest design notebook을 어느 정도 길이로 유지할지
 - design history에 버려진 생각을 어느 밀도로 남길지
+
+## branch/split baseline promotion discipline
+
+### First raised
+
+- 2026-04-18
+
+### Current framing
+
+- branch/split morphology investigation은 historical snapshot, fixture variant, transverse 실험이 빠르게 겹치기 때문에 baseline discipline이 쉽게 무너진다.
+- 실험 상태를 `main`이나 baseline으로 승격하는 일은 explicit user approval이 있어야 하고, 그 전에는 separate worktree에만 남겨야 한다.
+
+### Key changes by date
+
+- 2026-04-18: user가 `분기 시작하고 나서 더러워진 것`과 `승인 안 하고 baseline으로 올린 것`을 직접 연결해 지적했다.
+- 2026-04-18: local skill에 branch/split investigation 동안에는 explicit approval 없이 baseline/main 승격을 금지하는 guardrail을 추가했다.
+
+### Linked raw notes
+
+- [2026-04-18-branch-split-baseline-approval-discipline](./notes/2026-04-18-branch-split-baseline-approval-discipline.md)
+
+### Current status
+
+- `under discussion`
+
+### Canonical docs touched (if any)
+
+- 없음
+
+### Open questions
+
+- 같은 rule을 repo-local AGENTS까지 올릴지
+- abandoned experiment worktree를 언제 cleanup해야 하는지

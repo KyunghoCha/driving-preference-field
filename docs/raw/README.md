@@ -52,3 +52,4 @@
 - [2026-04-17-raw-thought-capture-workflow](./notes/2026-04-17-raw-thought-capture-workflow.md)
 - [2026-04-18-owner-design-doc-shape-and-backfill](./notes/2026-04-18-owner-design-doc-shape-and-backfill.md)
 - [2026-04-18-simulator-comparison-methodology-and-mppi-tuning](./notes/2026-04-18-simulator-comparison-methodology-and-mppi-tuning.md)
+- [2026-04-18-branch-split-baseline-approval-discipline](./notes/2026-04-18-branch-split-baseline-approval-discipline.md)

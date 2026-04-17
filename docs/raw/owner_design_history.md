@@ -76,6 +76,12 @@ DPF가 진행 선호를 주는 장치라는 framing이 굳어지면서, detailed
 
 이 전환으로 인해 설계 history는 object 자체뿐 아니라, 그 object를 공정하게 읽는 방법론도 분리해서 기록해야 한다는 단계까지 왔다. 다만 이것은 latest design object 그 자체라기보다, 그 object를 평가하고 설명하는 후속 구조로 남는다.
 
+## branch/split 실험이 baseline discipline 문제를 드러낸 과정
+
+분기와 U-turn morphology를 비교하기 시작한 뒤에는, historical snapshot과 transverse 실험이 빠르게 쌓이면서 baseline 자체가 무엇인지 흐려지는 문제가 드러났다. 사용자는 workspace가 branch/split investigation 이후 더러워졌고, 그 이유 중 하나가 승인 없이 실험 상태를 baseline으로 올린 것이라고 직접 지적했다.
+
+이 지점이 남긴 교훈은 설계 object와 별도로 workflow discipline을 잠가야 한다는 점이다. branch/split morphology investigation은 separate worktree에서 계속할 수 있지만, `main` 승격이나 baseline 재정의는 explicit user approval 뒤에만 이뤄져야 한다. 이건 DPF 수식 자체를 바꾸는 전환은 아니지만, 이후 설계 실험을 어떤 절차로 다뤄야 하는지에 대한 중요한 correction으로 남는다.
+
 ## 현재 시점의 설계 위치
 
 현재까지의 흐름을 묶으면, DPF는 segment consume과 gate 통과 직관에서 출발해, blocked case에서는 frontier/local splice가 별도로 움직여야 한다는 pressure를 겪고, docs-first reset을 통해 `주행 가능 의미 + 진행 의미`와 `선호는 field 구조가 만든다`는 semantics로 다시 고정됐다. 그 위에 progress-tilted score space, whole-space fabric, Semantic Snapshot/Query Context 분리, progress-preference framing, longitudinal 주역화, planner/behavior 책임 분리가 겹쳐져 있다.
