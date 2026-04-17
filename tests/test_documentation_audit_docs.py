@@ -23,6 +23,8 @@ def test_writing_principles_exist_in_both_languages() -> None:
     assert "documentation_style_references.md" in ko
     assert "`docs/raw/`" in en
     assert "`docs/raw/`" in ko
+    assert "design notebook" in en
+    assert "설계 notebook" in ko
 
 
 def test_parameter_exposure_policy_and_catalog_exist_in_both_languages() -> None:
@@ -142,10 +144,36 @@ def test_raw_owner_notes_follow_expected_template() -> None:
             assert heading in text, f"{path.relative_to(ROOT)} missing {heading}"
 
 
+def test_raw_owner_notes_expand_referential_fragments_with_surrounding_messages() -> None:
+    progress_note = _read("docs/raw/notes/2026-04-17-dpf-as-progress-preference-device.md")
+    weighting_note = _read("docs/raw/notes/2026-04-17-longitudinal-vs-transverse-weighting.md")
+
+    assert "1번은 파라미터로 조정하면 되는거고" in progress_note
+    assert "진행방향 성분이 메인으로 가고" in progress_note
+    assert "2변은 진행 선호를 주는 장치지" in progress_note
+    assert "2변은 진행 선호를 주는 장치지" in weighting_note
+
+
+def test_owner_design_notebook_tracks_latest_user_framing() -> None:
+    notebook = _read("docs/raw/owner_design_notebook.md")
+
+    for heading in (
+        "## DPF가 책임지는 것",
+        "## 진행방향 성분과 횡방향 성분",
+        "## planner / behavior와의 책임 경계",
+        "## raw thought 기록 workflow",
+    ):
+        assert heading in notebook
+    assert "현재 사용자 framing" in notebook
+    assert "관련 raw notes" in notebook
+    assert "현재 열린 쟁점" in notebook
+
+
 def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
     agents = _read("AGENTS.md")
     repo_skill = _read("plugins/dpf-working-rules/skills/dpf-working-rules/SKILL.md")
 
     for body in (agents, repo_skill):
-        assert "docs/raw/" in body
+        assert "docs/raw/notes/" in body
+        assert "owner_design_notebook.md" in body
         assert "repo-level intuition" in body
