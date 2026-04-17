@@ -8,6 +8,8 @@
 
 `docs/raw/`는 사용자 원문 thought, 변화 추적, 설계 발전 문서, 최신 사용자 설계 문서를 보존하는 owner-origin capture layer다. 이 surface는 의도적으로 non-canonical이며, explanation/reference/how-to/status 문서를 대체하지 않는다. raw note가 anchor이고, 설계 발전 문서는 raw에 근거한 evolution prose로, 최신 설계 문서는 raw에 근거한 최신 prose로 유지하며, 둘 다 독립적인 해석 층으로 키우지 않는다.
 
+사용자가 더 넓은 source window를 명시적으로 지정하면, 먼저 그 source를 읽고 `docs/raw/notes/`를 넓혀야 한다. raw anchor가 부족한 상태에서 `owner_thought_tracker.md`, `owner_design_history.md`, `owner_design_notebook.md`를 먼저 다듬으면 안 된다.
+
 문서 변경이 repo 전반의 용어, 운영 workflow, AI guidance, user-facing semantics에 영향을 준다면 먼저 검토하고 대화한 뒤 반영하는 편이 맞다. 그때는 용어 일관성, 근거와 이유, 사실 정확성, 명확성, 기존 페이지와의 중복이나 충돌 위험을 먼저 본다.
 
 한 문단은 한 질문만 다루는 편이 좋다. 정의, 이유, 예외, 결론을 한 문단에 다 넣으면 사람은 핵심을 놓치고, AI는 문장 단위는 읽어도 문단 논리 구조를 잃기 쉽다. 한 문단이 답하는 질문을 하나로 유지하고, 새 질문이 시작되면 문단도 새로 나누는 것이 맞다.

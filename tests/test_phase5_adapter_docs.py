@@ -108,21 +108,28 @@ def test_raw_owner_thought_surface_is_linked_and_noncanonical() -> None:
     assert "./owner_design_notebook.md" in raw_readme
     assert "current active thread" in raw_readme
     assert "PLEASE IMPLEMENT THIS PLAN" in raw_readme
+    assert "더 넓은 materialized source window" in raw_readme
     assert "./notes/2026-03-17-progression-from-geometric-gate-intuition.md" in raw_readme
     assert "./notes/2026-03-17-segment-index-consumption-and-reachable-progress.md" in raw_readme
     assert "./notes/2026-03-17-local-splice-and-lane-range.md" in raw_readme
     assert "./notes/2026-03-17-segment-first-global-path-contract-and-visualization.md" in raw_readme
+    assert "./notes/2026-03-22-progress-first-node-progression-and-frontier-priority.md" in raw_readme
+    assert "./notes/2026-04-09-docs-first-reset-and-canonical-semantics.md" in raw_readme
+    assert "./notes/2026-04-09-progress-tilted-score-space-and-layer-separation.md" in raw_readme
+    assert "./notes/2026-04-09-whole-space-fabric-instead-of-tube-support.md" in raw_readme
+    assert "./notes/2026-04-10-semantic-snapshot-query-context-and-score-function.md" in raw_readme
     assert "./notes/2026-04-17-longitudinal-vs-transverse-weighting.md" in raw_readme
     assert "./notes/2026-04-17-dpf-as-progress-preference-device.md" in raw_readme
     assert "./notes/2026-04-17-raw-thought-capture-workflow.md" in raw_readme
     assert "./notes/2026-04-18-owner-design-doc-shape-and-backfill.md" in raw_readme
+    assert "./notes/2026-04-18-simulator-comparison-methodology-and-mppi-tuning.md" in raw_readme
     assert raw_readme.index("./owner_thought_tracker.md") < raw_readme.index("./owner_design_history.md")
     assert raw_readme.index("./owner_design_history.md") < raw_readme.index("./owner_design_notebook.md")
     assert "../raw/README.md" in en_index
     assert "../raw/README.md" in ko_index
-    assert "design history" in en_index
-    assert "설계 발전 문서" in ko_index
-    assert "progression / gate intuition" in raw_tracker
+    assert "notes as anchor" in en_index
+    assert "raw anchor" in ko_index
+    assert "progress-first node progression and frontier priority" in raw_tracker
     assert "Owner Design Notebook" in raw_notebook
     assert "Owner Design History" in raw_history
 

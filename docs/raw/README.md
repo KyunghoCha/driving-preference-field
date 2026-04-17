@@ -23,6 +23,7 @@
 - 가능하면 `session id`, `session date`, `$HOME/.codex/...` 기준 source location을 함께 적는다.
 - active session이 아직 `$HOME/.codex/sessions/...`에 materialize되지 않았다면, 그 상태를 note에 명시하고 current active thread context를 source로 쓴다.
 - 사용자가 현재 active thread를 authoritative source로 지정하면, speculative historical `.codex` archaeology보다 current active thread와 confirmed materialized cluster를 먼저 쓴다.
+- 사용자가 더 넓은 materialized source window를 명시적으로 지정하면, 기존 요약 문서보다 그 source set 전체를 다시 읽고 `notes/`를 먼저 넓힌 뒤 파생 문서를 갱신한다.
 - `.codex` 로그 전체를 문서에 복사하지 않는다. 필요한 발췌만 남긴다.
 - `1번`, `2번`, `그거`, `이거`, `저거`처럼 referential fragment가 나오면, 해당 지시 대상을 복원할 수 있도록 앞뒤 사용자 메시지도 함께 발췌한다.
 - wider historical backfill은 별도 배치에서만 하고, source confidence가 낮으면 올리지 않는다.
@@ -41,7 +42,13 @@
 - [2026-03-17-segment-index-consumption-and-reachable-progress](./notes/2026-03-17-segment-index-consumption-and-reachable-progress.md)
 - [2026-03-17-local-splice-and-lane-range](./notes/2026-03-17-local-splice-and-lane-range.md)
 - [2026-03-17-segment-first-global-path-contract-and-visualization](./notes/2026-03-17-segment-first-global-path-contract-and-visualization.md)
+- [2026-03-22-progress-first-node-progression-and-frontier-priority](./notes/2026-03-22-progress-first-node-progression-and-frontier-priority.md)
+- [2026-04-09-docs-first-reset-and-canonical-semantics](./notes/2026-04-09-docs-first-reset-and-canonical-semantics.md)
+- [2026-04-09-progress-tilted-score-space-and-layer-separation](./notes/2026-04-09-progress-tilted-score-space-and-layer-separation.md)
+- [2026-04-09-whole-space-fabric-instead-of-tube-support](./notes/2026-04-09-whole-space-fabric-instead-of-tube-support.md)
+- [2026-04-10-semantic-snapshot-query-context-and-score-function](./notes/2026-04-10-semantic-snapshot-query-context-and-score-function.md)
 - [2026-04-17-longitudinal-vs-transverse-weighting](./notes/2026-04-17-longitudinal-vs-transverse-weighting.md)
 - [2026-04-17-dpf-as-progress-preference-device](./notes/2026-04-17-dpf-as-progress-preference-device.md)
 - [2026-04-17-raw-thought-capture-workflow](./notes/2026-04-17-raw-thought-capture-workflow.md)
 - [2026-04-18-owner-design-doc-shape-and-backfill](./notes/2026-04-18-owner-design-doc-shape-and-backfill.md)
+- [2026-04-18-simulator-comparison-methodology-and-mppi-tuning](./notes/2026-04-18-simulator-comparison-methodology-and-mppi-tuning.md)

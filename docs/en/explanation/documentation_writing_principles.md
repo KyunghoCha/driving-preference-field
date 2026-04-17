@@ -14,6 +14,8 @@ The same concept may appear in more than one document, but the density should ma
 
 `docs/raw/` is the owner-origin capture layer for Korean raw notes, change tracking, a non-canonical owner design history document, and a non-canonical owner design document. It is intentionally non-canonical. Use it to preserve source material, idea history, and latest owner framing, not to replace explanation, reference, how-to, or status pages. The raw notes are the anchor. The owner design history should stay raw-grounded evolution prose, and the owner design document should stay raw-grounded latest prose rather than turning into independent interpretation layers.
 
+When a user explicitly designates a broader source window, widen `docs/raw/notes/` from that source first. Do not polish `owner_thought_tracker.md`, `owner_design_history.md`, or `owner_design_notebook.md` ahead of missing anchors.
+
 When a proposed doc change affects repo-wide terminology, operating workflow, AI guidance, or other user-facing semantics, it should be reviewed before it is applied. That review should check terminology consistency, evidence and rationale, factual accuracy, clarity, and whether the new wording overlaps with or contradicts existing pages.
 
 Documentation here also has to support AI reconstruction, not only human reading. That means concepts, contracts, and current implementation notes should be explicit enough to survive partial context. AI-friendly writing is not a separate style. It is the same discipline that makes documents easier for humans to scan: direct statements, controlled scope, stable terminology, and minimal hidden assumptions.

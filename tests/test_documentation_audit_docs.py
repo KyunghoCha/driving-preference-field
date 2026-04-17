@@ -149,8 +149,14 @@ def test_raw_owner_notes_expand_referential_fragments_with_surrounding_messages(
     segment_note = _read("docs/raw/notes/2026-03-17-segment-index-consumption-and-reachable-progress.md")
     splice_note = _read("docs/raw/notes/2026-03-17-local-splice-and-lane-range.md")
     contract_note = _read("docs/raw/notes/2026-03-17-segment-first-global-path-contract-and-visualization.md")
+    frontier_note = _read("docs/raw/notes/2026-03-22-progress-first-node-progression-and-frontier-priority.md")
+    semantics_note = _read("docs/raw/notes/2026-04-09-docs-first-reset-and-canonical-semantics.md")
+    score_space_note = _read("docs/raw/notes/2026-04-09-progress-tilted-score-space-and-layer-separation.md")
+    fabric_note = _read("docs/raw/notes/2026-04-09-whole-space-fabric-instead-of-tube-support.md")
+    snapshot_note = _read("docs/raw/notes/2026-04-10-semantic-snapshot-query-context-and-score-function.md")
     progress_note = _read("docs/raw/notes/2026-04-17-dpf-as-progress-preference-device.md")
     weighting_note = _read("docs/raw/notes/2026-04-17-longitudinal-vs-transverse-weighting.md")
+    simulator_note = _read("docs/raw/notes/2026-04-18-simulator-comparison-methodology-and-mppi-tuning.md")
 
     assert "게이트를 지나면 다음 노드로 갈아타는 방식" in gate_note
     assert "게이트 지나면 다음 노드로 가는건 어때" in gate_note
@@ -163,10 +169,26 @@ def test_raw_owner_notes_expand_referential_fragments_with_surrounding_messages(
     assert "전역 경로를 생성할 때부터 하나가 아니라 세그먼트들로" in contract_note
     assert "노드랑 간선형태" in contract_note
     assert "PLEASE IMPLEMENT THIS PLAN" in contract_note
+    assert "갈 수 있는곳까지 플래닝" in frontier_note
+    assert "Frontier-First Blocked Progression" in frontier_note
+    assert "문서랑 생각 철학 이런거만 가져가서 새로 만드는게 낫다고" in semantics_note
+    assert "선호는 입력이 아니라 field 구조가 생성한다" in semantics_note
+    assert "중력장 처럼 돼있는 공간" in score_space_note
+    assert "진행방향으로 기울어진 점수 공간" in score_space_note
+    assert "선호는 우리가 정하는게 아니라" in score_space_note
+    assert "애초에 공간이라니까" in fabric_note
+    assert "꽈배기같은걸 생각했단 말이야" in fabric_note
+    assert "Tube Field 제거와 Whole-Fabric Progression Space" in fabric_note
+    assert "의미번역기만" in snapshot_note
+    assert "Semantic Input Snapshot" in snapshot_note
+    assert "Query Context" in snapshot_note
+    assert "goal cost func" in snapshot_note
     assert "1번은 파라미터로 조정하면 되는거고" in progress_note
     assert "진행방향 성분이 메인으로 가고" in progress_note
     assert "2변은 진행 선호를 주는 장치지" in progress_note
     assert "2변은 진행 선호를 주는 장치지" in weighting_note
+    assert "mppi를 얼마나 최적화 할 수 있는지" in simulator_note
+    assert "real-time constrained benchmark" in simulator_note
 
 
 def test_owner_design_notebook_tracks_latest_user_framing() -> None:
@@ -175,9 +197,12 @@ def test_owner_design_notebook_tracks_latest_user_framing() -> None:
     for heading in (
         "## DPF가 하는 일",
         "## DPF가 하지 않는 일",
+        "## 입력 의미와 layer 분리",
+        "## 공간 전체의 점수 구조",
         "## 진행을 읽는 기준과 게이트 직관",
         "## 입력 경로의 역할",
         "## 진행방향 성분과 횡방향 성분",
+        "## local evaluation과 Query Context",
         "## planner / behavior와의 책임 경계",
         "## branch, merge, reverse를 보는 관점",
     ):
@@ -196,9 +221,15 @@ def test_owner_design_history_tracks_design_evolution() -> None:
         "## 문제가 처음 보인 방식",
         "## 게이트 직관과 progression의 출발점",
         "## node 도달보다 consume / 통과를 중시하게 된 흐름",
+        "## gate-only 단순화가 흔들린 과정",
+        "## docs-first reset과 canonical semantics 재고정",
+        "## progress-tilted score space와 layer 분리",
+        "## whole-space fabric instead of tube support",
+        "## Semantic Snapshot / Query Context / score function 언어",
         "## DPF를 progress-preference device로 읽게 된 전환",
         "## longitudinal와 transverse에 대한 역할 재정의",
         "## planner / behavior와의 책임 경계가 분리된 과정",
+        "## 비교 방법론이 설계와 분리된 과정",
         "## 현재 시점의 설계 위치",
     ):
         assert heading in history
@@ -207,7 +238,12 @@ def test_owner_design_history_tracks_design_evolution() -> None:
     assert "## Source sessions" not in history
     assert "관련 raw notes" not in history
     assert "인덱스를 붙여 consume" in history
-    assert "ego -> current exit node" in history
+    assert "frontier" in history
+    assert "ego -> next" in history
+    assert "주행 가능 의미 + 진행 의미" in history
+    assert "중력장처럼 돼있는 공간" in history
+    assert "whole-space fabric" in history
+    assert "Semantic Input Snapshot" in history
     assert "진행 선호를 주는 장치" in history
     assert "reference spine" not in history
 
@@ -226,5 +262,7 @@ def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
         assert "clean design prose" in body
         assert "clean design history prose" in body
         assert "current active thread" in body or "current thread" in body
+        assert "broader materialized source window" in body
+        assert "widen `docs/raw/notes/` first" in body
         assert "PLEASE IMPLEMENT THIS PLAN" in body
         assert "then update `docs/raw/owner_thought_tracker.md`" in body or "then `docs/raw/owner_thought_tracker.md`" in body
