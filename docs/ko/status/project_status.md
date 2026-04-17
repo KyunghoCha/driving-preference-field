@@ -41,7 +41,7 @@
 - runtime은 현재 보이는 local map 전체를 analytic하게 평가할 수 있어야 한다.
 - progression field는 최소한 longitudinal term과 transverse term을 가져야 하며, 이 둘은 독립적으로 조정 가능해야 한다.
 - 현재 구현은 Gaussian anchor blended guide-local coordinates와 hard max envelope를 사용한다.
-- 현재 구현 exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다. exported transverse는 dominant guide의 실제 transverse term을 그대로 쓴다.
+- 현재 구현 exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다. score는 dominant guide 기준으로 읽고, exported transverse는 near-tied guide candidate의 transverse term을 부드럽게 섞은 inspection channel이다.
 - visible guide endpoint는 virtual continuation으로 처리한다.
 - support / alignment는 weak secondary modulation으로만 유지한다.
 - current base composition은 `progression_tilted`만 사용한다.

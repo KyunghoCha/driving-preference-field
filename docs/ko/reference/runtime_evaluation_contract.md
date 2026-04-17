@@ -76,7 +76,7 @@ costmap / exception burden은 raster와 rendering 경로에서만 남긴다. pub
 
 ## 현재 구현
 
-현재 구현은 progression guide마다 Gaussian anchor blend로 guide-local coordinate를 계산한 뒤, guide-local score를 만들고 guide 간 hard max envelope를 취한다. `transverse_component`를 포함한 debug coordinate도 dominant guide 기준 값을 유지한다.
+현재 구현은 progression guide마다 Gaussian anchor blend로 guide-local coordinate를 계산한 뒤, guide-local score를 만들고 guide 간 hard max envelope를 취한다. score와 대부분의 debug coordinate는 dominant guide 기준 값을 유지하지만, `transverse_component`는 near-tied guide candidate의 transverse term을 부드럽게 섞은 inspection channel이다.
 
 현재 tiny evaluator는 `base_preference_total = progression_tilted`로 읽는다. trajectory ordering도 progression total만 기준으로 한 prototype을 사용한다. `safety_soft`, `rule_soft`, `dynamic_soft`, hard mask는 visualization / costmap 성격의 burden channel로만 남고 public runtime payload에는 싣지 않는다.
 

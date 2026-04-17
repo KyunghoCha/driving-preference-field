@@ -31,6 +31,9 @@ from .geometry import clamp, polyline_length
 _QUERY_BATCH_SIZE = 4096
 _EFFECTIVE_ANCHOR_WEIGHT_EPS = 1e-3
 _EPS = 1e-9
+_TRANSVERSE_HANDOFF_SUPPORT_RATIO = 0.25
+_TRANSVERSE_HANDOFF_SCORE_DELTA = 0.20
+_TRANSVERSE_HANDOFF_TEMPERATURE = 0.05
 
 
 @dataclass(frozen=True)
@@ -544,6 +547,7 @@ def _select_dominant_guide(
             "guide_support_sums": np.zeros((0, 0), dtype=float),
         }
 
+    stacked_transverse = np.stack([result.transverse_component for result in guide_results], axis=0)
     point_count = guide_results[0].score.size
     guide_scores = np.stack([result.score for result in guide_results], axis=0)
     guide_support_sums = np.stack([result.support_sum for result in guide_results], axis=0)
@@ -574,6 +578,31 @@ def _select_dominant_guide(
         [guide_results[index].anchor_count for index in best_indices],
         dtype=int,
     )
+    dominant_weight = np.zeros_like(guide_scores)
+    dominant_weight[best_indices, positions] = 1.0
+    candidate_mask = (
+        guide_support_sums >= (_TRANSVERSE_HANDOFF_SUPPORT_RATIO * best_support[None, :])
+    ) & (
+        guide_scores >= (best_scores[None, :] - _TRANSVERSE_HANDOFF_SCORE_DELTA)
+    )
+    candidate_mask[best_indices, positions] = True
+    scaled_score_delta = np.clip(
+        (guide_scores - best_scores[None, :]) / _TRANSVERSE_HANDOFF_TEMPERATURE,
+        -60.0,
+        0.0,
+    )
+    transverse_weights = np.where(
+        candidate_mask,
+        guide_support_sums * np.exp(scaled_score_delta),
+        0.0,
+    )
+    transverse_weight_sum = np.sum(transverse_weights, axis=0)
+    normalized_transverse_weights = np.where(
+        transverse_weight_sum[None, :] > _EPS,
+        transverse_weights / np.clip(transverse_weight_sum[None, :], _EPS, None),
+        dominant_weight,
+    )
+    smoothed_transverse = np.sum(normalized_transverse_weights * stacked_transverse, axis=0)
 
     return {
         "score": _select("score"),
@@ -583,7 +612,7 @@ def _select_dominant_guide(
         "support_mod": _select("support_mod"),
         "alignment_mod": _select("alignment_mod"),
         "longitudinal_component": _select("longitudinal_component"),
-        "transverse_component": _select("transverse_component"),
+        "transverse_component": smoothed_transverse,
         "anchor_count": selected_anchor_count,
         "effective_anchor_count": _select("effective_anchor_count").astype(int),
         "guide_scores": guide_scores,
