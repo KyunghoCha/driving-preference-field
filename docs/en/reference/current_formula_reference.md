@@ -34,7 +34,7 @@ The runtime supports several longitudinal families such as `tanh`, `linear`, `in
 
 ### Transverse families
 
-The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. The exported `progression_transverse_component` is the exact local-window transverse term that also goes into the score.
+The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. The exported `progression_transverse_component` is the exact guide-projection transverse term that also goes into the score.
 
 ### Secondary modulation
 
@@ -44,9 +44,9 @@ Support modulation and alignment modulation remain weak secondary factors. They 
 
 The active progression score is:
 
-`progression_tilted(p) = support_mod * alignment_mod * (T(|n_hat_local|) + gain * L(u))`
+`progression_tilted(p) = support_mod * alignment_mod * (T(|n_hat_guide|) + gain * L(u))`
 
-There is no guide-local hard max envelope in the current implementation. Guide diagnostics such as dominant guides are derived from pooled raw contribution only. `n_hat_local` is read from a local progress window around the final pooled `s_hat` by reconstructing a local centerline and tangent from nearby anchors, rather than from a whole-pool signed average.
+There is no guide-local hard max envelope in the current implementation. Guide diagnostics such as dominant guides are derived from pooled raw contribution only. `n_hat_guide` is read by projecting the query point onto the nearest resampled progression-guide segment, rather than from a pooled local-window reconstruction.
 
 ## Exception layers
 

@@ -299,8 +299,8 @@ def test_field_runtime_surface_tuning_change_propagates_into_surface_output() ->
     candidate_payload = candidate.query_state(state)
 
     assert candidate_payload.diagnostics["field_config"]["surface_tuning"]["sigma_n_scale"] == 2.2
-    assert candidate_payload.diagnostics["progression_transverse_component"] != pytest.approx(
-        baseline_payload.diagnostics["progression_transverse_component"]
+    assert candidate_payload.base_channels["progression_tilted"] != pytest.approx(
+        baseline_payload.base_channels["progression_tilted"]
     )
 
 
@@ -342,3 +342,15 @@ def test_field_runtime_u_turn_transverse_prefers_inside_apex_over_outer_right_ri
         inside.diagnostics["progression_transverse_component"]
         > outer.diagnostics["progression_transverse_component"]
     )
+
+
+def test_field_runtime_split_branch_transverse_prefers_actual_branch_over_between_branch_gap() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
+    runtime = build_field_runtime(snapshot, context, config=_canonical_config())
+
+    upper = runtime.query_state(StateSample(x=5.2, y=1.4, yaw=0.55))
+    lower = runtime.query_state(StateSample(x=5.2, y=-1.4, yaw=-0.55))
+    gap = runtime.query_state(StateSample(x=5.2, y=0.0, yaw=0.0))
+
+    assert upper.diagnostics["progression_transverse_component"] > gap.diagnostics["progression_transverse_component"]
+    assert lower.diagnostics["progression_transverse_component"] > gap.diagnostics["progression_transverse_component"]

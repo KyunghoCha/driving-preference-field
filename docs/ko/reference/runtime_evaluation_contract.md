@@ -76,7 +76,7 @@ costmap / exception burden은 raster와 rendering 경로에서만 남긴다. pub
 
 ## 현재 구현
 
-현재 구현은 progression anchor 전체를 하나의 pooled blended progress field로 평가한다. 먼저 provisional pooled progress를 계산하고 soft progress gating을 적용한 뒤, final pooled `s_hat`와 tangent를 읽는다. exported `n_hat`와 `transverse_component`는 그 final `s_hat` 주변의 local progress window에서 nearby anchor로 local cross-section을 다시 구성해 읽고, `transverse_component`는 inspection 근사가 아니라 `progression_tilted`에 실제로 들어가는 exact transverse term과 동일하다.
+현재 구현은 progression anchor 전체를 하나의 pooled blended progress field로 평가한다. 먼저 provisional pooled progress를 계산하고 soft progress gating을 적용한 뒤, final pooled `s_hat`와 tangent를 읽는다. exported `n_hat`와 `transverse_component`는 가장 가까운 resampled progression guide segment에 직접 투영해 읽고, `transverse_component`는 inspection 근사가 아니라 `progression_tilted`에 실제로 들어가는 exact transverse term과 동일하다.
 
 현재 tiny evaluator는 `base_preference_total = progression_tilted`로 읽는다. trajectory ordering도 progression total만 기준으로 한 prototype을 사용한다. `safety_soft`, `rule_soft`, `dynamic_soft`, hard mask는 visualization / costmap 성격의 burden channel로만 남고 public runtime payload에는 싣지 않는다.
 
