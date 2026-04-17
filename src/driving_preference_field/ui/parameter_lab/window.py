@@ -1007,7 +1007,7 @@ class ParameterLabWindow(QMainWindow):
         return {
             "scale_mode": self._scale_mode,
             "score_sign": "higher is better",
-            "progression_surface_kind": "pooled blended coordinates with soft progress gating",
+            "progression_surface_kind": "guide-local blended coordinates with hard max envelope",
             "raster_role": "visualization only",
             "selected_channel_unit": display_unit(self._selected_channel),
             "diff_unit": display_unit(self._selected_channel, diff=True),

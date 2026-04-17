@@ -22,7 +22,7 @@ The runtime evaluates the active progression field under the current `FieldConfi
 
 - `higher is better`
 - the base field remains progression-centered
-- the runtime and docs must move together when current implementation math changes
+- hard max envelope semantics remain part of the current implementation unless the docs and code move together
 - base-field meaning stays distinct from obstacle/rule/dynamic cost-like layers
 
 ## Layer-wise evaluator contract
@@ -31,7 +31,7 @@ The runtime can expose current-implementation detail channels such as longitudin
 
 ## Current implementation
 
-The current implementation builds one pooled blended coordinate field from all progression anchors, applies one soft progress gate around a provisional pooled progress estimate, and computes the final score once without a hard max envelope. `progression_transverse_component` remains a guide-aware inspection channel: it smooths transverse readings across eligible guides for split/merge readability. Obstacle / rule / dynamic channels remain separate cost-like views.
+The current implementation builds guide-local coordinates and scores from progression guides, then takes a pointwise hard max envelope across guides. `progression_transverse_component` includes handoff smoothing for inspection quality. Obstacle / rule / dynamic channels remain separate cost-like views.
 
 ## Visualization
 

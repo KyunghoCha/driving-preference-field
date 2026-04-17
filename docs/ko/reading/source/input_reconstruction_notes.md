@@ -95,7 +95,7 @@ SSC는 prototype input source로는 유용하지만, canonical 입력 구조를 
 
 ## 5. 현재 surface 품질 메모
 
-현재 `progression_surface.py`는 Gaussian anchor blend로 pooled coordinate를 만들고 soft progress gating을 사용한다. exported transverse만 guide-aware inspection smoothing을 유지한다. projection-based coordinate 실험은 롤백했고, 현재 품질 조정은 pooled coordinate 위에서 split/merge inspection morphology를 다듬는 쪽으로 남아 있다.
+현재 `progression_surface.py`는 Gaussian anchor blend로 guide-local coordinate를 만들고 hard max envelope를 사용한다. exported transverse만 handoff 근처에서 스무딩한다. projection-based coordinate 실험은 롤백했고, 현재 품질 조정은 blended coordinate 위에서 split/merge handoff morphology를 다듬는 쪽으로 남아 있다.
 
 현재 남은 질문은 coordinate drift 자체보다 morphology tuning 쪽에 가깝다.
 
@@ -104,6 +104,6 @@ SSC는 prototype input source로는 유용하지만, canonical 입력 구조를 
 - `left_bend`:
   - center ridge 안정성은 좋아졌지만, 곡률이 큰 구간에서 transverse profile이 얼마나 더 일정해야 하는지는 여전히 quality tuning 항목이다.
 - `split_branch` / `merge_like_patch`:
-  - pooled blend와 guide-aware inspection smoothing이 만드는 morphology가 현재 semantics와는 일관되지만, split/merge 내부와 바깥쪽 경계를 얼마나 더 자연스럽게 만들지는 추가 검토가 필요하다.
+  - hard max envelope와 guide handoff가 만드는 morphology가 현재 semantics와는 일관되지만, split/merge 내부와 바깥쪽 경계를 얼마나 더 자연스럽게 만들지는 추가 검토가 필요하다.
 
-즉 다음 품질 배치에서 볼 핵심은 “pooled coordinate를 다시 바꿀 것인가”보다, “현재 blended coordinate 위에서 split/merge inspection morphology를 어디까지 더 다듬을 것인가”다.
+즉 다음 품질 배치에서 볼 핵심은 “guide-local coordinate를 다시 바꿀 것인가”보다, “현재 blended coordinate 위에서 split/merge handoff morphology를 어디까지 더 다듬을 것인가”다.
