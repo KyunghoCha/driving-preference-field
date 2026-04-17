@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import fields, replace
 
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
@@ -18,33 +18,16 @@ from PyQt6.QtWidgets import (
 )
 
 from driving_preference_field.config import FieldConfig
+from driving_preference_field.ui.help.catalog import ADVANCED_PARAMETER_GROUPS, MAIN_PARAMETER_KEYS, PARAMETER_SPECS, ParameterSpec
+from driving_preference_field.ui.help.render import panel_note_text, progression_parameter_guide, section_title
 from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, t
-from driving_preference_field.ui.parameter_guide import (
-    ADVANCED_PARAMETER_GROUPS,
-    main_parameter_keys,
-    panel_note_text,
-    progression_parameter_guide,
-    section_title,
+
+
+MAIN_SECTION_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("longitudinal", ("longitudinal_frame", "longitudinal_family", "longitudinal_gain", "lookahead_scale", "longitudinal_shape")),
+    ("transverse", ("transverse_family", "transverse_scale", "transverse_shape")),
+    ("support_gate", ("support_ceiling",)),
 )
-
-
-ADVANCED_PARAMETER_RANGES: dict[str, tuple[float, float]] = {
-    "anchor_spacing_m": (0.05, 2.0),
-    "spline_sample_density_m": (0.01, 1.0),
-    "spline_min_subdivisions": (1, 64),
-    "min_sigma_t": (0.05, 5.0),
-    "min_sigma_n": (0.05, 5.0),
-    "sigma_t_scale": (0.05, 5.0),
-    "sigma_n_scale": (0.05, 5.0),
-    "end_extension_m": (0.0, 10.0),
-    "support_base": (0.0, 1.0),
-    "support_range": (0.0, 1.0),
-    "alignment_base": (0.0, 1.0),
-    "alignment_range": (0.0, 1.0),
-    "transverse_handoff_support_ratio": (0.0, 1.0),
-    "transverse_handoff_score_delta": (0.0, 2.0),
-    "transverse_handoff_temperature": (0.01, 1.0),
-}
 
 
 class ProgressionParameterPanelWidget(QWidget):
@@ -57,9 +40,10 @@ class ProgressionParameterPanelWidget(QWidget):
         self._title = title
         self._config = FieldConfig()
         self._pending_config = FieldConfig()
-        self._controls: dict[str, object] = {}
+        self._controls: dict[str, QWidget] = {}
         self._label_widgets: dict[str, QLabel] = {}
         self._advanced_group_widgets: dict[str, QGroupBox] = {}
+
         layout = QVBoxLayout(self)
         self._root_group = QGroupBox(title)
         root_layout = QVBoxLayout(self._root_group)
@@ -69,90 +53,23 @@ class ProgressionParameterPanelWidget(QWidget):
         self._longitudinal_group, longitudinal_form = self._build_section(section_title(language, "longitudinal"))
         self._transverse_group, transverse_form = self._build_section(section_title(language, "transverse"))
         self._support_group, support_form = self._build_section(section_title(language, "support_gate"))
-        guide = progression_parameter_guide(language)
-
-        self._longitudinal_family = QComboBox()
-        self._longitudinal_frame = QComboBox()
-        self._longitudinal_frame.addItems(["local_absolute", "ego_relative"])
-        self._longitudinal_frame.currentTextChanged.connect(self._on_changed)
-        long_frame_guide = guide["longitudinal_frame"]
-        self._longitudinal_frame.setToolTip(
-            f"{long_frame_guide.tooltip}\nRange: {long_frame_guide.technical_range}"
-        )
-        longitudinal_form.addRow(self._make_label("longitudinal_frame"), self._longitudinal_frame)
-        self._controls["longitudinal_frame"] = self._longitudinal_frame
-
-        self._longitudinal_family = QComboBox()
-        self._longitudinal_family.addItems(["tanh", "linear", "inverse", "power"])
-        self._longitudinal_family.currentTextChanged.connect(self._on_changed)
-        long_family_guide = guide["longitudinal_family"]
-        self._longitudinal_family.setToolTip(
-            f"{long_family_guide.tooltip}\nRange: {long_family_guide.technical_range}"
-        )
-        longitudinal_form.addRow(self._make_label("longitudinal_family"), self._longitudinal_family)
-        self._controls["longitudinal_family"] = self._longitudinal_family
-
-        for key in ("longitudinal_gain", "lookahead_scale", "longitudinal_shape"):
-            spin = QDoubleSpinBox()
-            spin.setDecimals(4)
-            spin.setRange(0.0, 1000.0)
-            spin.setSingleStep(0.05)
-            spin.setMinimumWidth(120)
-            spin.valueChanged.connect(self._on_changed)
-            entry = guide[key]
-            spin.setToolTip(
-                f"{entry.tooltip}\n"
-                f"Practical band: {entry.practical_band}\n"
-                f"Technical range: {entry.technical_range}"
-            )
-            self._controls[key] = spin
-            longitudinal_form.addRow(self._make_label(key), spin)
-
-        self._transverse_family = QComboBox()
-        self._transverse_family.addItems(["exponential", "inverse", "power"])
-        self._transverse_family.currentTextChanged.connect(self._on_changed)
-        transverse_family_guide = guide["transverse_family"]
-        self._transverse_family.setToolTip(
-            f"{transverse_family_guide.tooltip}\nRange: {transverse_family_guide.technical_range}"
-        )
-        transverse_form.addRow(self._make_label("transverse_family"), self._transverse_family)
-        self._controls["transverse_family"] = self._transverse_family
-
-        for key in ("transverse_scale", "transverse_shape"):
-            spin = QDoubleSpinBox()
-            spin.setDecimals(4)
-            spin.setRange(0.0, 1000.0)
-            spin.setSingleStep(0.05)
-            spin.setMinimumWidth(120)
-            spin.valueChanged.connect(self._on_changed)
-            entry = guide[key]
-            spin.setToolTip(
-                f"{entry.tooltip}\n"
-                f"Practical band: {entry.practical_band}\n"
-                f"Technical range: {entry.technical_range}"
-            )
-            self._controls[key] = spin
-            transverse_form.addRow(self._make_label(key), spin)
-
-        for key in ("support_ceiling",):
-            spin = QDoubleSpinBox()
-            spin.setDecimals(4)
-            spin.setRange(0.0, 1000.0)
-            spin.setSingleStep(0.05)
-            spin.setMinimumWidth(120)
-            spin.valueChanged.connect(self._on_changed)
-            entry = guide[key]
-            spin.setToolTip(
-                f"{entry.tooltip}\n"
-                f"Practical band: {entry.practical_band}\n"
-                f"Technical range: {entry.technical_range}"
-            )
-            self._controls[key] = spin
-            support_form.addRow(self._make_label(key), spin)
+        section_forms = {
+            "longitudinal": longitudinal_form,
+            "transverse": transverse_form,
+            "support_gate": support_form,
+        }
+        for section_key, keys in MAIN_SECTION_KEYS:
+            form = section_forms[section_key]
+            for key in keys:
+                control = self._build_control(key)
+                self._controls[key] = control
+                setattr(self, f"_{key}", control)
+                form.addRow(self._make_label(key), control)
 
         root_layout.addWidget(self._longitudinal_group)
         root_layout.addWidget(self._transverse_group)
         root_layout.addWidget(self._support_group)
+
         self._advanced_toggle = QToolButton()
         self._advanced_toggle.setCheckable(True)
         self._advanced_toggle.setChecked(False)
@@ -160,6 +77,7 @@ class ProgressionParameterPanelWidget(QWidget):
         self._advanced_toggle.setArrowType(Qt.ArrowType.RightArrow)
         self._advanced_toggle.toggled.connect(self._set_advanced_visible)
         root_layout.addWidget(self._advanced_toggle)
+
         self._advanced_content = QWidget()
         self._advanced_content_layout = QVBoxLayout(self._advanced_content)
         self._advanced_content_layout.setContentsMargins(0, 0, 0, 0)
@@ -168,17 +86,20 @@ class ProgressionParameterPanelWidget(QWidget):
             group, form = self._build_section(section_title(language, group_key))
             self._advanced_group_widgets[group_key] = group
             for key in keys:
-                control = self._build_advanced_control(key)
+                control = self._build_control(key)
                 self._controls[key] = control
+                setattr(self, f"_{key}", control)
                 form.addRow(self._make_label(key), control)
             self._advanced_content_layout.addWidget(group)
         self._advanced_content_layout.addStretch(1)
         self._advanced_content.setVisible(False)
         root_layout.addWidget(self._advanced_content)
+
         self._note_label = QLabel()
         self._note_label.setWordWrap(True)
         self._note_label.setStyleSheet("color: #555; font-size: 11px;")
         root_layout.addWidget(self._note_label)
+
         self._apply_button = QPushButton()
         self._reset_button = QPushButton()
         self._help_button = QPushButton()
@@ -187,6 +108,7 @@ class ProgressionParameterPanelWidget(QWidget):
         self._reset_button.setEnabled(False)
         self._reset_button.clicked.connect(self.reset_pending)
         self._help_button.clicked.connect(self.helpRequested.emit)
+
         actions = QHBoxLayout()
         actions.addWidget(self._reset_button)
         actions.addWidget(self._help_button)
@@ -194,6 +116,7 @@ class ProgressionParameterPanelWidget(QWidget):
         root_layout.addLayout(actions)
         layout.addWidget(self._root_group)
         layout.addStretch(1)
+
         self.retranslate(language, title=title)
         self.set_config(self._config)
 
@@ -205,48 +128,67 @@ class ProgressionParameterPanelWidget(QWidget):
         form.setVerticalSpacing(8)
         return group, form
 
-    def _make_label(self, key: str) -> QLabel:
-        guide = progression_parameter_guide(self._language)[key]
-        if key in {"longitudinal_frame", "longitudinal_family", "transverse_family"}:
-            text = guide.label
+    def _build_control(self, key: str) -> QWidget:
+        spec = PARAMETER_SPECS[key]
+        if spec.widget_kind == "combo":
+            control = QComboBox()
+            control.addItems(spec.options)
+            control.currentTextChanged.connect(self._on_changed)
+        elif spec.widget_kind == "spin":
+            control = QSpinBox()
+            assert spec.numeric_range is not None
+            control.setRange(int(spec.numeric_range[0]), int(spec.numeric_range[1]))
+            control.setSingleStep(int(spec.single_step))
+            control.valueChanged.connect(self._on_changed)
         else:
-            compact_band = guide.practical_band.replace(" .. ", "-")
-            text = f"{guide.label} [{compact_band}]"
-        label = QLabel(text)
-        self._label_widgets[key] = label
-        label.setToolTip(
-            f"{guide.meaning}\n"
-            f"Practical band: {guide.practical_band}\n"
-            f"Technical range: {guide.technical_range}"
+            control = QDoubleSpinBox()
+            assert spec.numeric_range is not None
+            control.setDecimals(spec.decimals)
+            control.setRange(float(spec.numeric_range[0]), float(spec.numeric_range[1]))
+            control.setSingleStep(spec.single_step)
+            control.valueChanged.connect(self._on_changed)
+        control.setMinimumWidth(spec.minimum_width)
+        return control
+
+    def _guide_entry(self, key: str):
+        return progression_parameter_guide(self._language)[key]
+
+    def _control_tooltip(self, key: str) -> str:
+        entry = self._guide_entry(key)
+        return (
+            f"{entry.tooltip}\n"
+            f"Practical band: {entry.practical_band}\n"
+            f"Technical range: {entry.technical_range}"
         )
+
+    def _label_text(self, key: str) -> str:
+        entry = self._guide_entry(key)
+        if PARAMETER_SPECS[key].widget_kind == "combo":
+            return entry.label
+        return f"{entry.label} [{entry.practical_band.replace(' .. ', '-')}]"
+
+    def _make_label(self, key: str) -> QLabel:
+        label = QLabel(self._label_text(key))
+        self._label_widgets[key] = label
+        self._update_label_tooltip(key)
+        self._update_control_tooltip(key)
         return label
 
-    def _build_advanced_control(self, key: str) -> QWidget:
-        guide = progression_parameter_guide(self._language)[key]
-        lower, upper = ADVANCED_PARAMETER_RANGES[key]
-        if key == "spline_min_subdivisions":
-            spin = QSpinBox()
-            spin.setRange(int(lower), int(upper))
-            spin.setSingleStep(1)
-        else:
-            spin = QDoubleSpinBox()
-            spin.setDecimals(4)
-            spin.setRange(float(lower), float(upper))
-            spin.setSingleStep(0.01 if upper <= 1.0 else 0.05)
-        spin.setMinimumWidth(120)
-        spin.valueChanged.connect(self._on_changed)
-        spin.setToolTip(
-            f"{guide.tooltip}\n"
-            f"Practical band: {guide.practical_band}\n"
-            f"Technical range: {guide.technical_range}"
+    def _update_label_tooltip(self, key: str) -> None:
+        label = self._label_widgets[key]
+        entry = self._guide_entry(key)
+        label.setToolTip(
+            f"{entry.meaning}\n"
+            f"Practical band: {entry.practical_band}\n"
+            f"Technical range: {entry.technical_range}"
         )
-        return spin
+
+    def _update_control_tooltip(self, key: str) -> None:
+        self._controls[key].setToolTip(self._control_tooltip(key))
 
     def _set_advanced_visible(self, visible: bool) -> None:
         self._advanced_content.setVisible(visible)
-        self._advanced_toggle.setArrowType(
-            Qt.ArrowType.DownArrow if visible else Qt.ArrowType.RightArrow
-        )
+        self._advanced_toggle.setArrowType(Qt.ArrowType.DownArrow if visible else Qt.ArrowType.RightArrow)
 
     def config(self) -> FieldConfig:
         return self._config
@@ -257,25 +199,17 @@ class ProgressionParameterPanelWidget(QWidget):
     def set_config(self, config: FieldConfig) -> None:
         self._config = config
         self._pending_config = config
-        progression = config.progression
-        self._longitudinal_frame.blockSignals(True)
-        self._longitudinal_frame.setCurrentText(progression.longitudinal_frame)
-        self._longitudinal_frame.blockSignals(False)
-        self._longitudinal_family.blockSignals(True)
-        self._longitudinal_family.setCurrentText(progression.longitudinal_family)
-        self._longitudinal_family.blockSignals(False)
-        self._transverse_family.blockSignals(True)
-        self._transverse_family.setCurrentText(progression.transverse_family)
-        self._transverse_family.blockSignals(False)
         for key, control in self._controls.items():
-            if key in {"longitudinal_frame", "longitudinal_family", "transverse_family"}:
-                continue
             control.blockSignals(True)
-            if hasattr(progression, key):
-                value = getattr(progression, key)
+            spec = PARAMETER_SPECS[key]
+            source = config.progression if spec.config_namespace == "progression" else config.surface_tuning
+            value = getattr(source, key)
+            if isinstance(control, QComboBox):
+                control.setCurrentText(str(value))
+            elif isinstance(control, QSpinBox):
+                control.setValue(int(value))
             else:
-                value = getattr(config.surface_tuning, key)
-            control.setValue(int(value) if key == "spline_min_subdivisions" else float(value))
+                control.setValue(float(value))
             control.blockSignals(False)
         self._apply_button.setEnabled(False)
         self._reset_button.setEnabled(False)
@@ -304,7 +238,6 @@ class ProgressionParameterPanelWidget(QWidget):
         self._language = language
         if title is not None:
             self._title = title
-        guide = progression_parameter_guide(language)
         self._root_group.setTitle(self._title)
         self._longitudinal_group.setTitle(section_title(language, "longitudinal"))
         self._transverse_group.setTitle(section_title(language, "transverse"))
@@ -313,60 +246,28 @@ class ProgressionParameterPanelWidget(QWidget):
         for group_key, group in self._advanced_group_widgets.items():
             group.setTitle(section_title(language, group_key))
         for key, label in self._label_widgets.items():
-            entry = guide[key]
-            if key in {"longitudinal_frame", "longitudinal_family", "transverse_family"}:
-                text = entry.label
-            else:
-                text = f"{entry.label} [{entry.practical_band.replace(' .. ', '-')}]"
-            label.setText(text)
-            label.setToolTip(
-                f"{entry.meaning}\n"
-                f"Practical band: {entry.practical_band}\n"
-                f"Technical range: {entry.technical_range}"
-            )
-            control = self._controls[key]
-            if hasattr(control, "setToolTip"):
-                control.setToolTip(
-                    f"{entry.tooltip}\n"
-                    f"Practical band: {entry.practical_band}\n"
-                    f"Technical range: {entry.technical_range}"
-                )
+            label.setText(self._label_text(key))
+            self._update_label_tooltip(key)
+            self._update_control_tooltip(key)
         self._note_label.setText(panel_note_text(language))
         self._apply_button.setText(t(language, "param.button.apply"))
         self._reset_button.setText(t(language, "param.button.reset"))
         self._help_button.setText(t(language, "param.button.help"))
 
     def _build_config_from_controls(self) -> FieldConfig:
-        progression = self._config.progression
-        surface_tuning = self._config.surface_tuning
-        updated = replace(
-            progression,
-            longitudinal_frame=self._longitudinal_frame.currentText(),
-            longitudinal_family=self._longitudinal_family.currentText(),
-            longitudinal_gain=self._controls["longitudinal_gain"].value(),
-            lookahead_scale=self._controls["lookahead_scale"].value(),
-            longitudinal_shape=self._controls["longitudinal_shape"].value(),
-            transverse_family=self._transverse_family.currentText(),
-            transverse_scale=self._controls["transverse_scale"].value(),
-            transverse_shape=self._controls["transverse_shape"].value(),
-            support_ceiling=self._controls["support_ceiling"].value(),
-        )
-        updated_surface_tuning = replace(
-            surface_tuning,
-            anchor_spacing_m=self._controls["anchor_spacing_m"].value(),
-            spline_sample_density_m=self._controls["spline_sample_density_m"].value(),
-            spline_min_subdivisions=int(self._controls["spline_min_subdivisions"].value()),
-            min_sigma_t=self._controls["min_sigma_t"].value(),
-            min_sigma_n=self._controls["min_sigma_n"].value(),
-            sigma_t_scale=self._controls["sigma_t_scale"].value(),
-            sigma_n_scale=self._controls["sigma_n_scale"].value(),
-            end_extension_m=self._controls["end_extension_m"].value(),
-            support_base=self._controls["support_base"].value(),
-            support_range=self._controls["support_range"].value(),
-            alignment_base=self._controls["alignment_base"].value(),
-            alignment_range=self._controls["alignment_range"].value(),
-            transverse_handoff_support_ratio=self._controls["transverse_handoff_support_ratio"].value(),
-            transverse_handoff_score_delta=self._controls["transverse_handoff_score_delta"].value(),
-            transverse_handoff_temperature=self._controls["transverse_handoff_temperature"].value(),
-        )
-        return replace(self._config, progression=updated, surface_tuning=updated_surface_tuning)
+        progression_updates: dict[str, object] = {}
+        surface_updates: dict[str, object] = {}
+        for key, control in self._controls.items():
+            spec: ParameterSpec = PARAMETER_SPECS[key]
+            if isinstance(control, QComboBox):
+                value: object = control.currentText()
+            elif isinstance(control, QSpinBox):
+                value = int(control.value())
+            else:
+                value = float(control.value())
+            target = progression_updates if spec.config_namespace == "progression" else surface_updates
+            target[key] = value
+
+        progression = replace(self._config.progression, **progression_updates)
+        surface_tuning = replace(self._config.surface_tuning, **surface_updates)
+        return replace(self._config, progression=progression, surface_tuning=surface_tuning)

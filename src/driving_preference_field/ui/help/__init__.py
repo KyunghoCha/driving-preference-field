@@ -1,4 +1,4 @@
-from driving_preference_field.ui.help.catalog import (
+from .catalog import (
     ADVANCED_PARAMETER_GROUPS,
     ADVANCED_PARAMETER_RANGES,
     MAIN_PARAMETER_KEYS,
@@ -7,13 +7,8 @@ from driving_preference_field.ui.help.catalog import (
     ParameterSpec,
     parameter_spec,
 )
-from driving_preference_field.ui.help.copy import (
-    PANEL_NOTE_TEXT,
-    PARAMETER_GUIDE_INTRO,
-    PARAMETER_TEXTS,
-    SECTION_TITLES,
-)
-from driving_preference_field.ui.help.render import (
+from .copy import PANEL_NOTE_TEXT, PARAMETER_GUIDE_INTRO, PARAMETER_TEXTS, SECTION_TITLES
+from .render import (
     ParameterGuideEntry,
     main_parameter_keys,
     panel_note_text,
@@ -26,11 +21,11 @@ __all__ = [
     "ADVANCED_PARAMETER_GROUPS",
     "ADVANCED_PARAMETER_RANGES",
     "MAIN_PARAMETER_KEYS",
-    "PANEL_NOTE_TEXT",
     "PARAMETER_GUIDE_INTRO",
     "PARAMETER_ORDER",
     "PARAMETER_SPECS",
     "PARAMETER_TEXTS",
+    "PANEL_NOTE_TEXT",
     "SECTION_TITLES",
     "ParameterGuideEntry",
     "ParameterSpec",
