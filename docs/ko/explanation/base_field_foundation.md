@@ -42,7 +42,7 @@ progression 축과 횡방향 profile이 base field의 주성분이다. support, 
 
 ## 현재 구현은 이 개념을 어떻게 근사하는가
 
-현재 구현의 progression surface는 progression guide를 anchor 구조로 사용하되, anchor 전체를 하나의 pooled blended progress field로 평가한다. exported transverse는 nearest guide branch를 고른 뒤 같은 guide의 nearby segments를 부드럽게 섞어 읽고, inspection 전용 근사가 아니라 score에 실제로 들어가는 exact transverse와 동일하게 유지한다.
+현재 구현의 progression surface는 progression guide를 anchor 구조로 사용하되, anchor 전체를 하나의 pooled blended progress field로 평가한다. exported transverse는 가장 가까운 resampled progression guide segment에 직접 투영해 읽고, inspection 전용 근사가 아니라 score에 실제로 들어가는 exact transverse와 동일하게 유지한다.
 
 visible guide endpoint는 semantic start/end로 읽지 않고 짧은 virtual continuation을 둔다. 목적은 endpoint 근처에 fake end-cap이 생겨 semantic meaning을 잘못 암시하는 것을 줄이는 데 있다.
 
