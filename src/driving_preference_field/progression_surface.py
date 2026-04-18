@@ -40,6 +40,7 @@ _TRANSVERSE_HANDOFF_TEMPERATURE = 0.05
 class SurfaceGuide:
     guide_id: str
     points: tuple[Point2, ...]
+    distance_points: tuple[Point2, ...]
     guide_length: float
     weight: float
     confidence: float
@@ -464,7 +465,7 @@ def _guide_local_result(
 
     s_values = cumulative_s + tau
     s_hat = np.sum(blend_weights * s_values, axis=0)
-    n_hat = np.sum(blend_weights * nu, axis=0)
+    n_hat = _unsigned_distance_to_polyline(guide.distance_points, x_values, y_values)
     tangent_hat = np.stack(
         (
             np.sum(blend_weights * tangent_x, axis=0),
@@ -686,6 +687,39 @@ def _transverse_value_array(ratio: np.ndarray, config: ProgressionConfig) -> np.
     return np.exp(-shape * ratio)
 
 
+def _unsigned_distance_to_polyline(
+    polyline: tuple[Point2, ...],
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+) -> np.ndarray:
+    if len(polyline) < 2:
+        return np.zeros_like(x_values)
+
+    points = np.asarray(polyline, dtype=float)
+    starts = points[:-1]
+    ends = points[1:]
+    seg = ends - starts
+    seg_len_sq = np.sum(seg * seg, axis=1)
+    valid = seg_len_sq > _EPS
+    if not np.any(valid):
+        return np.zeros_like(x_values)
+
+    starts = starts[valid]
+    seg = seg[valid]
+    seg_len_sq = seg_len_sq[valid]
+
+    dx = x_values[None, :] - starts[:, 0][:, None]
+    dy = y_values[None, :] - starts[:, 1][:, None]
+    t = np.clip((dx * seg[:, 0][:, None] + dy * seg[:, 1][:, None]) / seg_len_sq[:, None], 0.0, 1.0)
+    proj_x = starts[:, 0][:, None] + t * seg[:, 0][:, None]
+    proj_y = starts[:, 1][:, None] + t * seg[:, 1][:, None]
+
+    offset_x = x_values[None, :] - proj_x
+    offset_y = y_values[None, :] - proj_y
+    dist_sq = offset_x * offset_x + offset_y * offset_y
+    return np.sqrt(np.min(dist_sq, axis=0))
+
+
 def _surface_index(snapshot: SemanticInputSnapshot, tuning: SurfaceTuningConfig) -> SurfaceIndex:
     return _surface_index_from_signature(_surface_signature(snapshot, tuning))
 
@@ -747,6 +781,7 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         guide = SurfaceGuide(
             guide_id=str(guide_id),
             points=smooth_points,
+            distance_points=_distance_points_with_continuation(smooth_points, tuning),
             guide_length=guide_length,
             weight=float(weight),
             confidence=float(confidence),
@@ -903,6 +938,43 @@ def _arc_length_resample(points: tuple[Point2, ...], *, spacing: float) -> tuple
         local_t = _safe_unit_interval(target, start_distance, stop_distance)
         sampled.append(_lerp_point(points[segment_index], points[segment_index + 1], local_t))
     return tuple(sampled)
+
+
+def _distance_points_with_continuation(
+    points: tuple[Point2, ...],
+    tuning: SurfaceTuningConfig,
+) -> tuple[Point2, ...]:
+    spacing = max(tuning.anchor_spacing_m * 0.25, 0.025)
+    dense_points = _arc_length_resample(points, spacing=spacing)
+    if len(dense_points) < 2 or tuning.end_extension_m <= _EPS:
+        return dense_points
+
+    start_tangent = _segment_tangent(dense_points[0], dense_points[1])
+    end_tangent = _segment_tangent(dense_points[-2], dense_points[-1])
+
+    start_extension: list[Point2] = []
+    distance_cursor = spacing
+    while distance_cursor <= tuning.end_extension_m + _EPS:
+        start_extension.append(
+            (
+                dense_points[0][0] - start_tangent[0] * distance_cursor,
+                dense_points[0][1] - start_tangent[1] * distance_cursor,
+            )
+        )
+        distance_cursor += spacing
+
+    end_extension: list[Point2] = []
+    distance_cursor = spacing
+    while distance_cursor <= tuning.end_extension_m + _EPS:
+        end_extension.append(
+            (
+                dense_points[-1][0] + end_tangent[0] * distance_cursor,
+                dense_points[-1][1] + end_tangent[1] * distance_cursor,
+            )
+        )
+        distance_cursor += spacing
+
+    return (*reversed(start_extension), *dense_points, *end_extension)
 
 
 def _anchor_points(points: tuple[Point2, ...]) -> tuple[tuple[float, Point2, Point2], ...]:
