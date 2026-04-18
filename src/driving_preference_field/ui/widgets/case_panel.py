@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
 )
 
 from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample
+from driving_preference_field.input_loader import load_semantic_input
 from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, t
 
 
@@ -116,6 +117,8 @@ class CasePanelWidget(QWidget):
         for root in self._case_roots:
             discovered.extend(sorted(root.glob("*.yaml")))
         for case_path in discovered:
+            if not self._is_loadable_case(case_path):
+                continue
             self._combo.addItem(case_path.stem, str(case_path))
         if self._external_case_path is not None and self._combo.findData(self._external_case_path) < 0:
             self._combo.addItem(f"[external] {Path(self._external_case_path).name}", self._external_case_path)
@@ -173,6 +176,13 @@ class CasePanelWidget(QWidget):
         value = self.current_case_path()
         if value:
             self.caseChanged.emit(value)
+
+    def _is_loadable_case(self, case_path: Path) -> bool:
+        try:
+            load_semantic_input(case_path)
+        except Exception:
+            return False
+        return True
 
     def _on_control_changed(self) -> None:
         if self._applied_ego_pose is None or self._applied_local_window is None:

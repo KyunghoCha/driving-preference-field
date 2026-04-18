@@ -276,6 +276,17 @@ def test_drivable_only_circular_arc_reconstructs_monotone_turning_centerline() -
     assert guide.points[-1][1] > 3.0
 
 
+def test_full_circle_global_plan_fixture_loads_as_single_progression_loop() -> None:
+    snapshot, _ = load_generic_snapshot(FIXTURES / "full_circle_global_plan_generic.yaml")
+    guide = snapshot.progression_support.guides[0]
+
+    assert len(snapshot.progression_support.guides) == 1
+    assert guide.guide_id == "full_circle_global_plan"
+    assert guide.points[0] == pytest.approx(guide.points[-1])
+    assert max(abs(point[0]) for point in guide.points) > 3.0
+    assert max(abs(point[1]) for point in guide.points) > 3.0
+
+
 def test_drivable_only_split_branch_fails_with_explicit_ambiguity_error() -> None:
     with pytest.raises(GenericAdapterValidationError, match="ambiguous or disconnected"):
         load_generic_snapshot(FIXTURES / "split_branch_drivable_only_generic.yaml")

@@ -60,3 +60,5 @@ def test_parameter_lab_state_lists_toy_cases_and_generic_fixtures() -> None:
     assert "straight_corridor_generic.yaml" in available_names
     assert "left_bend_drivable_only_generic.yaml" in available_names
     assert "circular_arc_drivable_only_generic.yaml" in available_names
+    assert "full_circle_global_plan_generic.yaml" in available_names
+    assert "split_branch_drivable_only_generic.yaml" not in available_names

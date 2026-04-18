@@ -109,7 +109,15 @@ class ParameterLabState:
         return candidate.resolve()
 
     def available_case_paths(self) -> list[Path]:
-        return sorted(self.cases_root.glob("*.yaml")) + sorted(self.fixture_root.glob("*.yaml"))
+        candidates = sorted(self.cases_root.glob("*.yaml")) + sorted(self.fixture_root.glob("*.yaml"))
+        available: list[Path] = []
+        for candidate in candidates:
+            try:
+                load_semantic_input(candidate)
+            except Exception:
+                continue
+            available.append(candidate)
+        return available
 
     def initialize_side_from_path(self, side: str, preset_path: Path | None) -> None:
         resolved_path = preset_path

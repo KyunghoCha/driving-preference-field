@@ -1,0 +1,52 @@
+metadata:
+  name: full_circle_global_plan_generic
+  description: Generic adapter fixture with a full circular global-plan loop over a broad circular drivable patch.
+drivable_regions:
+  - id: circular_patch
+    points:
+      - [4.4, 0.0]
+      - [4.064, 1.683]
+      - [3.111, 3.111]
+      - [1.683, 4.064]
+      - [0.0, 4.4]
+      - [-1.683, 4.064]
+      - [-3.111, 3.111]
+      - [-4.064, 1.683]
+      - [-4.4, 0.0]
+      - [-4.064, -1.683]
+      - [-3.111, -3.111]
+      - [-1.683, -4.064]
+      - [0.0, -4.4]
+      - [1.683, -4.064]
+      - [3.111, -3.111]
+      - [4.064, -1.683]
+global_plan_supports:
+  - id: full_circle_global_plan
+    points:
+      - [3.1, 0.0]
+      - [2.863, 1.186]
+      - [2.192, 2.192]
+      - [1.186, 2.863]
+      - [0.0, 3.1]
+      - [-1.186, 2.863]
+      - [-2.192, 2.192]
+      - [-2.863, 1.186]
+      - [-3.1, 0.0]
+      - [-2.863, -1.186]
+      - [-2.192, -2.192]
+      - [-1.186, -2.863]
+      - [0.0, -3.1]
+      - [1.186, -2.863]
+      - [2.192, -2.192]
+      - [2.863, -1.186]
+      - [3.1, 0.0]
+query_context:
+  query_pose:
+    x: 3.1
+    y: 0.0
+    yaw: 1.5707963268
+  local_window:
+    x_min: -4.8
+    x_max: 4.8
+    y_min: -4.8
+    y_max: 4.8

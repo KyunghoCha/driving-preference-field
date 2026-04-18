@@ -228,6 +228,9 @@ def test_parameter_lab_case_selector_lists_generic_adapter_fixtures(qtbot) -> No
     assert combo_entries["left_bend_drivable_only_generic"] == "left_bend_drivable_only_generic.yaml"
     assert "circular_arc_drivable_only_generic" in combo_entries
     assert combo_entries["circular_arc_drivable_only_generic"] == "circular_arc_drivable_only_generic.yaml"
+    assert "full_circle_global_plan_generic" in combo_entries
+    assert combo_entries["full_circle_global_plan_generic"] == "full_circle_global_plan_generic.yaml"
+    assert "split_branch_drivable_only_generic" not in combo_entries
 
     window.close()
 

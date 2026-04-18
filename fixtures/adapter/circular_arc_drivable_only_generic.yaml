@@ -38,7 +38,7 @@ query_context:
     y: -1.6
     yaw: 1.0471975512
   local_window:
-    x_min: -4.5
+    x_min: -0.5
     x_max: 4.5
-    y_min: -4.5
-    y_max: 4.5
+    y_min: -3.8
+    y_max: 4.2
