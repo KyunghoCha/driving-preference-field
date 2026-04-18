@@ -134,6 +134,29 @@ def test_drivable_only_u_turn_reconstructs_future_anchored_centerline() -> None:
     assert guide.points[-1][0] < 2.0
 
 
+def test_drivable_only_left_bend_reconstructs_curved_centerline() -> None:
+    snapshot, _ = load_generic_snapshot(FIXTURES / "left_bend_drivable_only_generic.yaml")
+    guide = snapshot.progression_support.guides[0]
+
+    assert guide.metadata["source"] == "drivable_only_reconstruction"
+    assert len(guide.points) >= 6
+    assert guide.points[-1][0] > guide.points[0][0]
+    assert guide.points[-1][1] > guide.points[0][1]
+    assert guide.points[-1][1] > 4.5
+
+
+def test_drivable_only_circular_arc_reconstructs_monotone_turning_centerline() -> None:
+    snapshot, _ = load_generic_snapshot(FIXTURES / "circular_arc_drivable_only_generic.yaml")
+    guide = snapshot.progression_support.guides[0]
+
+    assert guide.metadata["source"] == "drivable_only_reconstruction"
+    assert len(guide.points) >= 10
+    assert guide.points[0][0] > 2.5
+    assert guide.points[0][1] < -1.0
+    assert guide.points[-1][0] < 1.0
+    assert guide.points[-1][1] > 3.0
+
+
 def test_drivable_only_split_branch_fails_with_explicit_ambiguity_error() -> None:
     with pytest.raises(GenericAdapterValidationError, match="ambiguous or disconnected"):
         load_generic_snapshot(FIXTURES / "split_branch_drivable_only_generic.yaml")

@@ -1,0 +1,26 @@
+metadata:
+  name: left_bend_drivable_only_generic
+  description: Generic adapter fixture with drivable-only left-bend reconstruction.
+drivable_regions:
+  - id: bend_corridor
+    points:
+      - [0.0, -1.0]
+      - [3.2, -1.0]
+      - [5.8, 1.6]
+      - [5.8, 5.6]
+      - [4.2, 5.6]
+      - [4.2, 2.2]
+      - [2.8, 0.8]
+      - [0.0, 0.8]
+progression_options:
+  future_anchor: [5.0, 4.8]
+query_context:
+  query_pose:
+    x: 0.5
+    y: 0.0
+    yaw: 0.0
+  local_window:
+    x_min: -1.0
+    x_max: 6.5
+    y_min: -1.5
+    y_max: 6.0
