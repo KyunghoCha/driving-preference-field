@@ -70,3 +70,16 @@
 - branch/split morphology investigation에서 어떤 시점을 baseline 승격 후보로 부를 수 있는지
 - explicit approval을 어떤 수준의 사용자 지시로 볼지
 - historical comparison worktree를 언제 정리할지
+
+## Later correction on the same date
+
+- `B11 = 465398d`를 clean behavior baseline으로 둔 뒤, 그 위에서 별도 cleanup/adaptation batch를 승인했다.
+- 이 후속 배치는 new baseline 승격이 아니라:
+  - transverse public channel exactness 정리
+  - generic adapter raw input 확장
+  - current-truth docs/tests 이동
+  를 한 번에 묶는 approved follow-up으로 취급한다.
+- 사용자 intent는 raw adapter boundary를 `progression_supports`에만 고정하지 않고, 다음 precedence를 허용하는 쪽으로 좁혀졌다.
+  - explicit `progression_supports`
+  - `global_plan_supports`
+  - bounded drivable-only reconstruction

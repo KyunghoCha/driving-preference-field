@@ -30,7 +30,7 @@ def test_build_comparison_profile_exposes_selected_and_debug_channels() -> None:
     assert result.baseline.positions.shape == (40,)
     assert "progression_tilted" in result.baseline.channels
     assert "progression_s_hat" in result.baseline.channels
-    assert "progression_n_hat" in result.baseline.channels
+    assert "progression_center_distance" in result.baseline.channels
     assert np.allclose(result.diff.channels["progression_tilted"], 0.0)
 
 

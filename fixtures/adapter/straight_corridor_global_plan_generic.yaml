@@ -1,0 +1,25 @@
+metadata:
+  name: straight_corridor_global_plan_generic
+  description: Generic adapter fixture that supplies only a global plan polyline.
+drivable_regions:
+  - id: main_corridor
+    points:
+      - [0.0, -1.0]
+      - [6.0, -1.0]
+      - [6.0, 1.0]
+      - [0.0, 1.0]
+global_plan_supports:
+  - id: center_global_plan
+    points:
+      - [0.0, 0.0]
+      - [6.0, 0.0]
+query_context:
+  query_pose:
+    x: 0.5
+    y: 0.0
+    yaw: 0.0
+  local_window:
+    x_min: -1.0
+    x_max: 7.0
+    y_min: -2.0
+    y_max: 2.0

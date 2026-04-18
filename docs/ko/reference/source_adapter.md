@@ -76,13 +76,18 @@ Phase 5 v1 reference adapter는 source-specific naming을 쓰지 않는 generic 
 
 ## 필수와 optional
 
-v1 reference adapter의 필수 입력은 다음이다.
+v1 reference adapter의 최소 raw 입력은 다음이다.
 
 - `drivable_regions`
-- `progression_supports`
 - `query_context`
   - `query_pose` 또는 `ego_pose`
   - `local_window`
+
+progression 입력은 아래 우선순위로 받는다.
+
+1. `progression_supports`
+2. `global_plan_supports`
+3. `drivable_regions`로부터의 bounded reconstruction
 
 optional 입력은 다음이다.
 
@@ -135,7 +140,7 @@ SSC는 중요한 validation source지만 canonical 기준은 아니다.
 
 ## 현재 구현
 
-Phase 5 v1 reference adapter는 generic local semantic map fixture를 `SemanticInputSnapshot + QueryContext`로 번역한다. 현재 runtime과 toy path는 같은 output contract를 공유하고, optional boundary / exception support가 없어도 canonical output 전체를 invalid로 보지 않는다.
+Phase 5 v1 reference adapter는 generic local semantic map fixture를 `SemanticInputSnapshot + QueryContext`로 번역한다. 현재 runtime과 toy path는 같은 output contract를 공유한다. raw adapter boundary에서는 progression 입력을 explicit guide, global plan, drivable-only reconstruction 중 하나로 받을 수 있지만, split/merge처럼 ambiguous한 topology는 명시적으로 실패시키고 추측하지 않는다.
 
 ## 현재 기준
 

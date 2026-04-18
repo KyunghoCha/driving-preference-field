@@ -1007,7 +1007,7 @@ class ParameterLabWindow(QMainWindow):
         return {
             "scale_mode": self._scale_mode,
             "score_sign": "higher is better",
-            "progression_surface_kind": "guide-local blended progress coordinates + raw guide distance transverse + hard max envelope",
+            "progression_surface_kind": "guide-local blended progress coordinates + exact raw-guide distance transverse term + hard max envelope",
             "raster_role": "visualization only",
             "selected_channel_unit": display_unit(self._selected_channel),
             "diff_unit": display_unit(self._selected_channel, diff=True),
@@ -1021,9 +1021,9 @@ class ParameterLabWindow(QMainWindow):
             return state_result.base_preference_channels[channel_name]
         debug_key_map = {
             "progression_s_hat": "progression_s_hat",
-            "progression_n_hat": "progression_n_hat",
+            "progression_center_distance": "progression_center_distance",
             "progression_longitudinal_component": "progression_longitudinal_component",
-            "progression_transverse_component": "progression_transverse_component",
+            "progression_transverse_term": "progression_transverse_term",
             "progression_support_mod": "progression_support_mod",
             "progression_alignment_mod": "progression_alignment_mod",
         }

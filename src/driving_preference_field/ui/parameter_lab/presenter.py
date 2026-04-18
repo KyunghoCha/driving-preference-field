@@ -42,9 +42,9 @@ def state_channel_value(state_result, channel_name: str) -> float | None:
         return state_result.base_preference_channels[channel_name]
     debug_key_map = {
         "progression_s_hat": "progression_s_hat",
-        "progression_n_hat": "progression_n_hat",
+        "progression_center_distance": "progression_center_distance",
         "progression_longitudinal_component": "progression_longitudinal_component",
-        "progression_transverse_component": "progression_transverse_component",
+        "progression_transverse_term": "progression_transverse_term",
         "progression_support_mod": "progression_support_mod",
         "progression_alignment_mod": "progression_alignment_mod",
     }
@@ -90,7 +90,7 @@ def visualization_payload(comparison_result, *, selected_channel: str, scale_mod
     return {
         "scale_mode": scale_mode,
         "score_sign": "higher is better",
-        "progression_surface_kind": "guide-local blended progress coordinates + raw guide distance transverse + hard max envelope",
+        "progression_surface_kind": "guide-local blended progress coordinates + exact raw-guide distance transverse term + hard max envelope",
         "raster_role": "visualization only",
         "selected_channel_unit": display_unit(selected_channel),
         "diff_unit": display_unit(selected_channel, diff=True),
@@ -134,7 +134,7 @@ def summary_payload(
         "scale_mode": scale_mode,
         "score_sign": "higher is better",
         "diff_meaning": "candidate - baseline",
-        "progression_surface_kind": "guide-local blended progress coordinates + raw guide distance transverse + hard max envelope",
+        "progression_surface_kind": "guide-local blended progress coordinates + exact raw-guide distance transverse term + hard max envelope",
         "raster_role": "visualization only",
         **effective_context_payload(state.working_context),
         "baseline_preset_name": state.baseline_state.preset_name,

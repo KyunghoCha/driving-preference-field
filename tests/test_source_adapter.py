@@ -32,19 +32,19 @@ def test_generic_yaml_and_json_produce_same_canonical_summary() -> None:
     assert yaml_bundle["snapshot"]["progression_support"] == json_bundle["snapshot"]["progression_support"]
 
 
-def test_generic_adapter_missing_required_slot_fails_validation(tmp_path) -> None:
+def test_generic_adapter_missing_drivable_regions_fails_validation(tmp_path) -> None:
     payload = {
-        "metadata": {"name": "missing_progression"},
-        "drivable_regions": [{"points": [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]}],
+        "metadata": {"name": "missing_drivable"},
+        "progression_supports": [{"points": [[0.0, 0.0], [1.0, 0.0]]}],
         "query_context": {
             "query_pose": {"x": 0.0, "y": 0.0, "yaw": 0.0},
             "local_window": {"x_min": -1.0, "x_max": 1.0, "y_min": -1.0, "y_max": 1.0},
         },
     }
-    fixture = tmp_path / "missing_progression.yaml"
+    fixture = tmp_path / "missing_drivable.yaml"
     fixture.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
-    with pytest.raises(GenericAdapterValidationError, match="progression_supports is required"):
+    with pytest.raises(GenericAdapterValidationError, match="drivable_regions is required"):
         load_generic_snapshot(fixture)
 
 
@@ -86,6 +86,59 @@ def test_optional_quality_and_multiple_progression_guides_are_preserved() -> Non
     }
 
 
+def test_explicit_progression_supports_take_precedence_over_global_plan_and_drivable(tmp_path) -> None:
+    payload = {
+        "drivable_regions": [{"points": [[0.0, -1.0], [6.0, -1.0], [6.0, 1.0], [0.0, 1.0]]}],
+        "progression_supports": [{"id": "explicit", "points": [[0.0, 0.1], [6.0, 0.1]]}],
+        "global_plan_supports": [{"id": "global", "points": [[0.0, 0.5], [6.0, 0.5]]}],
+        "query_context": {
+            "query_pose": {"x": 0.5, "y": 0.0, "yaw": 0.0},
+            "local_window": {"x_min": -1.0, "x_max": 7.0, "y_min": -2.0, "y_max": 2.0},
+        },
+    }
+    fixture = tmp_path / "explicit_wins.yaml"
+    fixture.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    snapshot, _ = load_generic_snapshot(fixture)
+
+    assert len(snapshot.progression_support.guides) == 1
+    assert snapshot.progression_support.guides[0].guide_id == "explicit"
+    assert snapshot.progression_support.guides[0].points[0][1] == pytest.approx(0.1)
+
+
+def test_global_plan_supports_alone_become_canonical_progression_support() -> None:
+    snapshot, _ = load_generic_snapshot(FIXTURES / "straight_corridor_global_plan_generic.yaml")
+
+    assert len(snapshot.progression_support.guides) == 1
+    assert snapshot.progression_support.guides[0].guide_id == "center_global_plan"
+    assert snapshot.progression_support.guides[0].points[-1] == pytest.approx((6.0, 0.0))
+
+
+def test_drivable_only_straight_corridor_reconstructs_single_centerline() -> None:
+    snapshot, _ = load_generic_snapshot(FIXTURES / "straight_corridor_drivable_only_generic.yaml")
+    guide = snapshot.progression_support.guides[0]
+
+    assert guide.metadata["source"] == "drivable_only_reconstruction"
+    assert len(guide.points) >= 2
+    assert guide.points[0][0] < guide.points[-1][0]
+    assert max(abs(point[1]) for point in guide.points) < 0.15
+
+
+def test_drivable_only_u_turn_reconstructs_future_anchored_centerline() -> None:
+    snapshot, _ = load_generic_snapshot(FIXTURES / "u_turn_drivable_only_generic.yaml")
+    guide = snapshot.progression_support.guides[0]
+
+    assert guide.metadata["source"] == "drivable_only_reconstruction"
+    assert len(guide.points) >= 4
+    assert guide.points[-1][1] > guide.points[0][1]
+    assert guide.points[-1][0] < 2.0
+
+
+def test_drivable_only_split_branch_fails_with_explicit_ambiguity_error() -> None:
+    with pytest.raises(GenericAdapterValidationError, match="ambiguous or disconnected"):
+        load_generic_snapshot(FIXTURES / "split_branch_drivable_only_generic.yaml")
+
+
 def test_generic_adapter_rejects_removed_branch_supports_key(tmp_path) -> None:
     payload = {
         "drivable_regions": [{"points": [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]}],
@@ -117,11 +170,14 @@ def test_adapter_output_can_be_used_by_runtime_and_evaluator() -> None:
 
 def test_input_loader_dispatches_toy_and_generic_paths() -> None:
     generic_loaded = load_semantic_input(FIXTURES / "straight_corridor_generic.yaml")
+    drivable_loaded = load_semantic_input(FIXTURES / "straight_corridor_drivable_only_generic.yaml")
     toy_loaded = load_semantic_input(ROOT / "cases/toy/straight_corridor.yaml")
 
     assert detect_input_kind(FIXTURES / "straight_corridor_generic.yaml") == "generic_adapter"
+    assert detect_input_kind(FIXTURES / "straight_corridor_global_plan_generic.yaml") == "generic_adapter"
     assert detect_input_kind(ROOT / "cases/toy/straight_corridor.yaml") == "toy_case"
     assert generic_loaded.input_kind == "generic_adapter"
+    assert drivable_loaded.input_kind == "generic_adapter"
     assert toy_loaded.input_kind == "toy_case"
 
 

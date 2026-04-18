@@ -71,9 +71,9 @@ class FieldRuntime:
             "progression_support_mod": progression_details["support_mod"],
             "progression_alignment_mod": progression_details["alignment_mod"],
             "progression_longitudinal_component": progression_details["longitudinal_component"],
-            "progression_transverse_component": progression_details["transverse_component"],
+            "progression_transverse_term": progression_details["transverse_term"],
             "progression_s_hat": progression_details["s_hat"],
-            "progression_n_hat": progression_details["n_hat"],
+            "progression_center_distance": progression_details["center_distance"],
             "progression_blended_progress": progression_details["blended_progress"],
             "progression_dominant_guides": progression_details["dominant_guides"],
             "base_preference_total": base_total,
@@ -115,9 +115,9 @@ class FieldRuntime:
         return {
             "progression_tilted": progression_grid["score"],
             "progression_s_hat": progression_grid["s_hat"],
-            "progression_n_hat": progression_grid["n_hat"],
+            "progression_center_distance": progression_grid["center_distance"],
             "progression_longitudinal_component": progression_grid["longitudinal_component"],
-            "progression_transverse_component": progression_grid["transverse_component"],
+            "progression_transverse_term": progression_grid["transverse_term"],
             "progression_support_mod": progression_grid["support_mod"],
             "progression_alignment_mod": progression_grid["alignment_mod"],
         }

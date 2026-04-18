@@ -9,6 +9,7 @@ a generic external-like schema rather than a downstream-specific wire format.
 """
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,7 @@ from .contracts import (
     SemanticInputSnapshot,
     StateSample,
 )
+from .geometry import clamp, distance_point_to_polygon_boundary, point_in_polygon
 from .toy_loader import summarize_snapshot
 
 
@@ -161,6 +163,257 @@ def _polyline_list(items: list[Any], *, key: str) -> tuple[DirectedPolyline, ...
     return tuple(guides)
 
 
+_GEOM_EPS = 1e-9
+_RECONSTRUCTION_STEP_M = 0.4
+_MIN_CENTERLINE_STEP_M = 0.1
+_MAX_RECONSTRUCTION_STEPS = 128
+
+
+def _sub(a: Point2, b: Point2) -> Point2:
+    return (a[0] - b[0], a[1] - b[1])
+
+
+def _add(a: Point2, b: Point2) -> Point2:
+    return (a[0] + b[0], a[1] + b[1])
+
+
+def _scale(v: Point2, scalar: float) -> Point2:
+    return (v[0] * scalar, v[1] * scalar)
+
+
+def _dot(a: Point2, b: Point2) -> float:
+    return a[0] * b[0] + a[1] * b[1]
+
+
+def _cross(a: Point2, b: Point2) -> float:
+    return a[0] * b[1] - a[1] * b[0]
+
+
+def _norm(v: Point2) -> float:
+    return math.hypot(v[0], v[1])
+
+
+def _normalize(v: Point2) -> Point2:
+    length = _norm(v)
+    if length <= _GEOM_EPS:
+        return (0.0, 0.0)
+    return (v[0] / length, v[1] / length)
+
+
+def _perp(v: Point2) -> Point2:
+    return (-v[1], v[0])
+
+
+def _distance(a: Point2, b: Point2) -> float:
+    return math.hypot(a[0] - b[0], a[1] - b[1])
+
+
+def _closed_polygon_segments(points: tuple[Point2, ...]) -> tuple[tuple[Point2, Point2], ...]:
+    return tuple((points[index], points[(index + 1) % len(points)]) for index in range(len(points)))
+
+
+def _point_to_segment_projection(point: Point2, start: Point2, end: Point2) -> tuple[Point2, float]:
+    segment = _sub(end, start)
+    seg_len_sq = _dot(segment, segment)
+    if seg_len_sq <= _GEOM_EPS:
+        return start, 0.0
+    t = clamp(_dot(_sub(point, start), segment) / seg_len_sq, 0.0, 1.0)
+    return _add(start, _scale(segment, t)), t
+
+
+def _nearest_point_on_polygon_boundary(point: Point2, polygon: tuple[Point2, ...]) -> Point2:
+    best_point = polygon[0]
+    best_distance = math.inf
+    for start, end in _closed_polygon_segments(polygon):
+        projected, _ = _point_to_segment_projection(point, start, end)
+        distance = _distance(point, projected)
+        if distance < best_distance:
+            best_distance = distance
+            best_point = projected
+    return best_point
+
+
+def _polygon_centroid(points: tuple[Point2, ...]) -> Point2:
+    area_twice = 0.0
+    cx = 0.0
+    cy = 0.0
+    for index, point in enumerate(points):
+        next_point = points[(index + 1) % len(points)]
+        cross = point[0] * next_point[1] - next_point[0] * point[1]
+        area_twice += cross
+        cx += (point[0] + next_point[0]) * cross
+        cy += (point[1] + next_point[1]) * cross
+    if abs(area_twice) <= _GEOM_EPS:
+        return (
+            sum(point[0] for point in points) / max(len(points), 1),
+            sum(point[1] for point in points) / max(len(points), 1),
+        )
+    return (cx / (3.0 * area_twice), cy / (3.0 * area_twice))
+
+
+def _polygon_is_convex(points: tuple[Point2, ...]) -> bool:
+    signs: list[float] = []
+    count = len(points)
+    for index in range(count):
+        a = points[index]
+        b = points[(index + 1) % count]
+        c = points[(index + 2) % count]
+        cross = _cross(_sub(b, a), _sub(c, b))
+        if abs(cross) <= _GEOM_EPS:
+            continue
+        signs.append(math.copysign(1.0, cross))
+    if not signs:
+        return True
+    first = signs[0]
+    return all(sign == first for sign in signs[1:])
+
+
+def _pick_primary_drivable_region(regions: tuple[PolygonRegion, ...], ego_point: Point2) -> PolygonRegion:
+    containing = [region for region in regions if point_in_polygon(ego_point, region.points)]
+    if containing:
+        return containing[0]
+    return min(regions, key=lambda region: distance_point_to_polygon_boundary(ego_point, region.points))
+
+
+def _line_segment_intersection_lambda(
+    origin: Point2,
+    direction: Point2,
+    start: Point2,
+    end: Point2,
+) -> float | None:
+    segment = _sub(end, start)
+    denominator = _cross(direction, segment)
+    if abs(denominator) <= _GEOM_EPS:
+        return None
+    offset = _sub(start, origin)
+    line_lambda = _cross(offset, segment) / denominator
+    segment_u = _cross(offset, direction) / denominator
+    if -_GEOM_EPS <= segment_u <= 1.0 + _GEOM_EPS:
+        return line_lambda
+    return None
+
+
+def _dedupe_sorted(values: list[float], *, tol: float = 1e-6) -> list[float]:
+    deduped: list[float] = []
+    for value in sorted(values):
+        if not deduped or abs(value - deduped[-1]) > tol:
+            deduped.append(value)
+    return deduped
+
+
+def _cross_section_lambdas(center: Point2, tangent: Point2, polygon: tuple[Point2, ...]) -> list[float]:
+    normal = _perp(_normalize(tangent))
+    if _norm(normal) <= _GEOM_EPS:
+        raise GenericAdapterValidationError(
+            "drivable-only reconstruction could not establish a valid cross-section normal"
+        )
+    lambdas: list[float] = []
+    for start, end in _closed_polygon_segments(polygon):
+        hit_lambda = _line_segment_intersection_lambda(center, normal, start, end)
+        if hit_lambda is not None:
+            lambdas.append(hit_lambda)
+    return _dedupe_sorted(lambdas)
+
+
+def _cross_section_hits(center: Point2, tangent: Point2, polygon: tuple[Point2, ...]) -> tuple[Point2, Point2]:
+    normal = _perp(_normalize(tangent))
+    lambdas = _cross_section_lambdas(center, tangent, polygon)
+    negatives = [value for value in lambdas if value < -1e-6]
+    positives = [value for value in lambdas if value > 1e-6]
+    if not negatives or not positives:
+        raise GenericAdapterValidationError(
+            "drivable-only reconstruction is ambiguous or disconnected; provide progression_supports or global_plan_supports"
+        )
+    left_lambda = max(negatives)
+    right_lambda = min(positives)
+    left_hit = _add(center, _scale(normal, left_lambda))
+    right_hit = _add(center, _scale(normal, right_lambda))
+    return left_hit, right_hit
+
+
+def _blend_tangent(base: Point2, future_anchor: Point2 | None, center: Point2) -> Point2:
+    tangent = _normalize(base)
+    if future_anchor is None:
+        return tangent
+    anchor_direction = _normalize(_sub(future_anchor, center))
+    if _norm(anchor_direction) <= _GEOM_EPS:
+        return tangent
+    blended = _normalize(
+        (
+            0.7 * tangent[0] + 0.3 * anchor_direction[0],
+            0.7 * tangent[1] + 0.3 * anchor_direction[1],
+        )
+    )
+    return blended if _norm(blended) > _GEOM_EPS else tangent
+
+
+def _initial_center_point(region: PolygonRegion, ego_pose: StateSample) -> Point2:
+    if point_in_polygon(ego_pose.point, region.points):
+        return ego_pose.point
+    nearest = _nearest_point_on_polygon_boundary(ego_pose.point, region.points)
+    centroid = _polygon_centroid(region.points)
+    inward = _normalize(_sub(centroid, nearest))
+    if _norm(inward) <= _GEOM_EPS:
+        return nearest
+    nudged = _add(nearest, _scale(inward, 0.05))
+    return nudged if point_in_polygon(nudged, region.points) else nearest
+
+
+def _reconstruct_centerline_from_drivable(
+    drivable_regions: tuple[PolygonRegion, ...],
+    *,
+    ego_pose: StateSample,
+    future_anchor: Point2 | None,
+) -> tuple[Point2, ...]:
+    if not drivable_regions:
+        raise GenericAdapterValidationError(
+            "drivable_regions are required when progression_supports and global_plan_supports are absent"
+        )
+    region = _pick_primary_drivable_region(drivable_regions, ego_pose.point)
+    if future_anchor is None and not _polygon_is_convex(region.points):
+        raise GenericAdapterValidationError(
+            "drivable-only reconstruction is ambiguous or disconnected; provide progression_supports or global_plan_supports"
+        )
+    current_center = _initial_center_point(region, ego_pose)
+    tangent = _blend_tangent((math.cos(ego_pose.yaw), math.sin(ego_pose.yaw)), future_anchor, current_center)
+    reconstructed: list[Point2] = []
+
+    for _ in range(_MAX_RECONSTRUCTION_STEPS):
+        current_lambdas = _cross_section_lambdas(current_center, tangent, region.points)
+        if future_anchor is None and len(current_lambdas) > 2:
+            raise GenericAdapterValidationError(
+                "drivable-only reconstruction is ambiguous or disconnected; provide progression_supports or global_plan_supports"
+            )
+        left_hit, right_hit = _cross_section_hits(current_center, tangent, region.points)
+        midpoint = ((left_hit[0] + right_hit[0]) * 0.5, (left_hit[1] + right_hit[1]) * 0.5)
+        if not reconstructed or _distance(midpoint, reconstructed[-1]) >= _MIN_CENTERLINE_STEP_M:
+            reconstructed.append(midpoint)
+
+        probe = _add(midpoint, _scale(tangent, _RECONSTRUCTION_STEP_M))
+        if not point_in_polygon(probe, region.points):
+            break
+        probe_lambdas = _cross_section_lambdas(probe, tangent, region.points)
+        if future_anchor is None and len(probe_lambdas) > 2:
+            raise GenericAdapterValidationError(
+                "drivable-only reconstruction is ambiguous or disconnected; provide progression_supports or global_plan_supports"
+            )
+        next_left, next_right = _cross_section_hits(probe, tangent, region.points)
+        next_midpoint = ((next_left[0] + next_right[0]) * 0.5, (next_left[1] + next_right[1]) * 0.5)
+        step_vector = _sub(next_midpoint, midpoint)
+        if _norm(step_vector) < _MIN_CENTERLINE_STEP_M:
+            raise GenericAdapterValidationError(
+                "drivable-only reconstruction is ambiguous or disconnected; provide progression_supports or global_plan_supports"
+            )
+        tangent = _blend_tangent(step_vector, future_anchor, next_midpoint)
+        current_center = next_midpoint
+
+    if len(reconstructed) < 2:
+        raise GenericAdapterValidationError(
+            "drivable-only reconstruction could not build a usable centerline; provide progression_supports or global_plan_supports"
+        )
+    return tuple(reconstructed)
+
+
 def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot, QueryContext]:
     """Load a generic local semantic map fixture into the canonical contract."""
 
@@ -174,10 +427,8 @@ def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot
 
     metadata = dict(payload.get("metadata", {}))
     drivable_regions = _polygon_list(_require_sequence(payload, "drivable_regions"), key="drivable_regions")
-    progression_guides = _polyline_list(
-        _require_sequence(payload, "progression_supports"),
-        key="progression_supports",
-    )
+    progression_guides_raw = _optional_sequence(payload, "progression_supports")
+    global_plan_guides_raw = _optional_sequence(payload, "global_plan_supports")
     boundaries = _polyline_list(_optional_sequence(payload, "boundaries"), key="boundaries")
     boundary_regions = _polygon_list(_optional_sequence(payload, "boundary_regions"), key="boundary_regions")
     safety_regions = _polygon_list(_optional_sequence(payload, "safety_regions"), key="safety_regions")
@@ -198,6 +449,30 @@ def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot
         if future_anchor_raw is not None
         else None
     )
+    ego_pose = StateSample(
+        x=_require_float(pose_raw, "x", path="query_context.query_pose"),
+        y=_require_float(pose_raw, "y", path="query_context.query_pose"),
+        yaw=_require_float(pose_raw, "yaw", path="query_context.query_pose"),
+    )
+
+    if progression_guides_raw:
+        progression_guides = _polyline_list(progression_guides_raw, key="progression_supports")
+    elif global_plan_guides_raw:
+        progression_guides = _polyline_list(global_plan_guides_raw, key="global_plan_supports")
+    else:
+        reconstructed_points = _reconstruct_centerline_from_drivable(
+            drivable_regions,
+            ego_pose=ego_pose,
+            future_anchor=future_anchor,
+        )
+        progression_guides = (
+            DirectedPolyline(
+                guide_id="reconstructed_progression",
+                points=reconstructed_points,
+                weight=1.0,
+                metadata={"source": "drivable_only_reconstruction"},
+            ),
+        )
 
     snapshot = SemanticInputSnapshot(
         metadata=metadata,
@@ -220,11 +495,7 @@ def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot
     )
     context = QueryContext(
         semantic_snapshot=snapshot,
-        ego_pose=StateSample(
-            x=_require_float(pose_raw, "x", path="query_context.query_pose"),
-            y=_require_float(pose_raw, "y", path="query_context.query_pose"),
-            yaw=_require_float(pose_raw, "yaw", path="query_context.query_pose"),
-        ),
+        ego_pose=ego_pose,
         local_window=QueryWindow(
             x_min=_require_float(local_window, "x_min", path="query_context.local_window"),
             x_max=_require_float(local_window, "x_max", path="query_context.local_window"),

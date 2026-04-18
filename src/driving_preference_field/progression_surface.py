@@ -8,7 +8,7 @@ coordinates and scores, then selects a pointwise max envelope over the local
 map:
 
     progression_tilted(p)
-      = max_g support_mod_g * alignment_mod_g * (T(|n_hat_g|) + gain * L(u_g))
+      = max_g support_mod_g * alignment_mod_g * (T(center_distance_g) + gain * L(u_g))
 
 Guide-local support and coordinates come from Gaussian anchor weights. The
 exact formula here is a current implementation detail, not the canonical design
@@ -31,11 +31,6 @@ from .geometry import clamp, polyline_length
 _QUERY_BATCH_SIZE = 4096
 _EFFECTIVE_ANCHOR_WEIGHT_EPS = 1e-3
 _EPS = 1e-9
-_TRANSVERSE_HANDOFF_SUPPORT_RATIO = 0.25
-_TRANSVERSE_HANDOFF_SCORE_DELTA = 0.20
-_TRANSVERSE_HANDOFF_TEMPERATURE = 0.05
-
-
 @dataclass(frozen=True)
 class SurfaceGuide:
     guide_id: str
@@ -66,13 +61,13 @@ class GuideBlendResult:
     guide_index: int
     guide_id: str
     s_hat: np.ndarray
-    n_hat: np.ndarray
+    center_distance: np.ndarray
     tangent_hat: np.ndarray
     support_sum: np.ndarray
     support_mod: np.ndarray
     alignment_mod: np.ndarray
     longitudinal_component: np.ndarray
-    transverse_component: np.ndarray
+    transverse_term: np.ndarray
     score: np.ndarray
     effective_anchor_count: np.ndarray
     anchor_count: int
@@ -126,9 +121,9 @@ class ProgressionSurfaceRuntime:
                 "support_mod": 0.0,
                 "alignment_mod": 0.0,
                 "longitudinal_component": 0.0,
-                "transverse_component": 0.0,
+                "transverse_term": 0.0,
                 "s_hat": 0.0,
-                "n_hat": 0.0,
+                "center_distance": 0.0,
                 "blended_progress": 0.0,
                 "dominant_guides": (),
                 "longitudinal_frame": self._config.longitudinal_frame,
@@ -152,9 +147,9 @@ class ProgressionSurfaceRuntime:
             "support_mod": float(arrays["support_mod"][0]),
             "alignment_mod": float(arrays["alignment_mod"][0]),
             "longitudinal_component": float(arrays["longitudinal_component"][0]),
-            "transverse_component": float(arrays["transverse_component"][0]),
+            "transverse_term": float(arrays["transverse_term"][0]),
             "s_hat": float(arrays["s_hat"][0]),
-            "n_hat": float(arrays["n_hat"][0]),
+            "center_distance": float(arrays["center_distance"][0]),
             "blended_progress": float(arrays["s_hat"][0]),
             "dominant_guides": dominant_guides,
             "longitudinal_frame": self._config.longitudinal_frame,
@@ -168,12 +163,12 @@ class ProgressionSurfaceRuntime:
             return {
                 "score": np.zeros(shape, dtype=float),
                 "s_hat": np.zeros(shape, dtype=float),
-                "n_hat": np.zeros(shape, dtype=float),
+                "center_distance": np.zeros(shape, dtype=float),
                 "support_sum": np.zeros(shape, dtype=float),
                 "support_mod": np.zeros(shape, dtype=float),
                 "alignment_mod": np.zeros(shape, dtype=float),
                 "longitudinal_component": np.zeros(shape, dtype=float),
-                "transverse_component": np.zeros(shape, dtype=float),
+                "transverse_term": np.zeros(shape, dtype=float),
             }
 
         grid_x, grid_y = np.meshgrid(x_coords, y_coords)
@@ -188,12 +183,12 @@ class ProgressionSurfaceRuntime:
         return {
             "score": arrays["score"].reshape(shape),
             "s_hat": arrays["s_hat"].reshape(shape),
-            "n_hat": arrays["n_hat"].reshape(shape),
+            "center_distance": arrays["center_distance"].reshape(shape),
             "support_sum": arrays["support_sum"].reshape(shape),
             "support_mod": arrays["support_mod"].reshape(shape),
             "alignment_mod": arrays["alignment_mod"].reshape(shape),
             "longitudinal_component": arrays["longitudinal_component"].reshape(shape),
-            "transverse_component": arrays["transverse_component"].reshape(shape),
+            "transverse_term": arrays["transverse_term"].reshape(shape),
         }
 
     def query_points(
@@ -218,12 +213,12 @@ class ProgressionSurfaceRuntime:
         return {
             "progression_tilted": arrays["score"],
             "progression_s_hat": arrays["s_hat"],
-            "progression_n_hat": arrays["n_hat"],
+            "progression_center_distance": arrays["center_distance"],
             "progression_support_sum": arrays["support_sum"],
             "progression_support_mod": arrays["support_mod"],
             "progression_alignment_mod": arrays["alignment_mod"],
             "progression_longitudinal_component": arrays["longitudinal_component"],
-            "progression_transverse_component": arrays["transverse_component"],
+            "progression_transverse_term": arrays["transverse_term"],
         }
 
     def query_trajectories(
@@ -260,12 +255,12 @@ class ProgressionSurfaceRuntime:
             return {
                 "score": empty,
                 "s_hat": empty,
-                "n_hat": empty,
+                "center_distance": empty,
                 "support_sum": empty,
                 "support_mod": empty,
                 "alignment_mod": empty,
                 "longitudinal_component": empty,
-                "transverse_component": empty,
+                "transverse_term": empty,
                 "anchor_count": empty.astype(int),
                 "effective_anchor_count": empty.astype(int),
             }
@@ -273,12 +268,12 @@ class ProgressionSurfaceRuntime:
         chunks: dict[str, list[np.ndarray]] = {
             "score": [],
             "s_hat": [],
-            "n_hat": [],
+            "center_distance": [],
             "support_sum": [],
             "support_mod": [],
             "alignment_mod": [],
             "longitudinal_component": [],
-            "transverse_component": [],
+            "transverse_term": [],
             "anchor_count": [],
             "effective_anchor_count": [],
         }
@@ -301,12 +296,12 @@ class ProgressionSurfaceRuntime:
             selected = _select_dominant_guide(guide_results)
             chunks["score"].append(selected["score"])
             chunks["s_hat"].append(selected["s_hat"])
-            chunks["n_hat"].append(selected["n_hat"])
+            chunks["center_distance"].append(selected["center_distance"])
             chunks["support_sum"].append(selected["support_sum"])
             chunks["support_mod"].append(selected["support_mod"])
             chunks["alignment_mod"].append(selected["alignment_mod"])
             chunks["longitudinal_component"].append(selected["longitudinal_component"])
-            chunks["transverse_component"].append(selected["transverse_component"])
+            chunks["transverse_term"].append(selected["transverse_term"])
             chunks["anchor_count"].append(selected["anchor_count"])
             chunks["effective_anchor_count"].append(selected["effective_anchor_count"])
             if include_internal:
@@ -345,9 +340,9 @@ def progression_surface_details(
             "support_mod": 0.0,
             "alignment_mod": 0.0,
             "longitudinal_component": 0.0,
-            "transverse_component": 0.0,
+            "transverse_term": 0.0,
             "s_hat": 0.0,
-            "n_hat": 0.0,
+            "center_distance": 0.0,
             "blended_progress": 0.0,
             "dominant_guides": (),
             "longitudinal_frame": config.progression.longitudinal_frame,
@@ -426,13 +421,13 @@ def _guide_local_result(
             guide_index=guide_index,
             guide_id=guide.guide_id,
             s_hat=zeros,
-            n_hat=zeros,
+            center_distance=zeros,
             tangent_hat=tangent_hat,
             support_sum=zeros,
             support_mod=zeros,
             alignment_mod=zeros,
             longitudinal_component=zeros,
-            transverse_component=zeros,
+            transverse_term=zeros,
             score=zeros,
             effective_anchor_count=np.zeros_like(x_values, dtype=int),
             anchor_count=0,
@@ -465,7 +460,7 @@ def _guide_local_result(
 
     s_values = cumulative_s + tau
     s_hat = np.sum(blend_weights * s_values, axis=0)
-    n_hat = _unsigned_distance_to_polyline(guide.distance_points, x_values, y_values)
+    center_distance = _unsigned_distance_to_polyline(guide.distance_points, x_values, y_values)
     tangent_hat = np.stack(
         (
             np.sum(blend_weights * tangent_x, axis=0),
@@ -487,8 +482,8 @@ def _guide_local_result(
         reference_s = float(ego_s_hat or 0.0)
         u_value = np.clip(np.maximum(0.0, s_hat - reference_s) / lookahead, 0.0, 1.0)
 
-    transverse_ratio = np.abs(n_hat) / max(config.transverse_scale, _EPS)
-    transverse_component = _transverse_value_array(transverse_ratio, config)
+    transverse_ratio = center_distance / max(config.transverse_scale, _EPS)
+    transverse_term = _transverse_value_array(transverse_ratio, config)
     longitudinal_component = _longitudinal_value_array(u_value, config)
 
     heading_x = np.cos(heading_yaws)
@@ -504,7 +499,7 @@ def _guide_local_result(
     support_mod = tuning.support_base + tuning.support_range * np.clip(support_quality, 0.0, 1.0)
 
     score = support_mod * alignment_mod * (
-        transverse_component + config.longitudinal_gain * longitudinal_component
+        transverse_term + config.longitudinal_gain * longitudinal_component
     )
     effective_anchor_count = np.sum(
         blend_weights > _EFFECTIVE_ANCHOR_WEIGHT_EPS,
@@ -515,13 +510,13 @@ def _guide_local_result(
         guide_index=guide_index,
         guide_id=guide.guide_id,
         s_hat=s_hat,
-        n_hat=n_hat,
+        center_distance=center_distance,
         tangent_hat=tangent_hat,
         support_sum=support_sum,
         support_mod=support_mod,
         alignment_mod=alignment_mod,
         longitudinal_component=longitudinal_component,
-        transverse_component=transverse_component,
+        transverse_term=transverse_term,
         score=score,
         effective_anchor_count=effective_anchor_count,
         anchor_count=anchor_count,
@@ -536,19 +531,18 @@ def _select_dominant_guide(
         return {
             "score": zeros,
             "s_hat": zeros,
-            "n_hat": zeros,
+            "center_distance": zeros,
             "support_sum": zeros,
             "support_mod": zeros,
             "alignment_mod": zeros,
             "longitudinal_component": zeros,
-            "transverse_component": zeros,
+            "transverse_term": zeros,
             "anchor_count": np.zeros((0,), dtype=int),
             "effective_anchor_count": np.zeros((0,), dtype=int),
             "guide_scores": np.zeros((0, 0), dtype=float),
             "guide_support_sums": np.zeros((0, 0), dtype=float),
         }
 
-    stacked_transverse = np.stack([result.transverse_component for result in guide_results], axis=0)
     point_count = guide_results[0].score.size
     guide_scores = np.stack([result.score for result in guide_results], axis=0)
     guide_support_sums = np.stack([result.support_sum for result in guide_results], axis=0)
@@ -579,41 +573,15 @@ def _select_dominant_guide(
         [guide_results[index].anchor_count for index in best_indices],
         dtype=int,
     )
-    dominant_weight = np.zeros_like(guide_scores)
-    dominant_weight[best_indices, positions] = 1.0
-    candidate_mask = (
-        guide_support_sums >= (_TRANSVERSE_HANDOFF_SUPPORT_RATIO * best_support[None, :])
-    ) & (
-        guide_scores >= (best_scores[None, :] - _TRANSVERSE_HANDOFF_SCORE_DELTA)
-    )
-    candidate_mask[best_indices, positions] = True
-    scaled_score_delta = np.clip(
-        (guide_scores - best_scores[None, :]) / _TRANSVERSE_HANDOFF_TEMPERATURE,
-        -60.0,
-        0.0,
-    )
-    transverse_weights = np.where(
-        candidate_mask,
-        guide_support_sums * np.exp(scaled_score_delta),
-        0.0,
-    )
-    transverse_weight_sum = np.sum(transverse_weights, axis=0)
-    normalized_transverse_weights = np.where(
-        transverse_weight_sum[None, :] > _EPS,
-        transverse_weights / np.clip(transverse_weight_sum[None, :], _EPS, None),
-        dominant_weight,
-    )
-    smoothed_transverse = np.sum(normalized_transverse_weights * stacked_transverse, axis=0)
-
     return {
         "score": _select("score"),
         "s_hat": _select("s_hat"),
-        "n_hat": _select("n_hat"),
+        "center_distance": _select("center_distance"),
         "support_sum": _select("support_sum"),
         "support_mod": _select("support_mod"),
         "alignment_mod": _select("alignment_mod"),
         "longitudinal_component": _select("longitudinal_component"),
-        "transverse_component": smoothed_transverse,
+        "transverse_term": _select("transverse_term"),
         "anchor_count": selected_anchor_count,
         "effective_anchor_count": _select("effective_anchor_count").astype(int),
         "guide_scores": guide_scores,

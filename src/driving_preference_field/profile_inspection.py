@@ -21,9 +21,9 @@ from .raster import RasterSampleResult
 DEFAULT_PROFILE_CHANNELS = (
     "progression_tilted",
     "progression_s_hat",
-    "progression_n_hat",
+    "progression_center_distance",
     "progression_longitudinal_component",
-    "progression_transverse_component",
+    "progression_transverse_term",
 )
 
 def _interpolate_profile(
@@ -184,7 +184,13 @@ def _plot_profile_axes(
     axes[0].grid(alpha=0.25)
 
     axes[1].plot(x_values, profile.channels["progression_s_hat"], label="s_hat", color="#1b9e77", linewidth=1.6)
-    axes[1].plot(x_values, profile.channels["progression_n_hat"], label="n_hat", color="#d95f02", linewidth=1.6)
+    axes[1].plot(
+        x_values,
+        profile.channels["progression_center_distance"],
+        label="center_distance",
+        color="#d95f02",
+        linewidth=1.6,
+    )
     if diff:
         axes[1].axhline(0.0, color="#666666", linewidth=0.8, linestyle="--")
     axes[1].set_ylabel("coords")
@@ -200,8 +206,8 @@ def _plot_profile_axes(
     )
     axes[2].plot(
         x_values,
-        profile.channels["progression_transverse_component"],
-        label="transverse",
+        profile.channels["progression_transverse_term"],
+        label="transverse_term",
         color="#e7298a",
         linewidth=1.6,
     )

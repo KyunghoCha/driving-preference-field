@@ -280,6 +280,7 @@
 - 2026-04-18: `B1 = 5efe84d`부터 `B10 = 2d9b99f`까지 baseline sequence를 고정해 두기로 했다.
 - 2026-04-18: `B11 = 465398d`로 raw visible progression guide polyline distance transverse를 승인 baseline으로 승격했다.
 - 2026-04-18: 이후 branch/split baseline 후보는 `B{n}` 번호와 commit hash를 함께 적고, explicit approval 뒤에만 승격하기로 정리했다.
+- 2026-04-18: `B11` 위에서는 별도 baseline 승격 없이 transverse public channel exactness cleanup과 generic adapter input 확장을 approved follow-up batch로 진행하기로 정리했다.
 
 ### Linked raw notes
 
@@ -298,22 +299,76 @@
 - repo-local `AGENTS.md`와 local skill 외에 이 baseline numbering rule을 어디까지 노출할지
 - baseline 번호를 branch/split morphology investigation에만 둘지, 다른 surface 실험에도 일반화할지
 
+## adapter raw-input precedence and bounded reconstruction
+
+### First raised
+
+- 2026-04-18
+
+### Current framing
+
+- canonical runtime input은 계속 `SemanticInputSnapshot + QueryContext`로 둔다.
+- 다만 raw adapter boundary는 explicit progression guide만 강제하지 않고, explicit progression, global plan, bounded drivable-only reconstruction 중 하나를 progression source로 받을 수 있어야 한다.
+- ambiguous split/merge topology는 drivable-only reconstruction에서 추측하지 않고 명시적으로 실패시키는 쪽이 맞다.
+
+### Key changes by date
+
+- 2026-04-18: 사용자가 `주행가능 영역이나 글로벌 플래닝이나 그런게 들어오면 그렇게 한다고 뭐가 들어오던`이라고 말하며 raw adapter boundary를 더 넓게 읽어야 한다는 intent를 다시 명시했다.
+- 2026-04-18: explicit `progression_supports -> global_plan_supports -> drivable-only reconstruction` precedence가 approved plan으로 고정됐다.
+- 2026-04-18: drivable-only reconstruction은 corridor-like single-continuation local geometry에만 제한하고, ambiguous branch topology는 fail-fast로 두기로 정리했다.
+
 ### Linked raw notes
 
-- [2026-04-09-whole-space-fabric-instead-of-tube-support](./notes/2026-04-09-whole-space-fabric-instead-of-tube-support.md)
+- [2026-04-18-branch-split-baseline-approval-discipline](./notes/2026-04-18-branch-split-baseline-approval-discipline.md)
 
 ### Current status
 
-- `under discussion`
+- `approved cleanup batch`
 
 ### Canonical docs touched (if any)
 
-- 없음
+- `docs/en/reference/source_adapter.md`
+- `docs/en/reference/input_semantics.md`
 
 ### Open questions
 
-- whole-space fabric intuition을 exact math 없이 어디까지 canonical로 말할 수 있는지
-- branch overlap과 smoothness를 어디까지 허용할지
+- drivable-only reconstruction을 non-branching corridor-like local geometry 밖으로 어디까지 넓힐지
+- `future_anchor` bias를 canonical semantics가 아니라 bounded adapter hint로 어디까지 유지할지
+
+## exact transverse public channels
+
+### First raised
+
+- 2026-04-18
+
+### Current framing
+
+- dominant guide score에 실제로 들어가는 transverse term과 exported transverse detail channel은 같아야 한다.
+- `progression_center_distance`는 signed lateral이 아니라 dominant raw visible guide polyline까지의 unsigned 최단거리다.
+- old `progression_n_hat` / `progression_transverse_component` 이름은 stale semantics를 남기므로 clean break로 버리는 편이 맞다.
+
+### Key changes by date
+
+- 2026-04-18: 사용자가 old channel naming과 stale semantics를 한 번에 정리하라고 명시했다.
+- 2026-04-18: `progression_n_hat -> progression_center_distance`, `progression_transverse_component -> progression_transverse_term` rename과 exact dominant-guide export로 plan이 고정됐다.
+- 2026-04-18: near-tied transverse inspection smoothing residue를 public channel에서 제거하는 cleanup이 follow-up batch로 승인됐다.
+
+### Linked raw notes
+
+- [2026-04-18-branch-split-baseline-approval-discipline](./notes/2026-04-18-branch-split-baseline-approval-discipline.md)
+
+### Current status
+
+- `approved cleanup batch`
+
+### Canonical docs touched (if any)
+
+- `docs/en/reference/runtime_evaluation_contract.md`
+- `docs/en/reference/current_formula_reference.md`
+
+### Open questions
+
+- public detail channels에서 exact current-implementation names를 얼마나 자주 clean break로 다시 정리할지
 
 ## semantic snapshot / query context / score-function framing
 

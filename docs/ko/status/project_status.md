@@ -20,7 +20,7 @@
 - case-level ego/window control과 working context 분리 추가
 - channel scale mode (`Fixed` / `Normalized`)와 range/unit 표시 추가
 - Parameter Help와 summary 정리
-- Gaussian anchor blended progress coordinates + raw guide distance transverse + hard max envelope 현재 구현 정리
+- Gaussian anchor blended progress coordinates + exact raw-guide distance transverse term + hard max envelope 현재 구현 정리
 - cached field runtime query layer 추가
 - public batched progression runtime query 추가
 - progression debug component view 추가
@@ -41,7 +41,7 @@
 - runtime은 현재 보이는 local map 전체를 analytic하게 평가할 수 있어야 한다.
 - progression field는 최소한 longitudinal term과 transverse term을 가져야 하며, 이 둘은 독립적으로 조정 가능해야 한다.
 - 현재 구현은 Gaussian anchor blended progress coordinates, raw guide distance transverse, hard max envelope를 사용한다.
-- 현재 구현 exact formula는 `support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다. score는 dominant guide 기준으로 읽고, exported transverse는 near-tied guide candidate의 transverse term을 부드럽게 섞은 inspection channel이다.
+- 현재 구현 exact formula는 `support_mod * alignment_mod * (transverse_term + longitudinal_gain * longitudinal_component)`다. score와 exported transverse channel 모두 dominant guide 기준 exact 값을 사용한다.
 - visible guide endpoint 바깥에서는 transverse가 raw guide geometry 기준으로 더 빨리 떨어질 수 있다.
 - support / alignment는 weak secondary modulation으로만 유지한다.
 - current base composition은 `progression_tilted`만 사용한다.
@@ -57,6 +57,7 @@
 - downstream consumer는 formula copy가 아니라 `field_runtime` cached query layer를 소비하는 것을 기준으로 한다.
 - batched progression query는 `query_state` / `query_trajectory`와 의미상 일치하는 public contract로 본다.
 - adapter는 의미 번역기만 하며 branch winner를 정하지 않는다.
+- raw adapter boundary에서는 progression을 explicit guide, global plan, bounded drivable-only reconstruction 중 하나로 받을 수 있다.
 - `ego_pose`는 snapshot 본체가 아니라 `QueryContext` 책임으로 둔다.
 - `local_window` 정책은 canonical truth가 아니라 experiment 영역으로 남긴다.
 - support/confidence/branch prior는 optional weak prior로만 다룬다.

@@ -6,9 +6,9 @@ from PyQt6.QtCore import Qt
 CHANNEL_OPTIONS = {
     "progression_tilted": "plasma",
     "progression_s_hat": "viridis",
-    "progression_n_hat": "magma",
+    "progression_center_distance": "magma",
     "progression_longitudinal_component": "plasma",
-    "progression_transverse_component": "cividis",
+    "progression_transverse_term": "cividis",
     "progression_support_mod": "inferno",
     "progression_alignment_mod": "inferno",
     "safety_soft": "inferno",

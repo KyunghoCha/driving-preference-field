@@ -1,0 +1,26 @@
+metadata:
+  name: u_turn_drivable_only_generic
+  description: Generic adapter fixture with drivable-only U-turn reconstruction.
+drivable_regions:
+  - id: u_turn_corridor
+    points:
+      - [0.0, -1.0]
+      - [5.8, -1.0]
+      - [5.8, 4.0]
+      - [-0.2, 4.0]
+      - [-0.2, 2.4]
+      - [4.2, 2.4]
+      - [4.2, 0.6]
+      - [0.0, 0.6]
+progression_options:
+  future_anchor: [0.4, 3.2]
+query_context:
+  query_pose:
+    x: 0.6
+    y: 0.0
+    yaw: 0.0
+  local_window:
+    x_min: -1.5
+    x_max: 6.5
+    y_min: -1.8
+    y_max: 4.8

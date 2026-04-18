@@ -31,7 +31,7 @@ CHANNEL_SCALE_SPECS = {
         fixed_max=10.0,
         diff_abs_max=4.0,
     ),
-    "progression_n_hat": ChannelScaleSpec(
+    "progression_center_distance": ChannelScaleSpec(
         unit="m",
         fixed_min=0.0,
         fixed_max=4.0,
@@ -43,7 +43,7 @@ CHANNEL_SCALE_SPECS = {
         fixed_max=1.0,
         diff_abs_max=1.0,
     ),
-    "progression_transverse_component": ChannelScaleSpec(
+    "progression_transverse_term": ChannelScaleSpec(
         unit="score",
         fixed_min=0.0,
         fixed_max=1.0,

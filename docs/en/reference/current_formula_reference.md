@@ -22,13 +22,13 @@ Anchor weights stay local to a guide. They shape support, progress coordinate es
 
 ### Guide-local coordinate
 
-The runtime derives `s_hat` and a local tangent from the guide-local anchor blend. For the same dominant guide, `n_hat` is then read as shortest distance to that guide's raw visible polyline.
+The runtime derives `s_hat` and a local tangent from the guide-local anchor blend. For the same dominant guide, `center_distance` is then read as shortest distance to that guide's raw visible polyline.
 
 `s_hat = sum_i \bar{w}_i s_i`
 
 `t_hat = normalize(sum_i \bar{w}_i t_i)`
 
-`n_hat = min_{q \in C_g} ||p - q||`
+`center_distance = min_{q \in C_g} ||p - q||`
 
 where `C_g` is the raw visible polyline for guide `g`.
 
@@ -42,7 +42,7 @@ The runtime supports several longitudinal families such as `tanh`, `linear`, `in
 
 ### Transverse families
 
-The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. Each guide's transverse term is built from the shortest unsigned distance to that guide's raw visible polyline. The score still uses the dominant guide's actual transverse term, while the exported transverse channel remains a support/score-weighted smoothing across near-tied guide candidates so branch handoff remains easier to inspect.
+The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. Each guide's transverse term is built from the shortest unsigned distance to that guide's raw visible polyline. The exported `progression_transverse_term` channel is the dominant guide's actual score transverse term.
 
 ### Secondary modulation
 
@@ -52,7 +52,7 @@ Support modulation and alignment modulation remain weak secondary factors. They 
 
 The active progression score is:
 
-`progression_tilted(p) = max_g support_mod_g * alignment_mod_g * (T(|n_hat_g|) + gain * L(u_g))`
+`progression_tilted(p) = max_g support_mod_g * alignment_mod_g * (T(center_distance_g) + gain * L(u_g))`
 
 The score merge is a hard max envelope across progression guides.
 

@@ -90,7 +90,7 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._baseline_panel._advanced_toggle.isChecked() is False
     assert window._baseline_panel._advanced_content.isVisible() is False
     assert window._channel_selector.findData("progression_s_hat") != -1
-    assert window._channel_selector.findData("progression_transverse_component") != -1
+    assert window._channel_selector.findData("progression_transverse_term") != -1
     window._tabs.setCurrentIndex(1)
     assert window._compare_splitter.orientation() == Qt.Orientation.Vertical
     assert window._compare_layout_button.isVisible() is True
@@ -473,7 +473,7 @@ def test_preset_copy_and_export_workflow(qtbot, tmp_path, monkeypatch) -> None:
     assert "raster" in session["diff_summary"]
     assert (
         session["diff_summary"]["visualization"]["progression_surface_kind"]
-        == "guide-local blended progress coordinates + raw guide distance transverse + hard max envelope"
+        == "guide-local blended progress coordinates + exact raw-guide distance transverse term + hard max envelope"
     )
     assert session["diff_summary"]["visualization"]["raster_role"] == "visualization only"
     assert session["diff_summary"]["visualization"]["score_sign"] == "higher is better"

@@ -22,7 +22,13 @@ The generic adapter schema exists to show one source-agnostic way to serialize t
 
 ## Required and optional inputs
 
-Progression support and drivable support are the minimum semantic slots. Boundary or interior priors, support/confidence metadata, and exception-layer signals are optional and should stay explicitly optional in adapter output.
+Drivable support and query context are the minimum raw inputs. Progression support may arrive in three forms, with this precedence:
+
+1. explicit `progression_supports`
+2. `global_plan_supports`
+3. drivable-only reconstruction from `drivable_regions`
+
+Boundary or interior priors, support/confidence metadata, and exception-layer signals are optional and should stay explicitly optional in adapter output.
 
 ## Separation that must be preserved
 
@@ -42,7 +48,7 @@ SSC is an important downstream validation source, but SSC-specific structure is 
 
 ## Current implementation
 
-The current runtime consumes progression guides, drivable boundaries, optional hard masks, and separate obstacle/rule/dynamic cost-like layers through this contract. The active input semantics are documented in [Input Semantics](./input_semantics.md).
+The current runtime still consumes the same canonical output slots: progression support, drivable support, optional boundary/interior support, and optional exception layers. At the generic adapter boundary, progression may now be provided explicitly, normalized from a global plan, or reconstructed from drivable-only corridor-like local geometry. Ambiguous split/merge topology is still not guessed silently.
 
 ## Current baseline
 

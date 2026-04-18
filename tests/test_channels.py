@@ -234,7 +234,7 @@ def test_progression_merge_midline_is_nonzero_continuous_surface() -> None:
     assert progression_tilted(snapshot, context, lower, config=config) > 0.0
 
 
-def test_surface_tuning_changes_transverse_shape_without_changing_public_channel_contract() -> None:
+def test_surface_tuning_changes_progress_blend_without_changing_exact_transverse_term() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/merge_like_patch.yaml")
     state = StateSample(x=2.6, y=-0.1, yaw=0.2)
     baseline = progression_tilted_details(snapshot, context, state, config=_canonical_config())
@@ -251,7 +251,9 @@ def test_surface_tuning_changes_transverse_shape_without_changing_public_channel
     )
 
     assert set(tuned) == set(baseline)
-    assert tuned["transverse_component"] != baseline["transverse_component"]
+    assert tuned["s_hat"] != baseline["s_hat"]
+    assert tuned["transverse_term"] == baseline["transverse_term"]
+    assert tuned["center_distance"] == baseline["center_distance"]
 
 
 

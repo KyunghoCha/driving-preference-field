@@ -42,11 +42,11 @@ progression 축과 횡방향 profile이 base field의 주성분이다. support, 
 
 ## 현재 구현은 이 개념을 어떻게 근사하는가
 
-현재 구현의 progression surface는 guide마다 Gaussian anchor blend로 local progress coordinate를 만들고, 각 guide의 transverse term은 raw visible progression guide polyline까지의 최단거리로 읽은 뒤, guide-local score를 만든 다음 hard max envelope로 합친다. score는 dominant guide 기준으로 유지하고, exported transverse는 near-tied guide candidate의 transverse term을 부드럽게 섞은 inspection channel로 노출한다.
+현재 구현의 progression surface는 guide마다 Gaussian anchor blend로 local progress coordinate를 만들고, 각 guide의 transverse term은 raw visible progression guide polyline까지의 최단거리로 읽은 뒤, guide-local score를 만든 다음 hard max envelope로 합친다. score와 exported transverse channel 모두 dominant guide 기준 exact 값을 유지한다.
 
 guide-local progress/support 계산에는 짧은 virtual continuation anchor가 남아 있지만, transverse 자체는 raw visible guide geometry를 기준으로 읽는다. 그래서 visible endpoint 바깥의 transverse는 별도 continuation bonus 없이 더 빨리 떨어질 수 있다.
 
-구조적으로 보면 현재 progression score는 `transverse_component + longitudinal_component` 위에 `support_mod`와 `alignment_mod`가 약한 secondary modulation으로 얹히는 형태다. strong longitudinal 설정에서는 farther-ahead off-center point가 nearer-center point보다 높아질 수도 있다. exact formula는 별도 수식 문서에 정리하지만, 그 수식도 결국 이 개념 모델을 만족하는지로 읽어야 한다.
+구조적으로 보면 현재 progression score는 `transverse_term + longitudinal_component` 위에 `support_mod`와 `alignment_mod`가 약한 secondary modulation으로 얹히는 형태다. strong longitudinal 설정에서는 farther-ahead off-center point가 nearer-center point보다 높아질 수도 있다. exact formula는 별도 수식 문서에 정리하지만, 그 수식도 결국 이 개념 모델을 만족하는지로 읽어야 한다.
 
 현재 tiny evaluator도 본체 score는 `progression_tilted`만 사용한다. drivable boundary는 overlay나 reconstruction 입력으로 읽고, safety / rule / dynamic burden은 costmap 성격의 시각화 채널로만 남긴다. canonical 본체를 geometry bonus나 burden 합성과 동일시하지 않는다는 점이 여기서 더 분명해진다.
 

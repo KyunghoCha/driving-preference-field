@@ -82,8 +82,14 @@ DPF가 진행 선호를 주는 장치라는 framing이 굳어지면서, detailed
 
 이 지점이 남긴 교훈은 설계 object와 별도로 workflow discipline을 잠가야 한다는 점이다. branch/split morphology investigation은 separate worktree에서 계속할 수 있지만, `main` 승격이나 baseline 재정의는 explicit user approval 뒤에만 이뤄져야 한다. 이건 DPF 수식 자체를 바꾸는 전환은 아니지만, 이후 설계 실험을 어떤 절차로 다뤄야 하는지에 대한 중요한 correction으로 남는다.
 
+## B11 cleanup과 adapter 입력 경계 확장
+
+`B11 = 465398d`로 transverse object를 raw visible progression guide polyline distance로 단순화한 뒤에는, 그 behavior baseline 위에 남은 stale public semantics와 raw adapter 경계를 한 번 더 정리해야 하는 문제가 남았다. 사용자는 old `progression_n_hat` / `progression_transverse_component` naming이 더 이상 실제 의미와 맞지 않고, raw adapter도 explicit progression guide만 고집해서는 안 된다고 봤다.
+
+이 follow-up에서 남은 핵심은 두 가지였다. 첫째, dominant guide score에 실제로 들어가는 transverse term과 exported public detail channel을 정확히 일치시키는 것이다. 둘째, raw adapter boundary에서 progression source를 explicit progression, global plan, bounded drivable-only reconstruction으로 넓히되, ambiguous branch topology는 fail-fast로 유지하는 것이다. 이건 새 behavior baseline 승격이 아니라 `B11` 위 cleanup/contract expansion으로 남는다.
+
 ## 현재 시점의 설계 위치
 
 현재까지의 흐름을 묶으면, DPF는 segment consume과 gate 통과 직관에서 출발해, blocked case에서는 frontier/local splice가 별도로 움직여야 한다는 pressure를 겪고, docs-first reset을 통해 `주행 가능 의미 + 진행 의미`와 `선호는 field 구조가 만든다`는 semantics로 다시 고정됐다. 그 위에 progress-tilted score space, whole-space fabric, Semantic Snapshot/Query Context 분리, progress-preference framing, longitudinal 주역화, planner/behavior 책임 분리가 겹쳐져 있다.
 
-동시에, 이 전체 서사는 raw note anchor가 먼저 있어야 한다는 요구도 분명히 만들었다. 그래서 지금의 history와 latest design 문서는 넓은 source reread를 거쳐 raw note를 먼저 고정한 뒤 따라가는 파생 문서로 다시 정렬되고 있다.
+동시에, 이 전체 서사는 raw note anchor가 먼저 있어야 한다는 요구도 분명히 만들었다. 그래서 지금의 history와 latest design 문서는 넓은 source reread를 거쳐 raw note를 먼저 고정한 뒤 따라가는 파생 문서로 다시 정렬되고 있다. 최근에는 baseline 승격 승인 discipline과 `B11` 위 cleanup/contract expansion까지 같은 workflow correction으로 잠겨 있다.

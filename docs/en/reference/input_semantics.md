@@ -36,7 +36,7 @@ The canonical input does not directly choose a branch winner, planner policy, or
 
 ## Current implementation
 
-The current implementation reads progression support through progression guides only. Drivable boundaries are kept as overlay/support input, and obstacle/rule/dynamic signals stay in separate cost-like layers.
+The current implementation still evaluates canonical progression support through progression guides. At the generic adapter boundary, those guides may come from explicit `progression_supports`, normalized `global_plan_supports`, or bounded drivable-only reconstruction for corridor-like single-continuation local geometry. Drivable boundaries are kept as overlay/support input, and obstacle/rule/dynamic signals stay in separate cost-like layers.
 
 ## Current baseline
 

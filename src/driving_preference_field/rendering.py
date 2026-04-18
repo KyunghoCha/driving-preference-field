@@ -20,9 +20,9 @@ from .visualization_scale import SCALE_MODE_FIXED, display_unit, format_display_
 CHANNEL_DESCRIPTIONS = {
     "progression_tilted": "Whole-fabric blended progression space over the local map. Higher means stronger progression ordering.",
     "progression_s_hat": "Blended progression coordinate over the local space. This is the current implementation debug view of s_hat.",
-    "progression_n_hat": "Unsigned shortest distance to the currently dominant raw visible progression guide polyline. Lower means closer to that guide.",
+    "progression_center_distance": "Unsigned shortest distance to the currently dominant raw visible progression guide polyline. Lower means closer to that guide.",
     "progression_longitudinal_component": "Current implementation longitudinal tilt term before gain is applied.",
-    "progression_transverse_component": "Current implementation center-high transverse profile term.",
+    "progression_transverse_term": "Exact current-implementation transverse term that the dominant guide contributes to score.",
     "progression_support_mod": "Weak secondary support modulation. It should not dominate the space shape.",
     "progression_alignment_mod": "Weak secondary heading-alignment modulation. It should not dominate the space shape.",
     "safety_soft": "Distance-based obstacle cost from safety regions. Higher means stronger obstacle costmap response.",
@@ -36,9 +36,9 @@ CHANNEL_DESCRIPTIONS = {
 CHANNEL_TITLES = {
     "progression_tilted": "Progression Tilted",
     "progression_s_hat": "Progression s_hat",
-    "progression_n_hat": "Progression n_hat",
+    "progression_center_distance": "Progression Center Distance",
     "progression_longitudinal_component": "Longitudinal Component",
-    "progression_transverse_component": "Transverse Component",
+    "progression_transverse_term": "Transverse Term",
     "progression_support_mod": "Support Modulation",
     "progression_alignment_mod": "Alignment Modulation",
     "safety_soft": "Obstacle Cost",
@@ -295,15 +295,19 @@ def render_case(
     outputs = {
         "progression_tilted.png": ("progression_tilted", CHANNEL_TITLES["progression_tilted"], "plasma"),
         "progression_s_hat.png": ("progression_s_hat", CHANNEL_TITLES["progression_s_hat"], "viridis"),
-        "progression_n_hat.png": ("progression_n_hat", CHANNEL_TITLES["progression_n_hat"], "magma"),
+        "progression_center_distance.png": (
+            "progression_center_distance",
+            CHANNEL_TITLES["progression_center_distance"],
+            "magma",
+        ),
         "progression_longitudinal_component.png": (
             "progression_longitudinal_component",
             CHANNEL_TITLES["progression_longitudinal_component"],
             "plasma",
         ),
-        "progression_transverse_component.png": (
-            "progression_transverse_component",
-            CHANNEL_TITLES["progression_transverse_component"],
+        "progression_transverse_term.png": (
+            "progression_transverse_term",
+            CHANNEL_TITLES["progression_transverse_term"],
             "cividis",
         ),
         "progression_support_mod.png": (
@@ -369,9 +373,9 @@ def render_case(
         "channel_ranges": {
             "progression_tilted": _channel_min_max(raster.channels["progression_tilted"]),
             "progression_s_hat": _channel_min_max(raster.channels["progression_s_hat"]),
-            "progression_n_hat": _channel_min_max(raster.channels["progression_n_hat"]),
+            "progression_center_distance": _channel_min_max(raster.channels["progression_center_distance"]),
             "progression_longitudinal_component": _channel_min_max(raster.channels["progression_longitudinal_component"]),
-            "progression_transverse_component": _channel_min_max(raster.channels["progression_transverse_component"]),
+            "progression_transverse_term": _channel_min_max(raster.channels["progression_transverse_term"]),
             "progression_support_mod": _channel_min_max(raster.channels["progression_support_mod"]),
             "progression_alignment_mod": _channel_min_max(raster.channels["progression_alignment_mod"]),
             "safety_soft": _channel_min_max(raster.channels["safety_soft"]),
@@ -390,9 +394,9 @@ def render_case(
             for channel_name in (
                 "progression_tilted",
                 "progression_s_hat",
-                "progression_n_hat",
+                "progression_center_distance",
                 "progression_longitudinal_component",
-                "progression_transverse_component",
+                "progression_transverse_term",
                 "progression_support_mod",
                 "progression_alignment_mod",
                 "safety_soft",

@@ -1,0 +1,25 @@
+metadata:
+  name: split_branch_drivable_only_generic
+  description: Generic adapter fixture that should fail drivable-only reconstruction at split ambiguity.
+drivable_regions:
+  - id: split_region
+    points:
+      - [0.0, -1.0]
+      - [3.5, -1.0]
+      - [6.0, -2.5]
+      - [6.0, -0.6]
+      - [3.6, 0.0]
+      - [6.0, 0.6]
+      - [6.0, 2.5]
+      - [3.5, 1.0]
+      - [0.0, 1.0]
+query_context:
+  query_pose:
+    x: 0.5
+    y: 0.0
+    yaw: 0.0
+  local_window:
+    x_min: -1.0
+    x_max: 7.0
+    y_min: -3.0
+    y_max: 3.5

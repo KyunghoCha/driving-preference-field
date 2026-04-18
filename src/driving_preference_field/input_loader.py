@@ -35,7 +35,11 @@ def _read_mapping(path: Path) -> dict[str, Any]:
 def detect_input_kind(input_path: str | Path) -> str:
     path = Path(input_path)
     payload = _read_mapping(path)
-    if "query_context" in payload or "progression_supports" in payload:
+    if (
+        "query_context" in payload
+        or "progression_supports" in payload
+        or "global_plan_supports" in payload
+    ):
         return "generic_adapter"
     return "toy_case"
 

@@ -19,7 +19,7 @@ The active base score is `progression_tilted`. Drivable boundaries are read as o
 
 - keep docs, UI help, and runtime aligned
 - keep morphology experiments stable
-- preserve the generic source-adapter contract
+- preserve the generic source-adapter contract while accepting explicit progression, global plan, or bounded drivable-only reconstruction at the raw adapter boundary
 
 ## Phase 4 acceptance
 

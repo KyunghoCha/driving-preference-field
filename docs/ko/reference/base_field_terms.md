@@ -18,7 +18,7 @@
 - trajectory 해석:
   - progression-consistent한 흐름을 높게 읽는다.
 
-현재 구현은 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)` 형태의 가산형 surface를 사용한다. 같은 longitudinal slice에서는 center-high transverse profile을 읽고, strong longitudinal 설정에서는 더 먼 progression gain이 가까운 중심 선호를 이길 수 있다.
+현재 구현은 `score = support_mod * alignment_mod * (transverse_term + longitudinal_gain * longitudinal_component)` 형태의 가산형 surface를 사용한다. 같은 longitudinal slice에서는 center-high transverse profile을 읽고, strong longitudinal 설정에서는 더 먼 progression gain이 가까운 중심 선호를 이길 수 있다.
 
 ### 2. interior / boundary 기반 선호
 

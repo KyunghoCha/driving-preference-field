@@ -43,7 +43,7 @@ def test_field_runtime_state_query_matches_evaluator_semantics() -> None:
 
     assert payload.base_channels == result.base_preference_channels
     assert payload.diagnostics["progression_s_hat"] == result.diagnostics["progression_s_hat"]
-    assert payload.diagnostics["progression_n_hat"] == result.diagnostics["progression_n_hat"]
+    assert payload.diagnostics["progression_center_distance"] == result.diagnostics["progression_center_distance"]
 
 
 def test_field_runtime_anchor_count_diagnostics_distinguish_total_and_effective_counts() -> None:
@@ -72,7 +72,7 @@ def test_field_runtime_cache_does_not_create_semantic_drift() -> None:
 
     assert first_payload.base_channels == second_payload.base_channels
     assert first_payload.diagnostics["progression_s_hat"] == second_payload.diagnostics["progression_s_hat"]
-    assert first_payload.diagnostics["progression_n_hat"] == second_payload.diagnostics["progression_n_hat"]
+    assert first_payload.diagnostics["progression_center_distance"] == second_payload.diagnostics["progression_center_distance"]
 
 
 def test_field_runtime_trajectory_query_matches_evaluator_ordering() -> None:
@@ -104,9 +104,9 @@ def test_field_runtime_debug_grid_exposes_progression_components() -> None:
 
     assert grid["progression_tilted"].shape == (6, 8)
     assert grid["progression_s_hat"].shape == (6, 8)
-    assert grid["progression_n_hat"].shape == (6, 8)
+    assert grid["progression_center_distance"].shape == (6, 8)
     assert grid["progression_longitudinal_component"].shape == (6, 8)
-    assert grid["progression_transverse_component"].shape == (6, 8)
+    assert grid["progression_transverse_term"].shape == (6, 8)
     assert grid["progression_support_mod"].shape == (6, 8)
     assert grid["progression_alignment_mod"].shape == (6, 8)
 
@@ -138,7 +138,9 @@ def test_field_runtime_batched_progression_points_match_state_queries() -> None:
         single = runtime.query_state(state)
         assert batched["progression_tilted"][index] == pytest.approx(single.base_channels["progression_tilted"])
         assert batched["progression_s_hat"][index] == pytest.approx(single.diagnostics["progression_s_hat"])
-        assert batched["progression_n_hat"][index] == pytest.approx(single.diagnostics["progression_n_hat"])
+        assert batched["progression_center_distance"][index] == pytest.approx(
+            single.diagnostics["progression_center_distance"]
+        )
 
 
 def test_field_runtime_batched_progression_trajectories_match_trajectory_sum() -> None:
@@ -275,8 +277,8 @@ def test_field_runtime_default_surface_tuning_matches_implicit_default() -> None
     explicit_payload = explicit.query_state(state)
 
     assert implicit_payload.base_channels == explicit_payload.base_channels
-    assert implicit_payload.diagnostics["progression_transverse_component"] == pytest.approx(
-        explicit_payload.diagnostics["progression_transverse_component"]
+    assert implicit_payload.diagnostics["progression_transverse_term"] == pytest.approx(
+        explicit_payload.diagnostics["progression_transverse_term"]
     )
 
 
@@ -303,9 +305,9 @@ def test_field_runtime_surface_tuning_changes_progress_blend_but_not_raw_transve
         baseline_payload.diagnostics["progression_s_hat"],
         abs=1e-4,
     )
-    assert candidate_payload.diagnostics["progression_transverse_component"] == pytest.approx(
-        baseline_payload.diagnostics["progression_transverse_component"]
+    assert candidate_payload.diagnostics["progression_transverse_term"] == pytest.approx(
+        baseline_payload.diagnostics["progression_transverse_term"]
     )
-    assert candidate_payload.diagnostics["progression_n_hat"] == pytest.approx(
-        baseline_payload.diagnostics["progression_n_hat"]
+    assert candidate_payload.diagnostics["progression_center_distance"] == pytest.approx(
+        baseline_payload.diagnostics["progression_center_distance"]
     )
