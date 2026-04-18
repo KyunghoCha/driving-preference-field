@@ -270,6 +270,7 @@
 ### Current framing
 
 - branch/split morphology investigation에서는 baseline 승격 이력을 `B1`, `B2`처럼 순서 번호와 commit hash로 같이 기록해야 한다.
+- baseline으로 승인되어 승격하는 commit message subject에도 같은 번호를 `[B{n}]` 형태로 넣어야 한다.
 - behavior-changing baseline만 번호를 붙이고, docs-only/workflow commits는 baseline 번호에 넣지 않는다.
 - explicit user approval 없이 실험 상태를 다음 baseline으로 승격하면 안 된다.
 

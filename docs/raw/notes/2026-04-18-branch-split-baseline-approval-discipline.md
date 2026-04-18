@@ -58,6 +58,7 @@
 ## Discipline added from this point
 
 - branch/split morphology 조사 중 baseline 후보는 `B{n}` 번호와 commit hash를 함께 기록한다.
+- baseline으로 승인되어 승격하는 commit message subject에도 같은 번호를 `[B{n}]` 형태로 넣는다.
 - 사용자 explicit approval 없이 `B{n+1}`을 `main` baseline으로 선언하거나 승격하지 않는다.
 - docs-only/workflow commits는 baseline 번호에 넣지 않는다. baseline 번호는 behavior-changing surface baseline에만 쓴다.
 
