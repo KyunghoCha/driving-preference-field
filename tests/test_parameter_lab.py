@@ -212,6 +212,26 @@ def test_parameter_lab_accepts_generic_adapter_input_path(qtbot) -> None:
     window.close()
 
 
+def test_parameter_lab_case_selector_lists_generic_adapter_fixtures(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    combo_entries = {
+        window._case_panel._combo.itemText(index): Path(window._case_panel._combo.itemData(index)).name
+        for index in range(window._case_panel._combo.count())
+    }
+
+    assert "left_bend_drivable_only_generic" in combo_entries
+    assert combo_entries["left_bend_drivable_only_generic"] == "left_bend_drivable_only_generic.yaml"
+    assert "circular_arc_drivable_only_generic" in combo_entries
+    assert combo_entries["circular_arc_drivable_only_generic"] == "circular_arc_drivable_only_generic.yaml"
+
+    window.close()
+
+
 def test_preset_panel_filters_reference_presets_by_role(qtbot) -> None:
     case_path = ROOT / "cases/toy/straight_corridor.yaml"
     window = ParameterLabWindow(case_path=case_path)

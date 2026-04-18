@@ -154,7 +154,7 @@ class ParameterLabWindow(QMainWindow):
         self._status_label = QLabel()
         self._hover_label = QLabel("(x, y)=(-,-)")
 
-        self._case_panel = CasePanelWidget(self._cases_root, language=self._language)
+        self._case_panel = CasePanelWidget((self._cases_root, self._state.fixture_root), language=self._language)
         self._layer_panel = LayerPanelWidget(language=self._language)
         self._baseline_panel = ProgressionParameterPanelWidget(
             title=t(self._language, "panel.baseline_progression"),
@@ -228,6 +228,8 @@ class ParameterLabWindow(QMainWindow):
         self._repo_root_path = resolved
         if hasattr(self, "_state"):
             self._state.update_repo_root(resolved)
+        if hasattr(self, "_case_panel"):
+            self._case_panel.set_case_roots((self._state.cases_root, self._state.fixture_root))
         if hasattr(self, "_help_actions"):
             self._help_actions.update_repo_root(resolved)
 

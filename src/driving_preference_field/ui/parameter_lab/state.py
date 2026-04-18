@@ -58,6 +58,7 @@ class ParameterLabState:
     ) -> None:
         self.repo_root = repo_root.resolve()
         self.cases_root = self.repo_root / "cases/toy"
+        self.fixture_root = self.repo_root / "fixtures/adapter"
         self.preset_root = self.repo_root / DEFAULT_PRESET_DIR
         self.preset_root.mkdir(parents=True, exist_ok=True)
 
@@ -75,15 +76,18 @@ class ParameterLabState:
         self.initialize_side_from_path("baseline", Path(baseline_preset) if baseline_preset else None)
         self.initialize_side_from_path("candidate", Path(candidate_preset) if candidate_preset else None)
 
-        case_candidates = sorted(self.cases_root.glob("*.yaml"))
+        case_candidates = self.available_case_paths()
         if not case_candidates and case_path is None:
-            raise RuntimeError(f"no toy cases found under {self.cases_root}")
+            raise RuntimeError(
+                f"no parameter lab cases found under {self.cases_root} or {self.fixture_root}"
+            )
         initial_case = self.normalize_case_path(Path(case_path) if case_path is not None else case_candidates[0])
         self.load_case(initial_case)
 
     def update_repo_root(self, repo_root: Path) -> None:
         self.repo_root = repo_root.resolve()
         self.cases_root = self.repo_root / "cases/toy"
+        self.fixture_root = self.repo_root / "fixtures/adapter"
 
     def update_preset_root(self, preset_root: Path) -> None:
         self.preset_root = preset_root.resolve()
@@ -99,7 +103,13 @@ class ParameterLabState:
         cases_relative = (self.cases_root / candidate).resolve()
         if cases_relative.exists():
             return cases_relative
+        fixture_relative = (self.fixture_root / candidate).resolve()
+        if fixture_relative.exists():
+            return fixture_relative
         return candidate.resolve()
+
+    def available_case_paths(self) -> list[Path]:
+        return sorted(self.cases_root.glob("*.yaml")) + sorted(self.fixture_root.glob("*.yaml"))
 
     def initialize_side_from_path(self, side: str, preset_path: Path | None) -> None:
         resolved_path = preset_path

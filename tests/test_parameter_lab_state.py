@@ -49,3 +49,14 @@ def test_parameter_lab_state_copy_side_preserves_config_and_marks_target_unsaved
     assert state.candidate_config == state.baseline_config
     assert state.candidate_state.unsaved is True
     assert state.candidate_state.metadata["origin"] == "user"
+
+
+def test_parameter_lab_state_lists_toy_cases_and_generic_fixtures() -> None:
+    state = ParameterLabState(repo_root=ROOT, case_path=ROOT / "cases/toy/straight_corridor.yaml")
+
+    available_names = {path.name for path in state.available_case_paths()}
+
+    assert "straight_corridor.yaml" in available_names
+    assert "straight_corridor_generic.yaml" in available_names
+    assert "left_bend_drivable_only_generic.yaml" in available_names
+    assert "circular_arc_drivable_only_generic.yaml" in available_names

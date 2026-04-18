@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
 
 from PyQt6.QtCore import pyqtSignal
@@ -34,10 +35,13 @@ class CasePanelWidget(QWidget):
     caseControlsApplied = pyqtSignal(object, object)
     caseControlsReset = pyqtSignal()
 
-    def __init__(self, cases_root: Path, *, language: str = DEFAULT_LANGUAGE) -> None:
+    def __init__(self, case_roots: Path | Iterable[Path], *, language: str = DEFAULT_LANGUAGE) -> None:
         super().__init__()
         self._language = language
-        self._cases_root = cases_root
+        if isinstance(case_roots, Path):
+            self._case_roots = (case_roots,)
+        else:
+            self._case_roots = tuple(Path(root) for root in case_roots)
         self._external_case_path: str | None = None
         self._default_context: QueryContext | None = None
         self._applied_ego_pose: StateSample | None = None
@@ -89,6 +93,13 @@ class CasePanelWidget(QWidget):
         self.retranslate(language)
         self.reload_cases()
 
+    def set_case_roots(self, case_roots: Path | Iterable[Path]) -> None:
+        if isinstance(case_roots, Path):
+            self._case_roots = (case_roots,)
+        else:
+            self._case_roots = tuple(Path(root) for root in case_roots)
+        self.reload_cases()
+
     def retranslate(self, language: str) -> None:
         self._language = language
         self._case_label.setText(t(language, "case.case"))
@@ -101,7 +112,10 @@ class CasePanelWidget(QWidget):
         current = self.current_case_path()
         self._combo.blockSignals(True)
         self._combo.clear()
-        for case_path in sorted(self._cases_root.glob("*.yaml")):
+        discovered: list[Path] = []
+        for root in self._case_roots:
+            discovered.extend(sorted(root.glob("*.yaml")))
+        for case_path in discovered:
             self._combo.addItem(case_path.stem, str(case_path))
         if self._external_case_path is not None and self._combo.findData(self._external_case_path) < 0:
             self._combo.addItem(f"[external] {Path(self._external_case_path).name}", self._external_case_path)
@@ -129,9 +143,10 @@ class CasePanelWidget(QWidget):
         candidate = Path(case_path)
         if candidate.is_absolute():
             return str(candidate.resolve())
-        direct = (self._cases_root / candidate).resolve()
-        if direct.exists():
-            return str(direct)
+        for root in self._case_roots:
+            direct = (root / candidate).resolve()
+            if direct.exists():
+                return str(direct)
         return str(candidate.resolve())
 
     def set_context_values(self, *, default_context: QueryContext, working_context: QueryContext) -> None:
