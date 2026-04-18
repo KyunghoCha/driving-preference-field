@@ -20,7 +20,7 @@ from .visualization_scale import SCALE_MODE_FIXED, display_unit, format_display_
 CHANNEL_DESCRIPTIONS = {
     "progression_tilted": "Whole-fabric blended progression space over the local map. Higher means stronger progression ordering.",
     "progression_s_hat": "Blended progression coordinate over the local space. This is the current implementation debug view of s_hat.",
-    "progression_n_hat": "Unsigned shortest distance to the currently dominant progression guide center structure. Lower means closer to that guide center.",
+    "progression_n_hat": "Unsigned shortest distance to the currently dominant raw visible progression guide polyline. Lower means closer to that guide.",
     "progression_longitudinal_component": "Current implementation longitudinal tilt term before gain is applied.",
     "progression_transverse_component": "Current implementation center-high transverse profile term.",
     "progression_support_mod": "Weak secondary support modulation. It should not dominate the space shape.",

@@ -52,7 +52,8 @@ runtime evaluator는 local map 전체를 analytic하게 평가할 수 있어야 
 
 - cache 사용 여부가 semantic drift를 만들지 않는다.
 - evaluator entrypoint와 `FieldRuntime` layer가 의미상 같은 progression-centered base 결과를 반환한다.
-- overlap 영역 ordering stability와 endpoint continuation acceptance를 runtime layer가 깨지 않는다.
+- overlap 영역 ordering stability를 runtime layer가 깨지 않는다.
+- visible guide endpoint 바깥에서는 raw guide geometry 기준 transverse가 빠르게 떨어질 수 있다.
 - batched progression query 결과는 같은 snapshot/context/config에서 `query_state` / `query_trajectory` ordering과 모순되지 않는다.
 - generic source adapter output도 toy case와 같은 runtime interface로 직접 소비할 수 있다.
 
@@ -76,7 +77,7 @@ costmap / exception burden은 raster와 rendering 경로에서만 남긴다. pub
 
 ## 현재 구현
 
-현재 구현은 progression guide마다 Gaussian anchor blend로 guide-local progress coordinate를 계산하고, 각 guide의 transverse term은 그 guide 중심 구조까지의 최단거리로 읽은 뒤, guide-local score를 만들고 guide 간 hard max envelope를 취한다. score와 대부분의 debug coordinate는 dominant guide 기준 값을 유지하지만, `transverse_component`는 near-tied guide candidate의 transverse term을 부드럽게 섞은 inspection channel이다.
+현재 구현은 progression guide마다 Gaussian anchor blend로 guide-local progress coordinate를 계산하고, 각 guide의 transverse term은 그 guide의 raw visible polyline까지의 최단거리로 읽은 뒤, guide-local score를 만들고 guide 간 hard max envelope를 취한다. score와 대부분의 debug coordinate는 dominant guide 기준 값을 유지하지만, `transverse_component`는 near-tied guide candidate의 transverse term을 부드럽게 섞은 inspection channel이다.
 
 현재 tiny evaluator는 `base_preference_total = progression_tilted`로 읽는다. trajectory ordering도 progression total만 기준으로 한 prototype을 사용한다. `safety_soft`, `rule_soft`, `dynamic_soft`, hard mask는 visualization / costmap 성격의 burden channel로만 남고 public runtime payload에는 싣지 않는다.
 

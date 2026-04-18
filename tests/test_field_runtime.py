@@ -224,7 +224,7 @@ def test_left_bend_overlap_ordering_stays_stable_under_small_context_shift() -> 
     assert second_runtime.query_state(on_curve).base_channels["progression_tilted"] > second_runtime.query_state(off_curve).base_channels["progression_tilted"]
 
 
-def test_visible_endpoint_no_longer_creates_local_end_cap_peak() -> None:
+def test_visible_endpoint_stays_peak_but_beyond_visible_end_drops() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
     config = _canonical_config(longitudinal_frame="local_absolute", longitudinal_gain=2.0)
     near_end = StateSample(x=5.8, y=0.0, yaw=0.0)
@@ -237,10 +237,10 @@ def test_visible_endpoint_no_longer_creates_local_end_cap_peak() -> None:
     beyond_score = runtime.query_state(beyond_end).base_channels["progression_tilted"]
 
     assert end_score >= near_score
-    assert beyond_score >= end_score - 0.05
+    assert beyond_score < end_score - 0.1
 
 
-def test_u_turn_visible_endpoint_does_not_create_fake_end_cap_on_return_leg() -> None:
+def test_u_turn_visible_return_endpoint_drops_after_visible_end() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
     config = _canonical_config(longitudinal_frame="local_absolute", longitudinal_gain=2.0)
     near_visible_return_end = StateSample(x=0.9, y=3.2, yaw=3.141592653589793)
@@ -253,7 +253,7 @@ def test_u_turn_visible_endpoint_does_not_create_fake_end_cap_on_return_leg() ->
     beyond_score = runtime.query_state(beyond_visible_return_end).base_channels["progression_tilted"]
 
     assert end_score >= near_score
-    assert beyond_score >= end_score - 0.05
+    assert beyond_score < end_score - 0.1
 
 
 def test_field_runtime_respects_zero_progression_support_ceiling() -> None:
@@ -280,7 +280,7 @@ def test_field_runtime_default_surface_tuning_matches_implicit_default() -> None
     )
 
 
-def test_field_runtime_surface_tuning_change_propagates_into_surface_output() -> None:
+def test_field_runtime_surface_tuning_changes_progress_blend_but_not_raw_transverse_distance() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
     state = StateSample(x=3.4, y=0.1, yaw=0.55)
     baseline = build_field_runtime(snapshot, context, config=_canonical_config())
@@ -299,6 +299,13 @@ def test_field_runtime_surface_tuning_change_propagates_into_surface_output() ->
     candidate_payload = candidate.query_state(state)
 
     assert candidate_payload.diagnostics["field_config"]["surface_tuning"]["anchor_spacing_m"] == 0.15
-    assert candidate_payload.diagnostics["progression_transverse_component"] != pytest.approx(
+    assert candidate_payload.diagnostics["progression_s_hat"] != pytest.approx(
+        baseline_payload.diagnostics["progression_s_hat"],
+        abs=1e-4,
+    )
+    assert candidate_payload.diagnostics["progression_transverse_component"] == pytest.approx(
         baseline_payload.diagnostics["progression_transverse_component"]
+    )
+    assert candidate_payload.diagnostics["progression_n_hat"] == pytest.approx(
+        baseline_payload.diagnostics["progression_n_hat"]
     )

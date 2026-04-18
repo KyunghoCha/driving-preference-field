@@ -8,13 +8,13 @@ Use this page when you need the active formula and current implementation shape,
 
 ## Common notation
 
-The runtime evaluates guide-local blended progress coordinates and a guide-local score, then takes a hard max envelope across progression guides. The per-guide transverse distance is read as shortest distance to a dense guide-center curve with short continuation. Higher values are better.
+The runtime evaluates guide-local blended progress coordinates and a guide-local score, then takes a hard max envelope across progression guides. The per-guide transverse distance is read as shortest distance to the raw visible progression guide polyline. Higher values are better.
 
 ## Progression surface
 
 ### Guide-local anchor coordinates
 
-Each progression guide is resampled into anchors. The current implementation uses Gaussian anchor blending to estimate local progress coordinates such as `s_hat` and the local tangent. The transverse distance is read separately from a dense guide-center curve.
+Each progression guide is resampled into anchors. The current implementation uses Gaussian anchor blending to estimate local progress coordinates such as `s_hat` and the local tangent. The transverse distance is read separately from the raw visible progression guide geometry.
 
 ### Guide-local Gaussian weights
 
@@ -22,7 +22,7 @@ Anchor weights stay local to a guide. They shape support, progress coordinate es
 
 ### Guide-local coordinate
 
-The runtime derives `s_hat` and a local tangent from the guide-local anchor blend. For the same dominant guide, `n_hat` is then read as shortest distance to that guide's dense center curve plus short continuation.
+The runtime derives `s_hat` and a local tangent from the guide-local anchor blend. For the same dominant guide, `n_hat` is then read as shortest distance to that guide's raw visible polyline.
 
 `s_hat = sum_i \bar{w}_i s_i`
 
@@ -30,7 +30,7 @@ The runtime derives `s_hat` and a local tangent from the guide-local anchor blen
 
 `n_hat = min_{q \in C_g} ||p - q||`
 
-where `C_g` is the dense resampled center curve for guide `g` with a short virtual continuation.
+where `C_g` is the raw visible polyline for guide `g`.
 
 ### Guide-local longitudinal frame
 
@@ -42,7 +42,7 @@ The runtime supports several longitudinal families such as `tanh`, `linear`, `in
 
 ### Transverse families
 
-The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. Each guide's transverse term is built from the shortest unsigned distance to that guide center structure. The score still uses the dominant guide's actual transverse term, while the exported transverse channel remains a support/score-weighted smoothing across near-tied guide candidates so branch handoff remains easier to inspect.
+The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. Each guide's transverse term is built from the shortest unsigned distance to that guide's raw visible polyline. The score still uses the dominant guide's actual transverse term, while the exported transverse channel remains a support/score-weighted smoothing across near-tied guide candidates so branch handoff remains easier to inspect.
 
 ### Secondary modulation
 

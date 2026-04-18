@@ -11,7 +11,7 @@ PARAMETER_GUIDE_INTRO = {
         "Read the drivable boundary as an overlay only; do not read it as an additive base score.\n"
         "Treat obstacle / rule / dynamic channels as costmap visualization only.\n"
         "`Main` changes field semantics directly. `Advanced Surface` is for discretization, kernel, and modulation tuning.\n"
-        "The current implementation blends guide-local progress coordinates, reads transverse from shortest distance to the guide center structure, and then reads the final field through the maximum guide score.\n"
+        "The current implementation blends guide-local progress coordinates, reads transverse from shortest distance to the raw visible progression guide polyline, and then reads the final field through the maximum guide score.\n"
         "The exact current formula is `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`.\n"
         "Support and alignment are weak secondary modulation terms. They should not dominate morphology.\n"
         "Split and merge are expressed as multiple progression guides with shared prefix/suffix. The raster is only a local-map sample of the continuous field."
@@ -23,7 +23,7 @@ PARAMETER_GUIDE_INTRO = {
         "drivable boundary는 overlay로만 읽고 base heatmap에 더하지 않는다.\n"
         "obstacle / rule / dynamic 채널은 costmap 시각화로만 읽는다.\n"
         "`Main`은 field semantics를 직접 바꾸고, `Advanced Surface`는 discretization, kernel, modulation 품질을 조정한다.\n"
-        "현재 구현은 progression guide 안에서 guide-local progress coordinate를 섞고, 횡방향은 guide 중심 구조까지의 최단거리로 읽은 뒤, guide별 score 가운데 가장 큰 값을 최종 field로 읽는다.\n"
+        "현재 구현은 progression guide 안에서 guide-local progress coordinate를 섞고, 횡방향은 raw visible progression guide polyline까지의 최단거리로 읽은 뒤, guide별 score 가운데 가장 큰 값을 최종 field로 읽는다.\n"
         "현재 수식은 `score = support_mod * alignment_mod * (transverse_component + longitudinal_gain * longitudinal_component)`다.\n"
         "support와 alignment는 shape를 지배하지 않는 약한 보조 modulation이다.\n"
         "split과 merge는 shared prefix/suffix를 가진 multiple progression guides로 표현하고, raster는 continuous field를 local map 위에서 샘플링한 결과다."
@@ -237,15 +237,15 @@ PARAMETER_TEXTS: dict[str, dict[str, dict[str, str]]] = {
     },
     "end_extension_m": {
         LANG_EN: {
-            "meaning": "Length of the virtual continuation anchors added beyond the visible guide end.",
-            "effect_up": "Endpoint end-cap artifacts shrink and continuation beyond the visible endpoint lasts longer.",
-            "effect_down": "Influence from the guide end dies out sooner.",
+            "meaning": "Length of the virtual continuation anchors added beyond the visible guide end for guide-local progress/support sampling.",
+            "effect_up": "Guide-local progress/support influence persists longer beyond the visible endpoint, but transverse still uses only raw visible guide geometry.",
+            "effect_down": "Guide-local progress/support influence from the guide end dies out sooner.",
             "tooltip": "virtual extension length at the guide end",
         },
         LANG_KO: {
-            "meaning": "guide 끝에 virtual continuation anchor를 얼마나 연장할지 정한다.",
-            "effect_up": "visible endpoint 근처 end-cap artifact를 줄이고 끝 이후 continuation을 더 길게 허용한다.",
-            "effect_down": "guide 끝 influence가 더 빨리 사라진다.",
+            "meaning": "guide-local progress/support sampling을 위해 guide 끝에 virtual continuation anchor를 얼마나 연장할지 정한다.",
+            "effect_up": "visible endpoint 바깥에서도 guide-local progress/support influence가 더 오래 남지만, transverse는 raw visible guide geometry만 따른다.",
+            "effect_down": "guide 끝의 progress/support influence가 더 빨리 사라진다.",
             "tooltip": "guide 끝 연장 길이",
         },
     },

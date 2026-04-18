@@ -31,7 +31,7 @@ The runtime can expose current-implementation detail channels such as longitudin
 
 ## Current implementation
 
-The current implementation builds guide-local blended progress coordinates and scores from progression guides, reads each guide's transverse term from shortest distance to that guide center structure, and then takes a pointwise hard max envelope across guides. `progression_transverse_component` is still a smoothed inspection channel that blends near-tied guide transverse terms; the score itself still comes from the dominant guide. Obstacle / rule / dynamic channels remain separate cost-like views.
+The current implementation builds guide-local blended progress coordinates and scores from progression guides, reads each guide's transverse term from shortest distance to that guide's raw visible polyline, and then takes a pointwise hard max envelope across guides. `progression_transverse_component` is still a smoothed inspection channel that blends near-tied guide transverse terms; the score itself still comes from the dominant guide. Obstacle / rule / dynamic channels remain separate cost-like views.
 
 ## Visualization
 

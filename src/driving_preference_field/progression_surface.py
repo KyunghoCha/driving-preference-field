@@ -781,7 +781,7 @@ def _surface_index_from_signature(signature: tuple[tuple[object, ...], ...]) -> 
         guide = SurfaceGuide(
             guide_id=str(guide_id),
             points=smooth_points,
-            distance_points=_distance_points_with_continuation(smooth_points, tuning),
+            distance_points=points,
             guide_length=guide_length,
             weight=float(weight),
             confidence=float(confidence),
@@ -938,43 +938,6 @@ def _arc_length_resample(points: tuple[Point2, ...], *, spacing: float) -> tuple
         local_t = _safe_unit_interval(target, start_distance, stop_distance)
         sampled.append(_lerp_point(points[segment_index], points[segment_index + 1], local_t))
     return tuple(sampled)
-
-
-def _distance_points_with_continuation(
-    points: tuple[Point2, ...],
-    tuning: SurfaceTuningConfig,
-) -> tuple[Point2, ...]:
-    spacing = max(tuning.anchor_spacing_m * 0.25, 0.025)
-    dense_points = _arc_length_resample(points, spacing=spacing)
-    if len(dense_points) < 2 or tuning.end_extension_m <= _EPS:
-        return dense_points
-
-    start_tangent = _segment_tangent(dense_points[0], dense_points[1])
-    end_tangent = _segment_tangent(dense_points[-2], dense_points[-1])
-
-    start_extension: list[Point2] = []
-    distance_cursor = spacing
-    while distance_cursor <= tuning.end_extension_m + _EPS:
-        start_extension.append(
-            (
-                dense_points[0][0] - start_tangent[0] * distance_cursor,
-                dense_points[0][1] - start_tangent[1] * distance_cursor,
-            )
-        )
-        distance_cursor += spacing
-
-    end_extension: list[Point2] = []
-    distance_cursor = spacing
-    while distance_cursor <= tuning.end_extension_m + _EPS:
-        end_extension.append(
-            (
-                dense_points[-1][0] + end_tangent[0] * distance_cursor,
-                dense_points[-1][1] + end_tangent[1] * distance_cursor,
-            )
-        )
-        distance_cursor += spacing
-
-    return (*reversed(start_extension), *dense_points, *end_extension)
 
 
 def _anchor_points(points: tuple[Point2, ...]) -> tuple[tuple[float, Point2, Point2], ...]:
