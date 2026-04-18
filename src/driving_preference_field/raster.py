@@ -8,6 +8,7 @@ from .config import DEFAULT_FIELD_CONFIG, FieldConfig
 from .contracts import QueryContext, SemanticInputSnapshot, StateSample
 from .exception_layers import evaluate_exception_layers
 from .field_runtime import build_field_runtime
+from .planner_lookup import build_progression_lookup, query_progression_lookup_trajectories
 
 
 @dataclass(frozen=True)
@@ -36,11 +37,19 @@ def sample_local_raster(
     field_config = config or DEFAULT_FIELD_CONFIG
     x_coords = _cell_centers(context.local_window.x_min, context.local_window.x_max, x_samples)
     y_coords = _cell_centers(context.local_window.y_min, context.local_window.y_max, y_samples)
+    shape = (y_samples, x_samples)
 
     runtime = build_field_runtime(snapshot, context, config=field_config)
     channels = runtime.query_debug_grid(x_coords, y_coords)
+    grid_x, grid_y = np.meshgrid(x_coords, y_coords)
+    lookup = build_progression_lookup(snapshot, context, config=field_config)
+    lookup_scores = query_progression_lookup_trajectories(
+        lookup,
+        np.stack([grid_x, grid_y], axis=-1).reshape(1, -1, 2),
+    ).reshape(shape)
+    channels["planner_lookup_progression_tilted"] = lookup_scores
+    channels["planner_lookup_error"] = lookup_scores - channels["progression_tilted"]
 
-    shape = (y_samples, x_samples)
     channels.update(
         {
             "safety_soft": np.zeros(shape, dtype=float),
@@ -76,5 +85,9 @@ def sample_local_raster(
                 "y_max": context.local_window.y_max,
             },
             "field_config": field_config.to_dict(),
+            "planner_lookup": {
+                "cache_key": lookup.cache_key,
+                **lookup.build_metadata,
+            },
         },
     )

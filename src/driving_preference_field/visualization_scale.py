@@ -25,6 +25,18 @@ CHANNEL_SCALE_SPECS = {
         fixed_max=5.0,
         diff_abs_max=5.0,
     ),
+    "planner_lookup_progression_tilted": ChannelScaleSpec(
+        unit="score",
+        fixed_min=0.0,
+        fixed_max=5.0,
+        diff_abs_max=5.0,
+    ),
+    "planner_lookup_error": ChannelScaleSpec(
+        unit="score delta",
+        fixed_min=-0.25,
+        fixed_max=0.25,
+        diff_abs_max=0.25,
+    ),
     "progression_s_hat": ChannelScaleSpec(
         unit="m",
         fixed_min=-2.0,

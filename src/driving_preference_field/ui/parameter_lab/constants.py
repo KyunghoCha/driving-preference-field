@@ -5,6 +5,8 @@ from PyQt6.QtCore import Qt
 
 CHANNEL_OPTIONS = {
     "progression_tilted": "plasma",
+    "planner_lookup_progression_tilted": "plasma",
+    "planner_lookup_error": "coolwarm",
     "progression_s_hat": "viridis",
     "progression_center_distance": "magma",
     "progression_longitudinal_component": "plasma",

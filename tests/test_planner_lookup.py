@@ -11,6 +11,7 @@ from driving_preference_field.planner_lookup import (
     query_progression_lookup_points,
     query_progression_lookup_trajectories,
 )
+from driving_preference_field.raster import sample_local_raster
 from driving_preference_field.toy_loader import load_toy_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -118,6 +119,18 @@ def test_progression_lookup_preserves_top_k_trajectory_ordering_for_representati
 
         assert int(np.argmax(lookup_scores)) == int(np.argmax(exact_scores))
         assert set(lookup_top.tolist()) == set(exact_top.tolist())
+
+
+def test_raster_sampling_exposes_lookup_visualization_channels() -> None:
+    clear_progression_lookup_cache()
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
+    raster = sample_local_raster(snapshot, context, x_samples=48, y_samples=48)
+
+    assert "planner_lookup_progression_tilted" in raster.channels
+    assert "planner_lookup_error" in raster.channels
+    assert raster.channels["planner_lookup_progression_tilted"].shape == raster.channels["progression_tilted"].shape
+    assert raster.channels["planner_lookup_error"].shape == raster.channels["progression_tilted"].shape
+    assert "planner_lookup" in raster.metadata
 
 
 def _cell_midpoints(x_coords: np.ndarray, y_coords: np.ndarray) -> np.ndarray:

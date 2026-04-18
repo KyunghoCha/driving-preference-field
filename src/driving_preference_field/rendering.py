@@ -19,6 +19,8 @@ from .visualization_scale import SCALE_MODE_FIXED, display_unit, format_display_
 
 CHANNEL_DESCRIPTIONS = {
     "progression_tilted": "Whole-fabric blended progression space over the local map. Higher means stronger progression ordering.",
+    "planner_lookup_progression_tilted": "Internal planner-facing 2D scalar lookup of progression_tilted, sampled from the exact runtime and queried without heading.",
+    "planner_lookup_error": "Internal planner lookup minus exact progression_tilted at the same raster points.",
     "progression_s_hat": "Blended progression coordinate over the local space. This is the current implementation debug view of s_hat.",
     "progression_center_distance": "Unsigned shortest distance to the currently dominant raw visible progression guide polyline. Lower means closer to that guide.",
     "progression_longitudinal_component": "Current implementation longitudinal tilt term before gain is applied.",
@@ -35,6 +37,8 @@ CHANNEL_DESCRIPTIONS = {
 
 CHANNEL_TITLES = {
     "progression_tilted": "Progression Tilted",
+    "planner_lookup_progression_tilted": "Planner Lookup Progression Tilted",
+    "planner_lookup_error": "Planner Lookup Error",
     "progression_s_hat": "Progression s_hat",
     "progression_center_distance": "Progression Center Distance",
     "progression_longitudinal_component": "Longitudinal Component",
@@ -294,6 +298,16 @@ def render_case(
 
     outputs = {
         "progression_tilted.png": ("progression_tilted", CHANNEL_TITLES["progression_tilted"], "plasma"),
+        "planner_lookup_progression_tilted.png": (
+            "planner_lookup_progression_tilted",
+            CHANNEL_TITLES["planner_lookup_progression_tilted"],
+            "plasma",
+        ),
+        "planner_lookup_error.png": (
+            "planner_lookup_error",
+            CHANNEL_TITLES["planner_lookup_error"],
+            "coolwarm",
+        ),
         "progression_s_hat.png": ("progression_s_hat", CHANNEL_TITLES["progression_s_hat"], "viridis"),
         "progression_center_distance.png": (
             "progression_center_distance",
@@ -372,6 +386,8 @@ def render_case(
         "visualization_scale_mode": scale_mode,
         "channel_ranges": {
             "progression_tilted": _channel_min_max(raster.channels["progression_tilted"]),
+            "planner_lookup_progression_tilted": _channel_min_max(raster.channels["planner_lookup_progression_tilted"]),
+            "planner_lookup_error": _channel_min_max(raster.channels["planner_lookup_error"]),
             "progression_s_hat": _channel_min_max(raster.channels["progression_s_hat"]),
             "progression_center_distance": _channel_min_max(raster.channels["progression_center_distance"]),
             "progression_longitudinal_component": _channel_min_max(raster.channels["progression_longitudinal_component"]),
@@ -393,6 +409,8 @@ def render_case(
             }
             for channel_name in (
                 "progression_tilted",
+                "planner_lookup_progression_tilted",
+                "planner_lookup_error",
                 "progression_s_hat",
                 "progression_center_distance",
                 "progression_longitudinal_component",
