@@ -952,7 +952,33 @@ class ParameterLabWindow(QMainWindow):
         if isinstance(normalization, dict):
             severity = str(normalization.get("severity", "info")).upper()
             status_text += f" | normalization={severity}"
+        timing_text = self._planner_lookup_timing_text()
+        if timing_text:
+            status_text += f" | {timing_text}"
         return status_text
+
+    def _planner_lookup_timing_text(self) -> str:
+        if self._comparison_result is None:
+            return ""
+        baseline = self._comparison_result.baseline_raster.metadata.get("planner_lookup")
+        candidate = self._comparison_result.candidate_raster.metadata.get("planner_lookup")
+        if not isinstance(baseline, dict) or not isinstance(candidate, dict):
+            return ""
+        baseline_timing = baseline.get("timing_s")
+        candidate_timing = candidate.get("timing_s")
+        if not isinstance(baseline_timing, dict) or not isinstance(candidate_timing, dict):
+            return ""
+        return (
+            "planner ms "
+            f"B(exact/build/query)="
+            f"{1000.0 * float(baseline_timing.get('exact_query_grid', 0.0)):.1f}/"
+            f"{1000.0 * float(baseline_timing.get('lookup_build', 0.0)):.1f}/"
+            f"{1000.0 * float(baseline_timing.get('lookup_query_grid', 0.0)):.1f} "
+            f"C(exact/build/query)="
+            f"{1000.0 * float(candidate_timing.get('exact_query_grid', 0.0)):.1f}/"
+            f"{1000.0 * float(candidate_timing.get('lookup_build', 0.0)):.1f}/"
+            f"{1000.0 * float(candidate_timing.get('lookup_query_grid', 0.0)):.1f}"
+        )
 
     def _selected_diff_array(self):
         assert self._comparison_result is not None

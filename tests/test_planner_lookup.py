@@ -131,6 +131,11 @@ def test_raster_sampling_exposes_lookup_visualization_channels() -> None:
     assert raster.channels["planner_lookup_progression_tilted"].shape == raster.channels["progression_tilted"].shape
     assert raster.channels["planner_lookup_error"].shape == raster.channels["progression_tilted"].shape
     assert "planner_lookup" in raster.metadata
+    assert set(raster.metadata["planner_lookup"]["timing_s"]) == {
+        "exact_query_grid",
+        "lookup_build",
+        "lookup_query_grid",
+    }
 
 
 def _cell_midpoints(x_coords: np.ndarray, y_coords: np.ndarray) -> np.ndarray:

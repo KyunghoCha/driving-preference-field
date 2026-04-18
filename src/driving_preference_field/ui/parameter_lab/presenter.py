@@ -171,6 +171,10 @@ def summary_payload(
         "snapshot_metadata": snapshot_metadata,
         "progression_normalization": snapshot_metadata.get("progression_normalization"),
         "progression_target": progression_target_payload(state.snapshot),
+        "planner_lookup": {
+            "baseline": comparison_result.baseline_raster.metadata.get("planner_lookup"),
+            "candidate": comparison_result.candidate_raster.metadata.get("planner_lookup"),
+        },
         **effective_context_payload(state.working_context),
         "baseline_preset_name": state.baseline_state.preset_name,
         "baseline_preset_display": state.baseline_state.display_name(),

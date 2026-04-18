@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import time
 
 import numpy as np
 
@@ -40,13 +41,19 @@ def sample_local_raster(
     shape = (y_samples, x_samples)
 
     runtime = build_field_runtime(snapshot, context, config=field_config)
+    exact_start = time.perf_counter()
     channels = runtime.query_debug_grid(x_coords, y_coords)
+    exact_query_s = time.perf_counter() - exact_start
     grid_x, grid_y = np.meshgrid(x_coords, y_coords)
+    lookup_build_start = time.perf_counter()
     lookup = build_progression_lookup(snapshot, context, config=field_config)
+    lookup_build_s = time.perf_counter() - lookup_build_start
+    lookup_query_start = time.perf_counter()
     lookup_scores = query_progression_lookup_trajectories(
         lookup,
         np.stack([grid_x, grid_y], axis=-1).reshape(1, -1, 2),
     ).reshape(shape)
+    lookup_query_s = time.perf_counter() - lookup_query_start
     channels["planner_lookup_progression_tilted"] = lookup_scores
     channels["planner_lookup_error"] = lookup_scores - channels["progression_tilted"]
 
@@ -88,6 +95,11 @@ def sample_local_raster(
             "planner_lookup": {
                 "cache_key": lookup.cache_key,
                 **lookup.build_metadata,
+                "timing_s": {
+                    "exact_query_grid": exact_query_s,
+                    "lookup_build": lookup_build_s,
+                    "lookup_query_grid": lookup_query_s,
+                },
             },
         },
     )
