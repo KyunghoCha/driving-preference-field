@@ -20,6 +20,7 @@ from driving_preference_field.ui.colormaps import sample_colormap
 
 LAYER_KEYS = (
     "progression_guides",
+    "progression_targets",
     "drivable_boundary",
     "ego",
     "hard_masks",
@@ -107,6 +108,7 @@ class RasterCanvasView(QGraphicsView):
         if self._overlay_visibility.get("progression_guides", True):
             for guide in self._snapshot.progression_support.guides:
                 self._draw_polyline(guide, color=QColor("cyan"))
+        if self._overlay_visibility.get("progression_targets", True):
             self._draw_progression_targets()
         if self._overlay_visibility.get("drivable_boundary", True):
             for region in self._snapshot.drivable_support.regions:
@@ -164,16 +166,32 @@ class RasterCanvasView(QGraphicsView):
     def _draw_progression_targets(self) -> None:
         future_anchor = self._snapshot.progression_support.future_anchor
         for guide in self._snapshot.progression_support.guides:
-            self._draw_endpoint_marker(guide.points[-1], color=QColor("#ffd400"))
+            self._draw_endpoint_marker(
+                guide.points[-1],
+                color=QColor("#ffd400"),
+                closed_loop=bool(guide.points[0] == guide.points[-1]),
+            )
         if future_anchor is not None:
             self._draw_future_anchor_marker(future_anchor)
 
-    def _draw_endpoint_marker(self, point: tuple[float, float], *, color: QColor) -> None:
-        radius = 0.10
+    def _draw_endpoint_marker(self, point: tuple[float, float], *, color: QColor, closed_loop: bool) -> None:
+        radius = 0.14 if closed_loop else 0.10
         item = QGraphicsEllipseItem(point[0] - radius, point[1] - radius, 2.0 * radius, 2.0 * radius)
         item.setBrush(color)
-        item.setPen(QPen(QColor("black"), 0.025))
+        item.setPen(QPen(QColor("black"), 0.03))
         self._scene.addItem(item)
+        if not closed_loop:
+            return
+        inner_radius = 0.07
+        ring = QGraphicsEllipseItem(
+            point[0] - inner_radius,
+            point[1] - inner_radius,
+            2.0 * inner_radius,
+            2.0 * inner_radius,
+        )
+        ring.setBrush(Qt.BrushStyle.NoBrush)
+        ring.setPen(QPen(QColor("black"), 0.025))
+        self._scene.addItem(ring)
 
     def _draw_future_anchor_marker(self, point: tuple[float, float]) -> None:
         radius = 0.16

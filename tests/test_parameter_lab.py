@@ -231,8 +231,6 @@ def test_parameter_lab_case_selector_lists_generic_adapter_fixtures(qtbot) -> No
     assert "full_circle_global_plan_generic" in combo_entries
     assert combo_entries["full_circle_global_plan_generic"] == "full_circle_global_plan_generic.yaml"
     assert "split_branch_drivable_only_generic" not in combo_entries
-    assert "u_turn_many_small_progression_guides_unmerged" in combo_entries
-    assert combo_entries["u_turn_many_small_progression_guides_unmerged"] == "u_turn_many_small_progression_guides_unmerged.yaml"
 
     window.close()
 
@@ -250,6 +248,20 @@ def test_parameter_lab_summary_shows_normalization_banner_and_target(qtbot) -> N
     assert window._summary_panel._target_label.text()
     assert "endpoint" in window._summary_panel._target_label.text()
     assert "normalization=WARNING" in window._status_label.text()
+
+    window.close()
+
+
+def test_parameter_lab_layers_include_progression_targets_toggle(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    assert "progression_targets" in window._layer_panel._checkboxes
+    assert window._layer_panel._checkboxes["progression_targets"].text() == "Progression targets"
+    assert window._layer_panel._checkboxes["progression_targets"].isChecked() is True
 
     window.close()
 

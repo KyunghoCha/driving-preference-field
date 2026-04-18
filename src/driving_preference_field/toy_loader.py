@@ -16,10 +16,7 @@ from .contracts import (
     SemanticInputSnapshot,
     StateSample,
 )
-from .progression_input_normalization import (
-    disabled_progression_normalization_metadata,
-    normalize_progression_guides,
-)
+from .progression_input_normalization import normalize_progression_guides
 
 
 def _reject_removed_key(payload: dict, key: str, *, message: str) -> None:
@@ -88,30 +85,14 @@ def load_toy_snapshot(case_path: str | Path) -> tuple[SemanticInputSnapshot, Que
     )
 
     metadata = dict(payload.get("metadata", {}))
-    probe_options = payload.get("probe_options", {})
-    if probe_options is None:
-        probe_options = {}
-    if not isinstance(probe_options, dict):
-        raise ValueError("probe_options must be a mapping when provided")
     drivable_regions = _polygon_list(payload.get("drivable_regions", []))
     progression_guides_raw = _polyline_list(payload.get("progression_guides", []))
-    if progression_guides_raw and bool(probe_options.get("disable_progression_normalization", False)):
-        progression_guides = progression_guides_raw
-        metadata = _with_progression_normalization_metadata(
-            metadata,
-            disabled_progression_normalization_metadata(
-                source_kind="toy_case",
-                guide_count=len(progression_guides_raw),
-                message="toy_case fragmented progression normalization was disabled by probe_options; runtime sees raw fragmented guides.",
-            ),
-        )
-    else:
-        normalized_progression = normalize_progression_guides(
-            progression_guides_raw,
-            source_kind="toy_case",
-        )
-        progression_guides = normalized_progression.guides
-        metadata = _with_progression_normalization_metadata(metadata, normalized_progression.metadata_block)
+    normalized_progression = normalize_progression_guides(
+        progression_guides_raw,
+        source_kind="toy_case",
+    )
+    progression_guides = normalized_progression.guides
+    metadata = _with_progression_normalization_metadata(metadata, normalized_progression.metadata_block)
     boundary_regions = _polygon_list(payload.get("boundary_regions", []))
     boundaries = _polyline_list(payload.get("boundaries", []))
     safety_regions = _polygon_list(payload.get("safety_regions", []))

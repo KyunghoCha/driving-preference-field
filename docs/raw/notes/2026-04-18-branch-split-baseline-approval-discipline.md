@@ -117,3 +117,9 @@
   - `u_turn_many_small_progression_guides` 같은 obvious single-chain fragmentation은 runtime이 아니라 input normalization에서 canonical guide 하나로 접는다
   - explicit fragmented `progression_supports`는 여전히 upstream responsibility로 두되, adapter가 best-effort fallback을 시도하고 `progression_normalization` metadata에 provenance/severity를 남긴다
   - `global_plan_supports`와 drivable-derived progression은 adapter의 정상 canonicalization 입력으로 본다
+
+## Later workflow correction on the same date
+
+- normalization warning / target overlay 작업 중 unmerged fragmented-guide probe case를 `main`에 잠깐 올린 것은 승인 discipline miss였다.
+- runtime baseline은 바꾸지 않았더라도, probe-only case나 probe-only loader behavior는 explicit approval 없이 `main`에 올리지 않는다.
+- 이런 probe는 separate worktree나 explicitly approved case asset으로만 다뤄야 한다.

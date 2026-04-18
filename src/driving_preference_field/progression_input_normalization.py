@@ -24,25 +24,6 @@ class ProgressionNormalizationResult:
     guides: tuple[DirectedPolyline, ...]
     metadata_block: dict[str, object] | None
 
-
-def disabled_progression_normalization_metadata(
-    *,
-    source_kind: str,
-    guide_count: int,
-    message: str,
-    severity: str = "warning",
-) -> dict[str, object]:
-    return {
-        "source_kind": source_kind,
-        "applied": False,
-        "severity": severity,
-        "input_guide_count": guide_count,
-        "output_guide_count": guide_count,
-        "merged_groups": [],
-        "messages": [message],
-    }
-
-
 @dataclass(frozen=True)
 class _GuideShape:
     guide: DirectedPolyline

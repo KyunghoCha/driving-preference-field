@@ -7,6 +7,7 @@ from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, t
 
 LAYER_LABEL_KEYS = {
     "progression_guides": "layer.progression_guides",
+    "progression_targets": "layer.progression_targets",
     "drivable_boundary": "layer.drivable_boundary",
     "ego": "layer.ego",
     "hard_masks": "layer.hard_masks",
