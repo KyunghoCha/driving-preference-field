@@ -27,42 +27,54 @@
 ## Baseline sequence locked in this thread
 
 - `B1 = 5efe84d`
+- `B1 = 5efe84d`
+  - `2026-04-18 01:47:45 +09:00`
   - `docs(raw): widen source anchors through 3/17+ sessions`
   - surface 실험 전 기준점
 - `B2 = d609f76`
+  - `2026-04-18 02:28:27 +09:00`
   - `surface: replace hard-max progression merge with pooled blend`
   - 승인 없이 올라간 pooled-blend 실험
 - `B3 = 03eb593`
+  - `2026-04-18 03:17:08 +09:00`
   - `surface: make transverse component purely pooled`
   - 승인 없이 올라간 purely-pooled transverse 실험
 - `B4 = c779121`
+  - `2026-04-18 03:48:18 +09:00`
   - `surface: localize transverse reading around pooled progress`
   - 승인 없이 올라간 local-window transverse 실험
 - `B5 = eb3022a`
+  - `2026-04-18 04:03:00 +09:00`
   - `surface: make transverse guide-faithful`
   - 승인 없이 올라간 guide-faithful transverse 실험
 - `B6 = ded4f59`
+  - `2026-04-18 04:19:38 +09:00`
   - `surface: smooth guide-faithful transverse reading`
   - 승인 없이 올라간 smoothed guide-faithful transverse 실험
 - `B7 = 57ee191`
+  - `2026-04-18 04:39:26 +09:00`
   - `Revert "surface: localize transverse reading around pooled progress"`
   - `B2`~`B6` 계열 실험을 걷어낸 복귀 baseline
 - `B8 = 23436f1`
+  - `2026-04-18 05:04:20 +09:00`
   - `surface: drop transverse handoff smoothing`
   - `b3a4efa` 시절 수식 계열로 다시 맞춘 baseline
 - `B9 = 1d9d102`
+  - `2026-04-18 06:33:37 +09:00`
   - `surface: restore transverse handoff smoothing`
   - 사용자 승인 후 승격된 baseline
 - `B10 = 2d9b99f`
+  - `2026-04-18 14:48:19 +09:00`
   - `surface: use guide-center distance for transverse term`
   - 직전 baseline
 - `B11 = 465398d`
+  - `2026-04-18 16:18:52 +09:00`
   - `surface: use raw progression guide distance for transverse`
   - transverse object를 `raw visible progression guide polyline`까지의 최단거리로 단순화한 승인 baseline
 
 ## Discipline added from this point
 
-- branch/split morphology 조사 중 baseline 후보는 `B{n}` 번호와 commit hash를 함께 기록한다.
+- branch/split morphology 조사 중 baseline 후보는 `B{n}` 번호, commit hash, commit timestamp를 함께 기록한다.
 - baseline으로 승인되어 승격하는 commit message subject에도 같은 번호를 `[B{n}]` 형태로 넣는다.
 - 사용자 explicit approval 없이 `B{n+1}`을 `main` baseline으로 선언하거나 승격하지 않는다.
 - docs-only/workflow commits는 baseline 번호에 넣지 않는다. baseline 번호는 behavior-changing surface baseline에만 쓴다.

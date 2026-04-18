@@ -13,7 +13,7 @@ Default working discipline:
 - when network access is available, first study the relevant official docs or other strong external references before changing architecture, terminology, workflow, or user-facing behavior
 - start from a clean baseline
 - keep one meaningful hypothesis per branch or worktree
-- when branch/split morphology work creates or revises a baseline, record it with both a stable sequence label such as `B7` and the exact commit hash under `docs/raw/notes/`, and put the same number in the approved baseline-promotion commit subject as `[B7]`; use baseline numbers only for behavior-changing surface baselines, not for docs-only or workflow-only commits
+- when branch/split morphology work creates or revises a baseline, record it with a stable sequence label such as `B7`, the exact commit hash, and the commit timestamp under `docs/raw/notes/`, and put the same number in the approved baseline-promotion commit subject as `[B7]`; use baseline numbers only for behavior-changing surface baselines, not for docs-only or workflow-only commits
 - when an approved baseline or an important baseline-adjacent workflow correction lands, update the relevant `docs/raw/notes/` entry in the same batch rather than deferring it; keep a running baseline ledger there
 - in that raw baseline ledger, accumulate approved baselines with hash + one-line meaning, and mention failed/intermediate experiments only briefly as context instead of preserving a full failed-experiment changelog
 - separate refactors from behavior changes
