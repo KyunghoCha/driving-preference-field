@@ -4,7 +4,7 @@ import math
 
 import numpy as np
 from PyQt6.QtCore import QPoint, QPointF, Qt, pyqtSignal
-from PyQt6.QtGui import QColor, QImage, QPainter, QPen, QPixmap, QTransform
+from PyQt6.QtGui import QBrush, QColor, QImage, QPainter, QPen, QPixmap, QTransform
 from PyQt6.QtWidgets import (
     QGraphicsEllipseItem,
     QGraphicsLineItem,
@@ -189,14 +189,14 @@ class RasterCanvasView(QGraphicsView):
             2.0 * inner_radius,
             2.0 * inner_radius,
         )
-        ring.setBrush(Qt.BrushStyle.NoBrush)
+        ring.setBrush(QBrush(Qt.BrushStyle.NoBrush))
         ring.setPen(QPen(QColor("black"), 0.025))
         self._scene.addItem(ring)
 
     def _draw_future_anchor_marker(self, point: tuple[float, float]) -> None:
         radius = 0.16
         item = QGraphicsEllipseItem(point[0] - radius, point[1] - radius, 2.0 * radius, 2.0 * radius)
-        item.setBrush(Qt.BrushStyle.NoBrush)
+        item.setBrush(QBrush(Qt.BrushStyle.NoBrush))
         item.setPen(QPen(QColor("#ff4fd8"), 0.03))
         self._scene.addItem(item)
         for dx0, dy0, dx1, dy1 in (

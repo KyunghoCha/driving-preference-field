@@ -393,6 +393,25 @@ def test_case_change_recomputes_both_sides(qtbot) -> None:
     window.close()
 
 
+def test_case_selector_can_cycle_all_available_cases_without_qt_exceptions(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    available_cases = [Path(window._case_panel._combo.itemData(index)) for index in range(window._case_panel._combo.count())]
+    assert available_cases
+
+    for target in available_cases:
+        old_generation = window._async._latest_generation
+        window._case_panel.set_case_path(target)
+        qtbot.waitUntil(lambda target=target: window._current_case_path == target, timeout=15000)
+        qtbot.waitUntil(lambda old_generation=old_generation: window._async._latest_generation > old_generation, timeout=15000)
+        _wait_for_result(qtbot, window)
+
+    window.close()
+
+
 def test_case_controls_apply_updates_working_context_only_after_apply(qtbot) -> None:
     case_path = ROOT / "cases/toy/straight_corridor.yaml"
     window = ParameterLabWindow(case_path=case_path)
