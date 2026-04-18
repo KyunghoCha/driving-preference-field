@@ -51,6 +51,21 @@ def test_progression_lookup_reuses_scene_cache_for_same_inputs() -> None:
     assert different_spacing.cache_key != first.cache_key
 
 
+def test_progression_lookup_can_force_cold_build_without_cache_reuse() -> None:
+    clear_progression_lookup_cache()
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
+    config = _canonical_config()
+
+    cold_first = build_progression_lookup(snapshot, context, config=config, use_cache=False)
+    cold_second = build_progression_lookup(snapshot, context, config=config, use_cache=False)
+    cached = build_progression_lookup(snapshot, context, config=config)
+
+    assert cold_first is not cold_second
+    assert cold_first.cache_key == cold_second.cache_key == cached.cache_key
+    assert cached is not cold_first
+    assert cached is not cold_second
+
+
 def test_progression_lookup_query_matches_stored_grid_on_grid_nodes() -> None:
     clear_progression_lookup_cache()
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
@@ -131,9 +146,10 @@ def test_raster_sampling_exposes_lookup_visualization_channels() -> None:
     assert raster.channels["planner_lookup_progression_tilted"].shape == raster.channels["progression_tilted"].shape
     assert raster.channels["planner_lookup_error"].shape == raster.channels["progression_tilted"].shape
     assert "planner_lookup" in raster.metadata
+    assert raster.metadata["planner_lookup"]["cache_policy"] == "cold_build"
     assert set(raster.metadata["planner_lookup"]["timing_s"]) == {
         "exact_query_grid",
-        "lookup_build",
+        "lookup_cold_build",
         "lookup_query_grid",
     }
 

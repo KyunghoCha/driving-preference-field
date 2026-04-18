@@ -970,13 +970,13 @@ class ParameterLabWindow(QMainWindow):
             return ""
         return (
             "planner ms "
-            f"B(exact/build/query)="
+            f"B(exact/cold/query)="
             f"{1000.0 * float(baseline_timing.get('exact_query_grid', 0.0)):.1f}/"
-            f"{1000.0 * float(baseline_timing.get('lookup_build', 0.0)):.1f}/"
+            f"{1000.0 * float(baseline_timing.get('lookup_cold_build', 0.0)):.1f}/"
             f"{1000.0 * float(baseline_timing.get('lookup_query_grid', 0.0)):.1f} "
-            f"C(exact/build/query)="
+            f"C(exact/cold/query)="
             f"{1000.0 * float(candidate_timing.get('exact_query_grid', 0.0)):.1f}/"
-            f"{1000.0 * float(candidate_timing.get('lookup_build', 0.0)):.1f}/"
+            f"{1000.0 * float(candidate_timing.get('lookup_cold_build', 0.0)):.1f}/"
             f"{1000.0 * float(candidate_timing.get('lookup_query_grid', 0.0)):.1f}"
         )
 

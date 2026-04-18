@@ -45,15 +45,17 @@ def build_progression_lookup(
     *,
     config: FieldConfig | None = None,
     grid_spacing_m: float = _DEFAULT_LOOKUP_GRID_SPACING_M,
+    use_cache: bool = True,
 ) -> PreparedProgressionLookup:
     if grid_spacing_m <= 0.0:
         raise ValueError("grid_spacing_m must be positive")
     field_config = config or DEFAULT_FIELD_CONFIG
     cache_key = _lookup_cache_key(snapshot, context, field_config, grid_spacing_m)
-    cached = _LOOKUP_CACHE.get(cache_key)
-    if cached is not None:
-        _LOOKUP_CACHE.move_to_end(cache_key)
-        return cached
+    if use_cache:
+        cached = _LOOKUP_CACHE.get(cache_key)
+        if cached is not None:
+            _LOOKUP_CACHE.move_to_end(cache_key)
+            return cached
 
     x_coords = _metric_coords(context.local_window.x_min, context.local_window.x_max, grid_spacing_m)
     y_coords = _metric_coords(context.local_window.y_min, context.local_window.y_max, grid_spacing_m)
@@ -78,10 +80,11 @@ def build_progression_lookup(
             },
         },
     )
-    _LOOKUP_CACHE[cache_key] = prepared
-    _LOOKUP_CACHE.move_to_end(cache_key)
-    while len(_LOOKUP_CACHE) > _LOOKUP_CACHE_MAXSIZE:
-        _LOOKUP_CACHE.popitem(last=False)
+    if use_cache:
+        _LOOKUP_CACHE[cache_key] = prepared
+        _LOOKUP_CACHE.move_to_end(cache_key)
+        while len(_LOOKUP_CACHE) > _LOOKUP_CACHE_MAXSIZE:
+            _LOOKUP_CACHE.popitem(last=False)
     return prepared
 
 

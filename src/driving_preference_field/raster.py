@@ -45,9 +45,10 @@ def sample_local_raster(
     channels = runtime.query_debug_grid(x_coords, y_coords)
     exact_query_s = time.perf_counter() - exact_start
     grid_x, grid_y = np.meshgrid(x_coords, y_coords)
+    # UI timing should report a true cold build, not a cache hit acquisition.
     lookup_build_start = time.perf_counter()
-    lookup = build_progression_lookup(snapshot, context, config=field_config)
-    lookup_build_s = time.perf_counter() - lookup_build_start
+    lookup = build_progression_lookup(snapshot, context, config=field_config, use_cache=False)
+    lookup_cold_build_s = time.perf_counter() - lookup_build_start
     lookup_query_start = time.perf_counter()
     lookup_scores = query_progression_lookup_trajectories(
         lookup,
@@ -95,9 +96,10 @@ def sample_local_raster(
             "planner_lookup": {
                 "cache_key": lookup.cache_key,
                 **lookup.build_metadata,
+                "cache_policy": "cold_build",
                 "timing_s": {
                     "exact_query_grid": exact_query_s,
-                    "lookup_build": lookup_build_s,
+                    "lookup_cold_build": lookup_cold_build_s,
                     "lookup_query_grid": lookup_query_s,
                 },
             },
