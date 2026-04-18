@@ -46,6 +46,16 @@ def test_u_turn_case_loads_expected_metadata() -> None:
     assert context.ego_pose.yaw == 0.0
 
 
+def test_u_turn_many_small_guides_case_loads_expected_metadata() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn_many_small_progression_guides.yaml")
+
+    assert snapshot.metadata["name"] == "u_turn_many_small_progression_guides"
+    assert len(snapshot.drivable_support.regions) == 1
+    assert len(snapshot.progression_support.guides) == 10
+    assert len(snapshot.boundary_interior_support.boundaries) == 2
+    assert context.ego_pose.yaw == 0.0
+
+
 def test_two_lane_straight_case_loads_parallel_progression_guides() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/two_lane_straight.yaml")
     summary = summarize_snapshot(snapshot)

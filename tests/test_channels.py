@@ -295,6 +295,24 @@ def test_strong_longitudinal_can_prefer_farther_return_leg_in_u_turn() -> None:
     )
 
 
+def test_many_small_guides_u_turn_keeps_hairpin_continuity_and_center_high_return_leg() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn_many_small_progression_guides.yaml")
+    config = _canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0)
+    hairpin_apex = StateSample(x=5.0, y=1.8, yaw=1.57)
+    seam_probe = StateSample(x=4.65, y=0.35, yaw=0.4)
+    return_center = StateSample(x=2.0, y=3.2, yaw=3.141592653589793)
+    return_off_axis = StateSample(x=2.0, y=2.5, yaw=3.141592653589793)
+
+    assert progression_tilted(snapshot, context, hairpin_apex, config=config) > 0.0
+    assert progression_tilted(snapshot, context, seam_probe, config=config) > 0.0
+    assert progression_tilted(snapshot, context, return_center, config=config) > progression_tilted(
+        snapshot,
+        context,
+        return_off_axis,
+        config=config,
+    )
+
+
 def test_no_progression_reference_preset_disables_progression_channel() -> None:
     preset = load_preset(ROOT / "presets/lab/baseline__no_progression.yaml")
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
