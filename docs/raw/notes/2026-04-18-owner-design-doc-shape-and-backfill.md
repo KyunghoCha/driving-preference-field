@@ -21,7 +21,7 @@
 
 > 그리고 raw에 보니까 1번 2번 이런게 대화에 있는데 그게 뭔지 안보여서 그거도 조치가 필요할듯 /home/ckh/Projects/driving-preference-field/docs/raw/notes/2026-04-17-dpf-as-progress-preference-device.md 이런거 skill도 업데이트 하고 내 프롬프트에 매몰되서 최대한 똑같게 안해도 되 그건 알지?
 
-> 이렇게 보니까 부끄럽네 ㅋㅋ 쨌든 대화를 다 뽑아온게 아니구나 아직 할거야 아니면 못하는거야?
+> 대화를 다 뽑아온게 아니구나 아직 할거야 아니면 못하는거야?
 
 > /home/ckh/Projects/driving-preference-field/docs/raw/owner_design_notebook.md 얘는 raw/notes 를 기준으로 해야되 꼭 그러고 있어?
 
