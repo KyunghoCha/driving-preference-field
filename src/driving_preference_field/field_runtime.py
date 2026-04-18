@@ -110,6 +110,9 @@ class FieldRuntime:
     ) -> dict[str, np.ndarray]:
         return self.progression_runtime.query_trajectories(trajectories_xy, heading_yaws)
 
+    def query_progression_score_grid(self, x_coords: np.ndarray, y_coords: np.ndarray) -> np.ndarray:
+        return self.progression_runtime.query_score_grid(x_coords, y_coords)
+
     def query_debug_grid(self, x_coords: np.ndarray, y_coords: np.ndarray) -> dict[str, np.ndarray]:
         progression_grid = self.progression_runtime.query_grid(x_coords, y_coords)
         return {

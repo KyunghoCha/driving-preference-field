@@ -73,6 +73,13 @@ class GuideBlendResult:
     anchor_count: int
 
 
+@dataclass(frozen=True)
+class GuideScoreResult:
+    guide_index: int
+    score: np.ndarray
+    support_sum: np.ndarray
+
+
 class ProgressionSurfaceRuntime:
     """Cached runtime view over the current progression field implementation."""
 
@@ -190,6 +197,21 @@ class ProgressionSurfaceRuntime:
             "longitudinal_component": arrays["longitudinal_component"].reshape(shape),
             "transverse_term": arrays["transverse_term"].reshape(shape),
         }
+
+    def query_score_grid(self, x_coords: np.ndarray, y_coords: np.ndarray) -> np.ndarray:
+        if x_coords.ndim != 1 or y_coords.ndim != 1:
+            raise ValueError("x_coords and y_coords must be 1-D arrays")
+        shape = (len(y_coords), len(x_coords))
+        if self._surface.anchor_points.size == 0 or self._config.support_ceiling <= 0.0:
+            return np.zeros(shape, dtype=float)
+
+        grid_x, grid_y = np.meshgrid(x_coords, y_coords)
+        flat_yaw = np.full(grid_x.size, self._context.ego_pose.yaw, dtype=float)
+        return self._query_score_array(
+            grid_x.ravel(),
+            grid_y.ravel(),
+            flat_yaw,
+        ).reshape(shape)
 
     def query_points(
         self,
@@ -314,6 +336,31 @@ class ProgressionSurfaceRuntime:
             result["_guide_support_sums"] = np.concatenate(internal_chunks["_guide_support_sums"], axis=1)
         return result
 
+    def _query_score_array(
+        self,
+        x_values: np.ndarray,
+        y_values: np.ndarray,
+        heading_yaws: np.ndarray,
+    ) -> np.ndarray:
+        point_count = x_values.size
+        if point_count == 0 or self._config.support_ceiling <= 0.0 or self._surface.anchor_points.size == 0:
+            return np.zeros((0,), dtype=float)
+
+        score_chunks: list[np.ndarray] = []
+        for start in range(0, point_count, _QUERY_BATCH_SIZE):
+            stop = min(point_count, start + _QUERY_BATCH_SIZE)
+            guide_scores = _guide_local_scores_only(
+                self._surface,
+                x_values[start:stop],
+                y_values[start:stop],
+                heading_yaws[start:stop],
+                config=self._config,
+                tuning=self._surface_tuning,
+                ego_s_hat_by_guide=self._ego_s_hat_by_guide,
+            )
+            score_chunks.append(_select_dominant_score(guide_scores))
+        return np.concatenate(score_chunks)
+
 
 def build_progression_surface_runtime(
     snapshot: SemanticInputSnapshot,
@@ -387,6 +434,31 @@ def _guide_local_results(
 ) -> tuple[GuideBlendResult, ...]:
     return tuple(
         _guide_local_result(
+            surface,
+            guide_index,
+            x_values,
+            y_values,
+            heading_yaws,
+            config=config,
+            tuning=tuning,
+            ego_s_hat=None if ego_s_hat_by_guide is None else ego_s_hat_by_guide[guide_index],
+        )
+        for guide_index in range(len(surface.guides))
+    )
+
+
+def _guide_local_scores_only(
+    surface: SurfaceIndex,
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    heading_yaws: np.ndarray,
+    *,
+    config: ProgressionConfig,
+    tuning: SurfaceTuningConfig,
+    ego_s_hat_by_guide: tuple[float, ...] | None,
+) -> tuple[GuideScoreResult, ...]:
+    return tuple(
+        _guide_local_score_only(
             surface,
             guide_index,
             x_values,
@@ -523,6 +595,100 @@ def _guide_local_result(
     )
 
 
+def _guide_local_score_only(
+    surface: SurfaceIndex,
+    guide_index: int,
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    heading_yaws: np.ndarray,
+    *,
+    config: ProgressionConfig,
+    tuning: SurfaceTuningConfig,
+    ego_s_hat: float | None,
+) -> GuideScoreResult:
+    guide = surface.guides[guide_index]
+    start, stop = surface.guide_anchor_ranges[guide_index]
+    anchor_count = stop - start
+    if anchor_count == 0:
+        return GuideScoreResult(
+            guide_index=guide_index,
+            score=np.zeros_like(x_values),
+            support_sum=np.zeros_like(x_values),
+        )
+
+    points_x = surface.anchor_points[start:stop, 0][:, None]
+    points_y = surface.anchor_points[start:stop, 1][:, None]
+    dx = x_values[None, :] - points_x
+    dy = y_values[None, :] - points_y
+
+    tangent_x = surface.anchor_tangents[start:stop, 0][:, None]
+    tangent_y = surface.anchor_tangents[start:stop, 1][:, None]
+    normal_x = surface.anchor_normals[start:stop, 0][:, None]
+    normal_y = surface.anchor_normals[start:stop, 1][:, None]
+    cumulative_s = surface.anchor_cumulative_s[start:stop][:, None]
+    guide_lengths = surface.anchor_guide_lengths[start:stop][:, None]
+    guide_weights = surface.anchor_guide_weights[start:stop][:, None]
+    confidences = surface.anchor_confidences[start:stop][:, None]
+
+    tau = dx * tangent_x + dy * tangent_y
+    nu = dx * normal_x + dy * normal_y
+
+    sigma_t = np.maximum(tuning.min_sigma_t, guide_lengths * config.lookahead_scale * tuning.sigma_t_scale)
+    sigma_n = max(tuning.min_sigma_n, config.transverse_scale * tuning.sigma_n_scale)
+    raw_weights = guide_weights * confidences * np.exp(
+        -0.5 * (((tau / sigma_t) ** 2) + ((nu / sigma_n) ** 2))
+    )
+    support_sum = np.sum(raw_weights, axis=0)
+    blend_weights = raw_weights / np.clip(support_sum, _EPS, None)
+
+    s_values = cumulative_s + tau
+    s_hat = np.sum(blend_weights * s_values, axis=0)
+    center_distance = _unsigned_distance_to_polyline(guide.distance_points, x_values, y_values)
+    tangent_hat = np.stack(
+        (
+            np.sum(blend_weights * tangent_x, axis=0),
+            np.sum(blend_weights * tangent_y, axis=0),
+        ),
+        axis=1,
+    )
+    tangent_norm = np.linalg.norm(tangent_hat, axis=1, keepdims=True)
+    tangent_hat = tangent_hat / np.clip(tangent_norm, _EPS, None)
+
+    guide_min_progress_extent, guide_max_progress_extent = surface.guide_progress_extents[guide_index]
+    progress_span = max(guide_max_progress_extent - guide_min_progress_extent, _EPS)
+    if config.longitudinal_frame == "local_absolute":
+        u_value = np.clip((s_hat - guide_min_progress_extent) / progress_span, 0.0, 1.0)
+    else:
+        lookahead = max(_ego_relative_lookahead(progress_span, config, tuning), _EPS)
+        reference_s = float(ego_s_hat or 0.0)
+        u_value = np.clip(np.maximum(0.0, s_hat - reference_s) / lookahead, 0.0, 1.0)
+
+    transverse_ratio = center_distance / max(config.transverse_scale, _EPS)
+    transverse_term = _transverse_value_array(transverse_ratio, config)
+    longitudinal_component = _longitudinal_value_array(u_value, config)
+
+    heading_x = np.cos(heading_yaws)
+    heading_y = np.sin(heading_yaws)
+    alignment_quality = np.maximum(
+        0.0,
+        heading_x * tangent_hat[:, 0] + heading_y * tangent_hat[:, 1],
+    )
+    alignment_mod = tuning.alignment_base + tuning.alignment_range * alignment_quality
+
+    clipped_confidence = np.minimum(confidences, max(config.support_ceiling, _EPS))
+    support_quality = np.sum(blend_weights * clipped_confidence, axis=0) / max(config.support_ceiling, _EPS)
+    support_mod = tuning.support_base + tuning.support_range * np.clip(support_quality, 0.0, 1.0)
+
+    score = support_mod * alignment_mod * (
+        transverse_term + config.longitudinal_gain * longitudinal_component
+    )
+    return GuideScoreResult(
+        guide_index=guide_index,
+        score=score,
+        support_sum=support_sum,
+    )
+
+
 def _select_dominant_guide(
     guide_results: tuple[GuideBlendResult, ...],
 ) -> dict[str, np.ndarray]:
@@ -587,6 +753,26 @@ def _select_dominant_guide(
         "guide_scores": guide_scores,
         "guide_support_sums": guide_support_sums,
     }
+
+
+def _select_dominant_score(
+    guide_results: tuple[GuideScoreResult, ...],
+) -> np.ndarray:
+    if not guide_results:
+        return np.zeros((0,), dtype=float)
+
+    best_scores = guide_results[0].score.copy()
+    best_support = guide_results[0].support_sum.copy()
+    for guide_index in range(1, len(guide_results)):
+        scores = guide_results[guide_index].score
+        supports = guide_results[guide_index].support_sum
+        better_score = scores > (best_scores + _EPS)
+        equal_score = np.isclose(scores, best_scores, atol=_EPS, rtol=0.0)
+        better_support = supports > (best_support + _EPS)
+        take = better_score | (equal_score & better_support)
+        best_scores = np.where(take, scores, best_scores)
+        best_support = np.where(take, supports, best_support)
+    return best_scores
 
 
 def _dominant_guides(

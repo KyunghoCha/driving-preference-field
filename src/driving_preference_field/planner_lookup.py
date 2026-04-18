@@ -60,7 +60,7 @@ def build_progression_lookup(
     x_coords = _metric_coords(context.local_window.x_min, context.local_window.x_max, grid_spacing_m)
     y_coords = _metric_coords(context.local_window.y_min, context.local_window.y_max, grid_spacing_m)
     runtime = build_field_runtime(snapshot, context, config=field_config)
-    progression_tilted = runtime.query_debug_grid(x_coords, y_coords)["progression_tilted"]
+    progression_tilted = runtime.query_progression_score_grid(x_coords, y_coords)
     prepared = PreparedProgressionLookup(
         local_window=context.local_window,
         x_coords=x_coords,

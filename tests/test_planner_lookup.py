@@ -78,6 +78,29 @@ def test_progression_lookup_query_matches_stored_grid_on_grid_nodes() -> None:
     assert np.allclose(sampled, prepared.progression_tilted)
 
 
+def test_progression_score_grid_matches_debug_grid_score_channel() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
+    runtime = build_field_runtime(snapshot, context)
+    x_coords = np.linspace(context.local_window.x_min, context.local_window.x_max, 41)
+    y_coords = np.linspace(context.local_window.y_min, context.local_window.y_max, 33)
+
+    score_only = runtime.query_progression_score_grid(x_coords, y_coords)
+    debug_score = runtime.query_debug_grid(x_coords, y_coords)["progression_tilted"]
+
+    assert np.allclose(score_only, debug_score)
+
+
+def test_progression_lookup_build_uses_exact_score_grid_oracle() -> None:
+    clear_progression_lookup_cache()
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    runtime = build_field_runtime(snapshot, context)
+    prepared = build_progression_lookup(snapshot, context, grid_spacing_m=0.2, use_cache=False)
+
+    exact_score = runtime.query_progression_score_grid(prepared.x_coords, prepared.y_coords)
+
+    assert np.allclose(prepared.progression_tilted, exact_score)
+
+
 def test_progression_lookup_trajectory_query_preserves_shape_and_dtype() -> None:
     clear_progression_lookup_cache()
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
