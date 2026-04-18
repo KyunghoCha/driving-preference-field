@@ -261,6 +261,41 @@
 - 2026-04-09: tube-like score support와 seam에 대한 불만이 explicit하게 제기됐다.
 - 2026-04-09: `Tube Field 제거와 Whole-Fabric Progression Space` plan message가 current implementation 전환으로 고정됐다.
 
+## branch/split baseline sequence and approval discipline
+
+### First raised
+
+- 2026-04-18
+
+### Current framing
+
+- branch/split morphology investigation에서는 baseline 승격 이력을 `B1`, `B2`처럼 순서 번호와 commit hash로 같이 기록해야 한다.
+- behavior-changing baseline만 번호를 붙이고, docs-only/workflow commits는 baseline 번호에 넣지 않는다.
+- explicit user approval 없이 실험 상태를 다음 baseline으로 승격하면 안 된다.
+
+### Key changes by date
+
+- 2026-04-18: branch/split morphology investigation 중 승인 없이 `main` baseline처럼 올린 실험들이 workspace를 더럽혔다는 correction이 나왔다.
+- 2026-04-18: `B1 = 5efe84d`부터 `B10 = 2d9b99f`까지 baseline sequence를 고정해 두기로 했다.
+- 2026-04-18: 이후 branch/split baseline 후보는 `B{n}` 번호와 commit hash를 함께 적고, explicit approval 뒤에만 승격하기로 정리했다.
+
+### Linked raw notes
+
+- [2026-04-18-branch-split-baseline-approval-discipline](./notes/2026-04-18-branch-split-baseline-approval-discipline.md)
+
+### Current status
+
+- `active workflow rule`
+
+### Canonical docs touched (if any)
+
+- 없음
+
+### Open questions
+
+- repo-local `AGENTS.md`와 local skill 외에 이 baseline numbering rule을 어디까지 노출할지
+- baseline 번호를 branch/split morphology investigation에만 둘지, 다른 surface 실험에도 일반화할지
+
 ### Linked raw notes
 
 - [2026-04-09-whole-space-fabric-instead-of-tube-support](./notes/2026-04-09-whole-space-fabric-instead-of-tube-support.md)
