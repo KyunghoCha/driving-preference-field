@@ -278,6 +278,7 @@
 
 - 2026-04-18: branch/split morphology investigation 중 승인 없이 `main` baseline처럼 올린 실험들이 workspace를 더럽혔다는 correction이 나왔다.
 - 2026-04-18: `B1 = 5efe84d`부터 `B10 = 2d9b99f`까지 baseline sequence를 고정해 두기로 했다.
+- 2026-04-18: `B11 = 465398d`로 raw visible progression guide polyline distance transverse를 승인 baseline으로 승격했다.
 - 2026-04-18: 이후 branch/split baseline 후보는 `B{n}` 번호와 commit hash를 함께 적고, explicit approval 뒤에만 승격하기로 정리했다.
 
 ### Linked raw notes

@@ -53,7 +53,10 @@
   - 사용자 승인 후 승격된 baseline
 - `B10 = 2d9b99f`
   - `surface: use guide-center distance for transverse term`
-  - 현재 작업 기준 baseline
+  - 직전 baseline
+- `B11 = 465398d`
+  - `surface: use raw progression guide distance for transverse`
+  - transverse object를 `raw visible progression guide polyline`까지의 최단거리로 단순화한 승인 baseline
 
 ## Discipline added from this point
 
