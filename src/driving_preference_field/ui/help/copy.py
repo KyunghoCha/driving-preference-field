@@ -13,6 +13,7 @@ PARAMETER_GUIDE_INTRO = {
         "`Main` changes field semantics directly. `Advanced Surface` is for discretization, kernel, and modulation tuning.\n"
         "The current implementation blends guide-local progress coordinates, reads transverse from shortest distance to the raw visible progression guide polyline, and then reads the final field through the maximum guide score.\n"
         "The exact current formula is `score = support_mod * alignment_mod * (transverse_term + longitudinal_gain * longitudinal_component)`.\n"
+        "`Planner Lookup Progression Tilted` and `Planner Lookup Error` are internal comparison channels for the planner lookup surrogate. They do not replace the exact runtime channels as canonical inspection surfaces.\n"
         "Support and alignment are weak secondary modulation terms. They should not dominate morphology.\n"
         "Split and merge are expressed as multiple progression guides with shared prefix/suffix. The raster is only a local-map sample of the continuous field."
     ),
@@ -25,6 +26,7 @@ PARAMETER_GUIDE_INTRO = {
         "`Main`은 field semantics를 직접 바꾸고, `Advanced Surface`는 discretization, kernel, modulation 품질을 조정한다.\n"
         "현재 구현은 progression guide 안에서 guide-local progress coordinate를 섞고, 횡방향은 raw visible progression guide polyline까지의 최단거리로 읽은 뒤, guide별 score 가운데 가장 큰 값을 최종 field로 읽는다.\n"
         "현재 수식은 `score = support_mod * alignment_mod * (transverse_term + longitudinal_gain * longitudinal_component)`다.\n"
+        "`Planner Lookup Progression Tilted`와 `Planner Lookup Error`는 planner lookup surrogate를 비교하기 위한 internal channel일 뿐이며, canonical inspection 기준을 exact runtime channel에서 바꾸지 않는다.\n"
         "support와 alignment는 shape를 지배하지 않는 약한 보조 modulation이다.\n"
         "split과 merge는 shared prefix/suffix를 가진 multiple progression guides로 표현하고, raster는 continuous field를 local map 위에서 샘플링한 결과다."
     ),

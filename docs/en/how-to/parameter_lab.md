@@ -60,6 +60,8 @@ The top toolbar only keeps the actions you need often.
 - `language`: switch the app, `Guide`, and `Parameter Help` between English and Korean
 - `Guide`: open this guide inside the app
 
+`Planner Lookup Progression Tilted` and `Planner Lookup Error` are internal compare channels. They visualize the internal planner lookup surrogate against the exact raster. They are not canonical runtime channels.
+
 <a id="workspace"></a>
 ### Workspace
 
@@ -92,6 +94,7 @@ The raster is a sampled view of the continuous field, not the field contract its
 - `Diff`: read `candidate - baseline`
 
 The cyan progression guide overlay is the raw input polyline, not the field itself. If `sensor_patch_open` looks slightly tilted, that is input truth, not a rendering bug.
+If you select a planner lookup channel, read it as an internal acceleration comparison surface. The exact runtime channels remain the canonical inspection surface.
 
 <a id="common-tasks"></a>
 ## Common tasks

@@ -14,6 +14,7 @@ This page is the current project snapshot. It is shorter than the roadmap and mo
 ## Current agreement
 
 The active base score is `progression_tilted`. Drivable boundaries are read as overlay/support. Obstacle, rule, and dynamic channels stay in separate costmap-style layers. The project remains source-agnostic and keeps SSC as validation evidence rather than canonical truth.
+The exact runtime remains the canonical evaluator. `planner_lookup` exists on `main` only as an internal acceleration backend for planner-facing experiments and Parameter Lab compare surfaces. It is not the public runtime contract.
 
 ## Current focus
 
@@ -27,4 +28,4 @@ Parameter Lab is expected to remain a comparison and inspection tool, not a geom
 
 ## Out of scope
 
-Gazebo, RViz, MPPI coupling, and richer road-scene authoring remain outside the current status boundary.
+Gazebo, RViz, MPPI coupling, and richer road-scene authoring remain outside the current status boundary. Internal acceleration infrastructure can exist on `main`, but downstream planner hookup is not promoted into the public project contract by that fact alone.

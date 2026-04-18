@@ -56,6 +56,8 @@
 - raw source가 아니라 adapter output contract가 canonical이다.
 - downstream consumer는 formula copy가 아니라 `field_runtime` cached query layer를 소비하는 것을 기준으로 한다.
 - batched progression query는 `query_state` / `query_trajectory`와 의미상 일치하는 public contract로 본다.
+- exact runtime이 계속 canonical evaluator다.
+- `planner_lookup`은 `main`에 존재하지만 planner-facing acceleration 실험과 Parameter Lab compare surface를 위한 internal backend일 뿐이며, public runtime contract를 대체하지 않는다.
 - adapter는 의미 번역기만 하며 branch winner를 정하지 않는다.
 - raw adapter boundary에서는 progression을 explicit guide, global plan, bounded drivable-only reconstruction 중 하나로 받을 수 있다.
 - `ego_pose`는 snapshot 본체가 아니라 `QueryContext` 책임으로 둔다.
@@ -88,3 +90,4 @@
 - 3D preview 본체화
 - Gazebo / RViz / MPPI hookup
 - 큰 파라미터 retuning
+- internal acceleration backend가 `main`에 있다는 사실만으로 downstream planner integration을 public contract로 승격하지 않는다.

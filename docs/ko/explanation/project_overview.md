@@ -16,6 +16,6 @@
 
 SSC는 이 아이디어를 실제로 검증하는 중요한 downstream validation source다. 하지만 SSC가 canonical truth는 아니다. SSC에서 얻은 요구사항과 관찰은 evidence로 읽고, 이 repo는 끝까지 source-agnostic field와 contract를 정의하는 기준점으로 남는다.
 
-현재 이 repo는 `Phase 5 완료, Phase 6 준비 상태`다. canonical 문서, toy case와 evaluator, local raster visualization, Parameter Lab compare workflow, cached runtime query layer, generic source adapter SSOT와 reference adapter, debug component view와 profile inspection, semantic-first acceptance lock까지 정리돼 있다. Gazebo, RViz, MPPI hookup과 optimizer integration은 이 repo의 범위가 아니다.
+현재 이 repo는 `Phase 5 완료, Phase 6 준비 상태`다. canonical 문서, toy case와 evaluator, local raster visualization, Parameter Lab compare workflow, cached runtime query layer, generic source adapter SSOT와 reference adapter, debug component view와 profile inspection, semantic-first acceptance lock까지 정리돼 있다. `planner_lookup`도 planner-facing acceleration 실험과 compare surface를 위한 internal backend로 `main`에 들어와 있지만, canonical truth는 계속 exact runtime이 맡는다. Gazebo, RViz, MPPI hookup과 optimizer integration은 여전히 이 repo의 public 범위가 아니다.
 
 한 문장으로 요약하면, `driving-preference-field`는 progression semantics와 drivable semantics를 받아 현재 보이는 local map 전체에 대한 whole-space preference field를 정의하고, 그 ordering을 optimizer가 읽게 만드는 프로젝트다.
