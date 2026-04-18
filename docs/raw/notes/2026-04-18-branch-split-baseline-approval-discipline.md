@@ -22,6 +22,8 @@
 
 > 해줘 skill에도
 
+> raw 는 이제 실시간으로 중요한거 같으면 업데이트를 해줘 baseline으로 된거만 모아서 중간중간 실험하고 실패한거는 언급만 하고 지금까지 한거도 추가를 하고 그렇게 skill이나 다른데도 기록해두고
+
 ## Baseline sequence locked in this thread
 
 - `B1 = 5efe84d`
@@ -83,3 +85,13 @@
   - explicit `progression_supports`
   - `global_plan_supports`
   - bounded drivable-only reconstruction
+
+## Raw update discipline added on the same date
+
+- baseline 관련 raw note는 중요한 승인/교정이 생길 때 실시간에 가깝게 계속 갱신한다.
+- baseline ledger는 approved baseline을 중심으로 누적한다.
+  - `B{n} = <hash>`
+  - baseline 한 줄 의미
+- failed/intermediate experiment는 baseline 선택 맥락을 복원하는 데 필요한 정도로만 짧게 언급한다.
+- baseline note는 과거 approved baseline도 계속 포함해 running ledger처럼 유지한다.
+- repo-local guard와 local skill에도 같은 규칙을 같이 적어, branch/split morphology work에서 baseline 기록이 batch 밖으로 밀리지 않게 한다.

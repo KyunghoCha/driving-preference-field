@@ -281,6 +281,7 @@
 - 2026-04-18: `B11 = 465398d`로 raw visible progression guide polyline distance transverse를 승인 baseline으로 승격했다.
 - 2026-04-18: 이후 branch/split baseline 후보는 `B{n}` 번호와 commit hash를 함께 적고, explicit approval 뒤에만 승격하기로 정리했다.
 - 2026-04-18: `B11` 위에서는 별도 baseline 승격 없이 transverse public channel exactness cleanup과 generic adapter input 확장을 approved follow-up batch로 진행하기로 정리했다.
+- 2026-04-18: baseline 관련 raw note는 중요한 승인/교정이 생길 때 실시간에 가깝게 갱신하고, approved baseline 중심으로 누적하며, failed/intermediate experiment는 짧게만 언급하는 rule이 추가됐다.
 
 ### Linked raw notes
 

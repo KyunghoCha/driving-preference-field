@@ -29,6 +29,14 @@
 - wider historical backfill은 별도 배치에서만 하고, source confidence가 낮으면 올리지 않는다.
 - 파생 문서는 `notes/`보다 앞서 나가면 안 된다. `owner_thought_tracker.md`, `owner_design_history.md`, `owner_design_notebook.md`는 모두 `notes/`를 먼저 갱신한 뒤 `tracker -> history -> latest design notebook` 순서로 따라간다.
 
+## baseline ledger policy
+
+- baseline sequence는 relevant raw note 안에서 running ledger처럼 계속 누적한다.
+- approved baseline은 `B{n} = <hash>`와 한 줄 의미를 같이 적는다.
+- baseline에 직접 영향을 준 workflow correction이나 contract cleanup은 같은 note에 후속 correction으로 같이 적을 수 있다.
+- failed/intermediate experiment는 baseline ledger의 중심으로 길게 보존하지 않는다. baseline 선택 맥락을 복원하는 데 필요한 수준으로만 짧게 언급한다.
+- 새 baseline이나 중요한 baseline-adjacent correction이 승인되면, 가능하면 같은 배치에서 raw note까지 같이 갱신한다.
+
 ## boundary
 
 - current implementation을 정의하지 않는다.
