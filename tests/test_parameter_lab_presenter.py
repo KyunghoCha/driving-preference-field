@@ -93,6 +93,8 @@ def test_summary_payload_surfaces_progression_normalization_metadata() -> None:
     assert normalization["source_kind"] == "toy_case"
     assert normalization["applied"] is True
     assert normalization["severity"] == "warning"
+    assert summary["progression_target"]["kind"] == "guide_endpoint"
+    assert summary["progression_target"]["guide_id"].endswith("__normalized_chain")
 
 
 def test_build_comparison_session_uses_state_and_presenter_outputs() -> None:

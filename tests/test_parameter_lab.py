@@ -231,6 +231,25 @@ def test_parameter_lab_case_selector_lists_generic_adapter_fixtures(qtbot) -> No
     assert "full_circle_global_plan_generic" in combo_entries
     assert combo_entries["full_circle_global_plan_generic"] == "full_circle_global_plan_generic.yaml"
     assert "split_branch_drivable_only_generic" not in combo_entries
+    assert "u_turn_many_small_progression_guides_unmerged" in combo_entries
+    assert combo_entries["u_turn_many_small_progression_guides_unmerged"] == "u_turn_many_small_progression_guides_unmerged.yaml"
+
+    window.close()
+
+
+def test_parameter_lab_summary_shows_normalization_banner_and_target(qtbot) -> None:
+    case_path = ROOT / "cases/toy/u_turn_many_small_progression_guides.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    assert window._summary_panel._normalization_banner.text()
+    assert "WARNING" in window._summary_panel._normalization_banner.text()
+    assert "toy_case" in window._summary_panel._normalization_banner.text()
+    assert window._summary_panel._target_label.text()
+    assert "endpoint" in window._summary_panel._target_label.text()
+    assert "normalization=WARNING" in window._status_label.text()
 
     window.close()
 

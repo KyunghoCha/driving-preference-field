@@ -115,6 +115,36 @@ def profile_summary_payload(profile_result, *, selected_channel: str) -> dict[st
     }
 
 
+def progression_target_payload(snapshot) -> dict[str, object] | None:
+    guides = snapshot.progression_support.guides
+    future_anchor = snapshot.progression_support.future_anchor
+    guide_endpoints = [
+        {
+            "guide_id": guide.guide_id,
+            "point": [float(guide.points[-1][0]), float(guide.points[-1][1])],
+            "closed_loop": bool(guide.points[0] == guide.points[-1]),
+        }
+        for guide in guides
+    ]
+    if future_anchor is not None:
+        return {
+            "kind": "future_anchor",
+            "point": [float(future_anchor[0]), float(future_anchor[1])],
+            "guide_endpoints": guide_endpoints,
+        }
+    if not guide_endpoints:
+        return None
+    if len(guide_endpoints) == 1:
+        return {
+            "kind": "guide_endpoint",
+            **guide_endpoints[0],
+        }
+    return {
+        "kind": "guide_endpoints",
+        "guide_endpoints": guide_endpoints,
+    }
+
+
 def summary_payload(
     *,
     state,
@@ -140,6 +170,7 @@ def summary_payload(
         "raster_role": "visualization only",
         "snapshot_metadata": snapshot_metadata,
         "progression_normalization": snapshot_metadata.get("progression_normalization"),
+        "progression_target": progression_target_payload(state.snapshot),
         **effective_context_payload(state.working_context),
         "baseline_preset_name": state.baseline_state.preset_name,
         "baseline_preset_display": state.baseline_state.display_name(),

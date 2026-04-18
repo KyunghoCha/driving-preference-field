@@ -6,6 +6,7 @@ import numpy as np
 from PyQt6.QtCore import QPoint, QPointF, Qt, pyqtSignal
 from PyQt6.QtGui import QColor, QImage, QPainter, QPen, QPixmap, QTransform
 from PyQt6.QtWidgets import (
+    QGraphicsEllipseItem,
     QGraphicsLineItem,
     QGraphicsPixmapItem,
     QGraphicsPolygonItem,
@@ -106,6 +107,7 @@ class RasterCanvasView(QGraphicsView):
         if self._overlay_visibility.get("progression_guides", True):
             for guide in self._snapshot.progression_support.guides:
                 self._draw_polyline(guide, color=QColor("cyan"))
+            self._draw_progression_targets()
         if self._overlay_visibility.get("drivable_boundary", True):
             for region in self._snapshot.drivable_support.regions:
                 closed = DirectedPolyline(
@@ -158,6 +160,34 @@ class RasterCanvasView(QGraphicsView):
     def _draw_region_outline(self, points: tuple[tuple[float, float], ...], color: QColor) -> None:
         closed = DirectedPolyline(guide_id="mask", points=tuple(points) + (points[0],))
         self._draw_polyline(closed, color=color)
+
+    def _draw_progression_targets(self) -> None:
+        future_anchor = self._snapshot.progression_support.future_anchor
+        for guide in self._snapshot.progression_support.guides:
+            self._draw_endpoint_marker(guide.points[-1], color=QColor("#ffd400"))
+        if future_anchor is not None:
+            self._draw_future_anchor_marker(future_anchor)
+
+    def _draw_endpoint_marker(self, point: tuple[float, float], *, color: QColor) -> None:
+        radius = 0.10
+        item = QGraphicsEllipseItem(point[0] - radius, point[1] - radius, 2.0 * radius, 2.0 * radius)
+        item.setBrush(color)
+        item.setPen(QPen(QColor("black"), 0.025))
+        self._scene.addItem(item)
+
+    def _draw_future_anchor_marker(self, point: tuple[float, float]) -> None:
+        radius = 0.16
+        item = QGraphicsEllipseItem(point[0] - radius, point[1] - radius, 2.0 * radius, 2.0 * radius)
+        item.setBrush(Qt.BrushStyle.NoBrush)
+        item.setPen(QPen(QColor("#ff4fd8"), 0.03))
+        self._scene.addItem(item)
+        for dx0, dy0, dx1, dy1 in (
+            (-0.12, 0.0, 0.12, 0.0),
+            (0.0, -0.12, 0.0, 0.12),
+        ):
+            cross = QGraphicsLineItem(point[0] + dx0, point[1] + dy0, point[0] + dx1, point[1] + dy1)
+            cross.setPen(QPen(QColor("#ff4fd8"), 0.03))
+            self._scene.addItem(cross)
 
 
 def raster_to_qimage(

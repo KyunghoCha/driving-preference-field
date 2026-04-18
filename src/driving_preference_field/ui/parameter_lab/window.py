@@ -789,7 +789,14 @@ class ParameterLabWindow(QMainWindow):
 
     def _on_busy_changed(self, busy: bool) -> None:
         self._busy = busy
-        self._status_label.setText(t(self._language, "status.computing") if busy else t(self._language, "status.idle"))
+        if busy:
+            self._status_label.setText(t(self._language, "status.computing"))
+            return
+        if self._comparison_result is None:
+            self._status_label.setText(t(self._language, "status.idle"))
+            return
+        label = t(self._language, f"channel.{self._selected_channel}")
+        self._status_label.setText(self._channel_status_text(label))
 
     def _on_profile_spec_changed(self, _axis: str, _coordinate: float) -> None:
         self._profile_result = None
@@ -903,7 +910,7 @@ class ParameterLabWindow(QMainWindow):
         )
         self._apply_layer_visibility()
         self._refresh_scale_info_label()
-        self._status_label.setText(t(self._language, "status.idle_channel", label=label))
+        self._status_label.setText(self._channel_status_text(label))
 
     def _refresh_profile_panel(self) -> None:
         if self._comparison_result is None:
@@ -938,6 +945,14 @@ class ParameterLabWindow(QMainWindow):
             qualitative_note=self._qualitative_note,
         )
         self._summary_panel.set_summary(summary)
+
+    def _channel_status_text(self, label: str) -> str:
+        status_text = t(self._language, "status.idle_channel", label=label)
+        normalization = self._snapshot.metadata.get("progression_normalization") if self._snapshot is not None else None
+        if isinstance(normalization, dict):
+            severity = str(normalization.get("severity", "info")).upper()
+            status_text += f" | normalization={severity}"
+        return status_text
 
     def _selected_diff_array(self):
         assert self._comparison_result is not None
