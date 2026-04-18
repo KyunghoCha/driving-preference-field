@@ -48,7 +48,13 @@ SSC is an important downstream validation source, but SSC-specific structure is 
 
 ## Current implementation
 
-The current runtime still consumes the same canonical output slots: progression support, drivable support, optional boundary/interior support, and optional exception layers. At the generic adapter boundary, progression may now be provided explicitly, normalized from a global plan, or reconstructed from drivable-only corridor-like local geometry. Ambiguous split/merge topology is still not guessed silently.
+The current runtime still consumes the same canonical output slots: progression support, drivable support, optional boundary/interior support, and optional exception layers. At the generic adapter boundary, progression may now be provided explicitly, normalized from a global plan, or reconstructed from drivable-only corridor-like local geometry.
+
+Current normalization policy is intentionally asymmetric:
+
+- `global_plan_supports` and drivable-only reconstruction are normal adapter inputs, so obvious single-chain fragmentation may be normalized into one canonical guide without special escalation.
+- explicit `progression_supports` are still treated as upstream responsibility, but the adapter now applies a best-effort fallback for obvious single-chain fragmentation and records that fallback in snapshot metadata.
+- ambiguous split/merge-like continuation is not guessed silently; the adapter leaves the input unmerged and records warning/error-style normalization metadata instead.
 
 ## Current baseline
 

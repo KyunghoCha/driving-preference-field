@@ -94,7 +94,9 @@ drivable support는 움직일 수 있는 공간을 알려주지만, progression 
 
 ## 현재 구현
 
-현재 구현은 `boundary_interior_support`를 canonical 필수 slot로 materialize하지 않는다. 이는 필요한 source에서 geometry prior를 복원할 때만 쓰는 optional support이며, progression-centered base field 정의 자체를 구성하지 않는다. generic adapter boundary에서는 progression support를 explicit guide, global plan, bounded drivable-only reconstruction 중 하나로 받아 canonical progression guide로 정규화한다.
+현재 구현은 `boundary_interior_support`를 canonical 필수 slot로 materialize하지 않는다. 이는 필요한 source에서 geometry prior를 복원할 때만 쓰는 optional support이며, progression-centered base field 정의 자체를 구성하지 않는다. generic adapter boundary에서는 progression support를 explicit guide, global plan, bounded drivable-only reconstruction 중 하나로 받아 coherent canonical progression guide로 정규화한다.
+
+raw progression-like 입력이 obvious single-chain fragmentation으로 보이면 adapter가 runtime 전에 canonical guide 하나로 정규화할 수 있다. 이 정규화는 global plan과 drivable-derived progression에서는 정상 adapter behavior로 본다. explicit fragmented `progression_supports`에서는 upstream-owned 입력에 대한 best-effort fallback으로만 취급하고, 조용히 first-class canonical semantics로 승격하지 않기 위해 normalization provenance와 severity를 snapshot metadata에 남긴다.
 
 ## 현재 기준
 

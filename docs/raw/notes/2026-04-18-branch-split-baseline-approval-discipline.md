@@ -107,3 +107,13 @@
 - failed/intermediate experiment는 baseline 선택 맥락을 복원하는 데 필요한 정도로만 짧게 언급한다.
 - baseline note는 과거 approved baseline도 계속 포함해 running ledger처럼 유지한다.
 - repo-local guard와 local skill에도 같은 규칙을 같이 적어, branch/split morphology work에서 baseline 기록이 batch 밖으로 밀리지 않게 한다.
+
+## Later follow-up on the same date
+
+- `B11 = 465398d` 위에서 fragmented progression input normalization과 warning-level follow-up batch를 승인했다.
+- 이 후속 배치는 new baseline 승격이 아니라 input-boundary cleanup으로 취급한다.
+- 핵심 correction:
+  - runtime formula는 `B11` 그대로 유지
+  - `u_turn_many_small_progression_guides` 같은 obvious single-chain fragmentation은 runtime이 아니라 input normalization에서 canonical guide 하나로 접는다
+  - explicit fragmented `progression_supports`는 여전히 upstream responsibility로 두되, adapter가 best-effort fallback을 시도하고 `progression_normalization` metadata에 provenance/severity를 남긴다
+  - `global_plan_supports`와 drivable-derived progression은 adapter의 정상 canonicalization 입력으로 본다

@@ -127,8 +127,10 @@ def summary_payload(
     baseline_state = comparison_result.baseline_state
     candidate_state = comparison_result.candidate_state
     diff_array = selected_diff_array(comparison_result, selected_channel)
+    snapshot_metadata = {} if state.snapshot is None else dict(state.snapshot.metadata)
     return {
         "case": str(state.current_case_path),
+        "input_kind": state.current_input_kind,
         "selected_channel": selected_channel,
         "selected_channel_unit": display_unit(selected_channel),
         "scale_mode": scale_mode,
@@ -136,6 +138,8 @@ def summary_payload(
         "diff_meaning": "candidate - baseline",
         "progression_surface_kind": "guide-local blended progress coordinates + exact raw-guide distance transverse term + hard max envelope",
         "raster_role": "visualization only",
+        "snapshot_metadata": snapshot_metadata,
+        "progression_normalization": snapshot_metadata.get("progression_normalization"),
         **effective_context_payload(state.working_context),
         "baseline_preset_name": state.baseline_state.preset_name,
         "baseline_preset_display": state.baseline_state.display_name(),

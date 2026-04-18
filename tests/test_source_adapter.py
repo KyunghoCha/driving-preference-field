@@ -20,6 +20,39 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "fixtures/adapter"
 
 
+def _u_turn_drivable_region() -> list[dict[str, object]]:
+    return [
+        {
+            "id": "u_turn_corridor",
+            "points": [
+                [0.0, -1.0],
+                [5.8, -1.0],
+                [5.8, 4.0],
+                [-0.2, 4.0],
+                [-0.2, 2.4],
+                [4.2, 2.4],
+                [4.2, 0.6],
+                [0.0, 0.6],
+            ],
+        }
+    ]
+
+
+def _fragmented_u_turn_guides(prefix: str) -> list[dict[str, object]]:
+    return [
+        {"id": f"{prefix}_01", "points": [[0.2, 0.0], [1.4, 0.0]]},
+        {"id": f"{prefix}_02", "points": [[1.0, 0.0], [2.2, 0.0]]},
+        {"id": f"{prefix}_03", "points": [[1.8, 0.0], [3.0, 0.0]]},
+        {"id": f"{prefix}_04", "points": [[2.6, 0.0], [3.8, 0.0]]},
+        {"id": f"{prefix}_05", "points": [[3.4, 0.0], [4.6, 0.0], [4.9, 0.4]]},
+        {"id": f"{prefix}_06", "points": [[4.6, 0.0], [5.0, 0.8], [5.0, 1.8]]},
+        {"id": f"{prefix}_07", "points": [[5.0, 1.4], [5.0, 2.6], [4.8, 3.2]]},
+        {"id": f"{prefix}_08", "points": [[5.0, 2.8], [4.8, 3.2], [3.2, 3.2]]},
+        {"id": f"{prefix}_09", "points": [[3.6, 3.2], [2.0, 3.2]]},
+        {"id": f"{prefix}_10", "points": [[2.4, 3.2], [0.4, 3.2]]},
+    ]
+
+
 def test_generic_yaml_and_json_produce_same_canonical_summary() -> None:
     yaml_snapshot, yaml_context = load_generic_snapshot(FIXTURES / "straight_corridor_generic.yaml")
     json_snapshot, json_context = load_generic_snapshot(FIXTURES / "straight_corridor_generic.json")
@@ -112,6 +145,92 @@ def test_global_plan_supports_alone_become_canonical_progression_support() -> No
     assert len(snapshot.progression_support.guides) == 1
     assert snapshot.progression_support.guides[0].guide_id == "center_global_plan"
     assert snapshot.progression_support.guides[0].points[-1] == pytest.approx((6.0, 0.0))
+
+
+def test_fragmented_explicit_progression_guides_get_best_effort_normalization_warning(tmp_path) -> None:
+    payload = {
+        "metadata": {"name": "fragmented_explicit_u_turn"},
+        "drivable_regions": _u_turn_drivable_region(),
+        "progression_supports": _fragmented_u_turn_guides("explicit"),
+        "query_context": {
+            "query_pose": {"x": 0.6, "y": 0.0, "yaw": 0.0},
+            "local_window": {"x_min": -1.5, "x_max": 6.5, "y_min": -1.8, "y_max": 4.8},
+        },
+    }
+    fixture = tmp_path / "fragmented_explicit_u_turn.yaml"
+    fixture.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    snapshot, _ = load_generic_snapshot(fixture)
+    normalization = snapshot.metadata["progression_normalization"]
+
+    assert len(snapshot.progression_support.guides) == 1
+    assert normalization["source_kind"] == "progression_supports"
+    assert normalization["applied"] is True
+    assert normalization["severity"] == "warning"
+    assert normalization["input_guide_count"] == 10
+    assert normalization["output_guide_count"] == 1
+    assert len(normalization["merged_groups"]) == 1
+    assert snapshot.progression_support.guides[0].metadata["normalized_from"] == [
+        f"explicit_{index:02d}" for index in range(1, 11)
+    ]
+
+
+def test_fragmented_global_plan_guides_normalize_cleanly(tmp_path) -> None:
+    payload = {
+        "metadata": {"name": "fragmented_global_plan_u_turn"},
+        "drivable_regions": _u_turn_drivable_region(),
+        "global_plan_supports": _fragmented_u_turn_guides("plan"),
+        "query_context": {
+            "query_pose": {"x": 0.6, "y": 0.0, "yaw": 0.0},
+            "local_window": {"x_min": -1.5, "x_max": 6.5, "y_min": -1.8, "y_max": 4.8},
+        },
+    }
+    fixture = tmp_path / "fragmented_global_plan_u_turn.yaml"
+    fixture.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    snapshot, _ = load_generic_snapshot(fixture)
+    normalization = snapshot.metadata["progression_normalization"]
+
+    assert len(snapshot.progression_support.guides) == 1
+    assert normalization["source_kind"] == "global_plan_supports"
+    assert normalization["applied"] is True
+    assert normalization["severity"] == "info"
+    assert normalization["input_guide_count"] == 10
+    assert normalization["output_guide_count"] == 1
+    assert snapshot.progression_support.guides[0].metadata["normalized_from"] == [
+        f"plan_{index:02d}" for index in range(1, 11)
+    ]
+
+
+def test_ambiguous_fragmented_progression_stays_unmerged_with_error_metadata(tmp_path) -> None:
+    payload = {
+        "metadata": {"name": "ambiguous_fragmented_progression"},
+        "drivable_regions": [
+            {"points": [[0.0, -2.0], [4.0, -2.0], [4.0, 2.0], [0.0, 2.0]]},
+        ],
+        "progression_supports": [
+            {"id": "trunk", "points": [[0.0, 0.0], [1.0, 0.0]]},
+            {"id": "upper", "points": [[0.8, 0.0], [2.0, 0.2]]},
+            {"id": "lower", "points": [[0.8, 0.0], [2.0, -0.2]]},
+        ],
+        "query_context": {
+            "query_pose": {"x": 0.2, "y": 0.0, "yaw": 0.0},
+            "local_window": {"x_min": -1.0, "x_max": 4.0, "y_min": -2.0, "y_max": 2.0},
+        },
+    }
+    fixture = tmp_path / "ambiguous_fragmented_progression.yaml"
+    fixture.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+    snapshot, _ = load_generic_snapshot(fixture)
+    normalization = snapshot.metadata["progression_normalization"]
+
+    assert len(snapshot.progression_support.guides) == 3
+    assert normalization["source_kind"] == "progression_supports"
+    assert normalization["applied"] is False
+    assert normalization["severity"] == "error"
+    assert normalization["input_guide_count"] == 3
+    assert normalization["output_guide_count"] == 3
+    assert any("ambiguous" in message for message in normalization["messages"])
 
 
 def test_drivable_only_straight_corridor_reconstructs_single_centerline() -> None:

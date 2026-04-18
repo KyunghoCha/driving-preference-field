@@ -64,7 +64,35 @@ def test_summary_payload_matches_existing_public_summary_shape() -> None:
     assert summary["candidate_preset_name"] == "candidate__strong_longitudinal"
     assert summary["difference"]["diff_raster_summary"]["max"] >= summary["difference"]["diff_raster_summary"]["min"]
     assert summary["profile"]["available"] is False
+    assert summary["input_kind"] == "toy_case"
+    assert summary["snapshot_metadata"]["name"] == "straight_corridor"
+    assert summary["progression_normalization"] is None
     assert summary["visualization"]["raster_role"] == "visualization only"
+
+
+def test_summary_payload_surfaces_progression_normalization_metadata() -> None:
+    state = ParameterLabState(
+        repo_root=ROOT,
+        case_path=ROOT / "cases/toy/u_turn_many_small_progression_guides.yaml",
+    )
+    comparison_result = _comparison_result_for_state(state)
+
+    summary = summary_payload(
+        state=state,
+        comparison_result=comparison_result,
+        selected_channel="progression_tilted",
+        scale_mode="fixed",
+        profile_result=None,
+        qualitative_note="normalization probe",
+    )
+
+    normalization = summary["progression_normalization"]
+
+    assert summary["input_kind"] == "toy_case"
+    assert summary["snapshot_metadata"]["name"] == "u_turn_many_small_progression_guides"
+    assert normalization["source_kind"] == "toy_case"
+    assert normalization["applied"] is True
+    assert normalization["severity"] == "warning"
 
 
 def test_build_comparison_session_uses_state_and_presenter_outputs() -> None:

@@ -36,7 +36,11 @@ The canonical input does not directly choose a branch winner, planner policy, or
 
 ## Current implementation
 
-The current implementation still evaluates canonical progression support through progression guides. At the generic adapter boundary, those guides may come from explicit `progression_supports`, normalized `global_plan_supports`, or bounded drivable-only reconstruction for corridor-like single-continuation local geometry. Drivable boundaries are kept as overlay/support input, and obstacle/rule/dynamic signals stay in separate cost-like layers.
+The current implementation still evaluates canonical progression support through coherent progression guides. At the generic adapter boundary, those guides may come from explicit `progression_supports`, normalized `global_plan_supports`, or bounded drivable-only reconstruction for corridor-like single-continuation local geometry.
+
+When raw progression-like inputs are obviously fragmented into a single forward chain, the adapter may normalize them into one canonical guide before runtime evaluation. This is normal adapter behavior for global-plan and drivable-derived progression. For explicit fragmented `progression_supports`, it is only a best-effort fallback over upstream-owned input, and the adapter records normalization provenance and severity in snapshot metadata instead of silently upgrading that input shape into a first-class canonical semantics.
+
+Drivable boundaries are kept as overlay/support input, and obstacle/rule/dynamic signals stay in separate cost-like layers.
 
 ## Current baseline
 

@@ -16,6 +16,7 @@ from .contracts import (
     SemanticInputSnapshot,
     StateSample,
 )
+from .progression_input_normalization import normalize_progression_guides
 
 
 def _reject_removed_key(payload: dict, key: str, *, message: str) -> None:
@@ -57,6 +58,16 @@ def _polyline_list(items: list[dict]) -> tuple[DirectedPolyline, ...]:
     return tuple(guides)
 
 
+def _with_progression_normalization_metadata(
+    metadata: dict[str, object],
+    normalization_block: dict[str, object] | None,
+) -> dict[str, object]:
+    updated = dict(metadata)
+    if normalization_block is not None:
+        updated["progression_normalization"] = normalization_block
+    return updated
+
+
 def load_toy_snapshot(case_path: str | Path) -> tuple[SemanticInputSnapshot, QueryContext]:
     """Load a prototype toy case into the canonical semantic contract.
 
@@ -75,7 +86,13 @@ def load_toy_snapshot(case_path: str | Path) -> tuple[SemanticInputSnapshot, Que
 
     metadata = dict(payload.get("metadata", {}))
     drivable_regions = _polygon_list(payload.get("drivable_regions", []))
-    progression_guides = _polyline_list(payload.get("progression_guides", []))
+    progression_guides_raw = _polyline_list(payload.get("progression_guides", []))
+    normalized_progression = normalize_progression_guides(
+        progression_guides_raw,
+        source_kind="toy_case",
+    )
+    progression_guides = normalized_progression.guides
+    metadata = _with_progression_normalization_metadata(metadata, normalized_progression.metadata_block)
     boundary_regions = _polygon_list(payload.get("boundary_regions", []))
     boundaries = _polyline_list(payload.get("boundaries", []))
     safety_regions = _polygon_list(payload.get("safety_regions", []))

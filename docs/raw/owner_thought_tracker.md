@@ -611,3 +611,39 @@
 
 - 같은 rule을 repo-local AGENTS까지 올릴지
 - abandoned experiment worktree를 언제 cleanup해야 하는지
+
+## fragmented progression input normalization boundary
+
+### First raised
+
+- 2026-04-18
+
+### Current framing
+
+- fragmented progression guide 문제는 runtime 수식이 아니라 input-boundary canonicalization 문제로 보는 쪽이 맞다.
+- explicit fragmented progression은 upstream responsibility를 유지하되, obvious single-chain fragmentation에는 best-effort fallback normalization을 허용하고 metadata에 warning/error 흔적을 남긴다.
+- `global_plan_supports`와 drivable-derived progression은 adapter의 정상 canonicalization 입력으로 본다.
+
+### Key changes by date
+
+- 2026-04-18: `u_turn_many_small_progression_guides`가 runtime 자체보다 fragmented guide segmentation 때문이라는 진단이 명시됐다.
+- 2026-04-18: runtime semantics는 `B11`에 고정하고, fragmented guide canonicalization은 input boundary에서 처리하기로 plan이 잠겼다.
+- 2026-04-18: explicit progression은 upstream responsibility라는 경계를 유지하되, obvious single-chain fragmentation에는 best-effort fallback을 두고 `info / warning / error` normalization metadata를 남기도록 구현 방향이 좁혀졌다.
+
+### Linked raw notes
+
+- [2026-04-18-branch-split-baseline-approval-discipline](./notes/2026-04-18-branch-split-baseline-approval-discipline.md)
+
+### Current status
+
+- `partly reflected in current implementation`
+
+### Canonical docs touched (if any)
+
+- `docs/en/reference/source_adapter.md`
+- `docs/en/reference/input_semantics.md`
+
+### Open questions
+
+- explicit fragmented progression fallback를 어디까지 aggressive하게 둘지
+- ambiguous fragmented topology에서 metadata `error`만으로 충분한지, 일부 경우 validation failure까지 올릴지

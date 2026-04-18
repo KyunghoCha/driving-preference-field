@@ -29,6 +29,7 @@ from .contracts import (
     StateSample,
 )
 from .geometry import clamp, distance_point_to_polygon_boundary, point_in_polygon
+from .progression_input_normalization import normalize_progression_guides
 from .toy_loader import summarize_snapshot
 
 
@@ -125,6 +126,16 @@ def _merged_metadata(item: dict[str, Any], *, path: str) -> dict[str, Any]:
         except (TypeError, ValueError) as exc:
             raise GenericAdapterValidationError(f"{path}.support_confidence must be numeric") from exc
     return metadata
+
+
+def _with_progression_normalization_metadata(
+    metadata: dict[str, Any],
+    normalization_block: dict[str, object] | None,
+) -> dict[str, Any]:
+    updated = dict(metadata)
+    if normalization_block is not None:
+        updated["progression_normalization"] = normalization_block
+    return updated
 
 
 def _polygon_list(items: list[Any], *, key: str) -> tuple[PolygonRegion, ...]:
@@ -456,16 +467,28 @@ def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot
     )
 
     if progression_guides_raw:
-        progression_guides = _polyline_list(progression_guides_raw, key="progression_supports")
+        progression_guides_initial = _polyline_list(progression_guides_raw, key="progression_supports")
+        normalization = normalize_progression_guides(
+            progression_guides_initial,
+            source_kind="progression_supports",
+        )
+        progression_guides = normalization.guides
+        metadata = _with_progression_normalization_metadata(metadata, normalization.metadata_block)
     elif global_plan_guides_raw:
-        progression_guides = _polyline_list(global_plan_guides_raw, key="global_plan_supports")
+        progression_guides_initial = _polyline_list(global_plan_guides_raw, key="global_plan_supports")
+        normalization = normalize_progression_guides(
+            progression_guides_initial,
+            source_kind="global_plan_supports",
+        )
+        progression_guides = normalization.guides
+        metadata = _with_progression_normalization_metadata(metadata, normalization.metadata_block)
     else:
         reconstructed_points = _reconstruct_centerline_from_drivable(
             drivable_regions,
             ego_pose=ego_pose,
             future_anchor=future_anchor,
         )
-        progression_guides = (
+        reconstructed_guides = (
             DirectedPolyline(
                 guide_id="reconstructed_progression",
                 points=reconstructed_points,
@@ -473,6 +496,12 @@ def load_generic_snapshot(input_path: str | Path) -> tuple[SemanticInputSnapshot
                 metadata={"source": "drivable_only_reconstruction"},
             ),
         )
+        normalization = normalize_progression_guides(
+            reconstructed_guides,
+            source_kind="drivable_only_reconstruction",
+        )
+        progression_guides = normalization.guides
+        metadata = _with_progression_normalization_metadata(metadata, normalization.metadata_block)
 
     snapshot = SemanticInputSnapshot(
         metadata=metadata,

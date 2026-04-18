@@ -50,8 +50,14 @@ def test_u_turn_many_small_guides_case_loads_expected_metadata() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/u_turn_many_small_progression_guides.yaml")
 
     assert snapshot.metadata["name"] == "u_turn_many_small_progression_guides"
+    assert snapshot.metadata["progression_normalization"]["source_kind"] == "toy_case"
+    assert snapshot.metadata["progression_normalization"]["applied"] is True
+    assert snapshot.metadata["progression_normalization"]["severity"] == "warning"
     assert len(snapshot.drivable_support.regions) == 1
-    assert len(snapshot.progression_support.guides) == 10
+    assert len(snapshot.progression_support.guides) == 1
+    assert snapshot.progression_support.guides[0].metadata["normalized_from"] == [
+        f"u_turn_seg_{index:02d}" for index in range(1, 11)
+    ]
     assert len(snapshot.boundary_interior_support.boundaries) == 2
     assert context.ego_pose.yaw == 0.0
 

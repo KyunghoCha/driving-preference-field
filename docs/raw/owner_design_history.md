@@ -88,6 +88,8 @@ DPF가 진행 선호를 주는 장치라는 framing이 굳어지면서, detailed
 
 이 follow-up에서 남은 핵심은 두 가지였다. 첫째, dominant guide score에 실제로 들어가는 transverse term과 exported public detail channel을 정확히 일치시키는 것이다. 둘째, raw adapter boundary에서 progression source를 explicit progression, global plan, bounded drivable-only reconstruction으로 넓히되, ambiguous branch topology는 fail-fast로 유지하는 것이다. 이건 새 behavior baseline 승격이 아니라 `B11` 위 cleanup/contract expansion으로 남는다.
 
+그 직후에는 fragmented progression input을 어디서 다뤄야 하는지가 다시 분리됐다. 사용자는 runtime이 tiny guide fragment를 progression semantics로 직접 해석하는 것은 우리 책임이 아니라고 봤고, explicit fragmented progression은 여전히 upstream responsibility로 두어야 한다고 선을 그었다. 대신 obvious single-chain fragmentation에 한해서는 adapter가 best-effort fallback normalization을 해도 괜찮고, 그 경우에는 반드시 provenance와 severity를 metadata에 남겨야 한다는 correction이 붙었다. 이 전환으로 many-small-guide U-turn 문제는 runtime redesign이 아니라 input-boundary canonicalization 문제로 다시 정렬됐다.
+
 ## 현재 시점의 설계 위치
 
 현재까지의 흐름을 묶으면, DPF는 segment consume과 gate 통과 직관에서 출발해, blocked case에서는 frontier/local splice가 별도로 움직여야 한다는 pressure를 겪고, docs-first reset을 통해 `주행 가능 의미 + 진행 의미`와 `선호는 field 구조가 만든다`는 semantics로 다시 고정됐다. 그 위에 progress-tilted score space, whole-space fabric, Semantic Snapshot/Query Context 분리, progress-preference framing, longitudinal 주역화, planner/behavior 책임 분리가 겹쳐져 있다.

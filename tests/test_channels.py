@@ -313,6 +313,25 @@ def test_many_small_guides_u_turn_keeps_hairpin_continuity_and_center_high_retur
     )
 
 
+def test_many_small_guides_u_turn_stays_close_to_single_guide_u_turn() -> None:
+    reference_snapshot, reference_context = load_toy_snapshot(ROOT / "cases/toy/u_turn.yaml")
+    fragmented_snapshot, fragmented_context = load_toy_snapshot(
+        ROOT / "cases/toy/u_turn_many_small_progression_guides.yaml"
+    )
+    config = _canonical_config(longitudinal_family="tanh", longitudinal_shape=2.0)
+    probe_states = (
+        StateSample(x=3.0, y=0.0, yaw=0.0),
+        StateSample(x=4.85, y=0.6, yaw=0.8),
+        StateSample(x=5.0, y=1.8, yaw=1.57),
+        StateSample(x=2.0, y=3.2, yaw=3.141592653589793),
+    )
+
+    for state in probe_states:
+        reference = progression_tilted(reference_snapshot, reference_context, state, config=config)
+        fragmented = progression_tilted(fragmented_snapshot, fragmented_context, state, config=config)
+        assert abs(fragmented - reference) <= max(0.08, 0.15 * abs(reference))
+
+
 def test_no_progression_reference_preset_disables_progression_channel() -> None:
     preset = load_preset(ROOT / "presets/lab/baseline__no_progression.yaml")
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")

@@ -140,7 +140,13 @@ SSC는 중요한 validation source지만 canonical 기준은 아니다.
 
 ## 현재 구현
 
-Phase 5 v1 reference adapter는 generic local semantic map fixture를 `SemanticInputSnapshot + QueryContext`로 번역한다. 현재 runtime과 toy path는 같은 output contract를 공유한다. raw adapter boundary에서는 progression 입력을 explicit guide, global plan, drivable-only reconstruction 중 하나로 받을 수 있지만, split/merge처럼 ambiguous한 topology는 명시적으로 실패시키고 추측하지 않는다.
+Phase 5 v1 reference adapter는 generic local semantic map fixture를 `SemanticInputSnapshot + QueryContext`로 번역한다. 현재 runtime과 toy path는 같은 output contract를 공유한다. raw adapter boundary에서는 progression 입력을 explicit guide, global plan, drivable-only reconstruction 중 하나로 받을 수 있다.
+
+현재 normalization 정책은 source kind마다 다르게 둔다.
+
+- `global_plan_supports`와 drivable-only reconstruction은 adapter의 정상 입력이므로, obvious single-chain fragmentation은 canonical guide 하나로 정규화할 수 있다.
+- explicit `progression_supports`는 여전히 upstream 책임으로 문서화하지만, obvious single-chain fragmentation에 대해서는 adapter가 best-effort fallback normalization을 시도하고 그 사실을 snapshot metadata에 남긴다.
+- split/merge처럼 ambiguous한 continuation은 조용히 추측하지 않는다. 이 경우 입력을 병합하지 않고 warning/error 수준의 normalization metadata만 남긴다.
 
 ## 현재 기준
 
