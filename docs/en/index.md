@@ -40,6 +40,7 @@ If you are using Codex or another AI agent for repo work, start from [../../AGEN
 | [Parameter Catalog](./reference/parameter_catalog.md) | current knobs and hidden tunables | read before exposing new parameters |
 | [Runtime Evaluation Contract](./reference/runtime_evaluation_contract.md) | runtime API contract | read before changing public runtime behavior |
 | [Current Formula Reference](./reference/current_formula_reference.md) | current implementation formula | read when you need the exact current math |
+| [SSC Pure-Field Consumption](./reference/ssc_pure_field_consumption.md) | downstream SSC objective and MPPI consumption path | read when you need the current SSC field-first control semantics |
 
 ## How-to
 

@@ -47,6 +47,8 @@ Visualization is a sampled view of the continuous runtime field over the local m
 
 The runtime provides the field ordering. An optimizer or consumer decides how to turn that ordering into actual motion. Optimizer policy is therefore downstream of this contract.
 
+For one concrete downstream example, see [SSC Pure-Field Consumption](./ssc_pure_field_consumption.md). That page is consumer-specific and does not redefine the base DPF runtime contract.
+
 ## Current baseline
 
 For the exact active formula, see [Current Formula Reference](./current_formula_reference.md).
