@@ -7,8 +7,9 @@ field_config:
     lookahead_scale: 0.42
     longitudinal_shape: 1.8
     transverse_family: inverse
-    transverse_scale: 0.80
+    transverse_peak: 1.0
     transverse_shape: 3.5
+    transverse_falloff: 0.0
     support_ceiling: 1.0
   interior_boundary:
     gain: 1.0
@@ -24,7 +25,7 @@ metadata:
   origin: downstream_experiment
   label: Inverse Transverse Center Pull
   family: local_absolute:tanh/inverse-center-pull
-  description: 횡단면 중심 유도를 더 강하게 만들기 위해 inverse transverse를 좁고 가파르게 둔 candidate
+  description: 횡단면 중심 유도를 더 강하게 만들기 위해 inverse transverse core를 더 가파르게 둔 candidate
   recommended_cases:
     - straight_corridor
     - left_bend

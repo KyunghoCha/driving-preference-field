@@ -52,15 +52,16 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._baseline_view.scene() is not None
     assert window._candidate_view.scene() is not None
     assert window._left_tabs.count() == 4
-    assert window._left_tabs.tabText(2) == "Profile"
+    assert window._left_tabs.tabText(1) == "Layers"
+    assert window._left_tabs.tabText(3) == "Profile"
     assert window._parameter_tabs.count() == 2
     assert window._parameter_tabs.tabText(0) == "Baseline"
     assert window._parameter_tabs.tabText(1) == "Candidate"
     assert window._tabs.tabText(0) == "Single"
     assert window._tabs.tabText(1) == "Compare"
     assert window._tabs.tabText(2) == "Diff"
-    assert window._scale_mode == "fixed"
-    assert window._scale_selector.currentData() == "fixed"
+    assert window._scale_mode == "normalized"
+    assert window._scale_selector.currentData() == "normalized"
     assert window._selected_channel == "progression_tilted"
     assert window._channel_selector.currentData() == "progression_tilted"
     assert window._reload_action.text() == "Reload Case"
@@ -83,8 +84,18 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert "model" not in window._baseline_panel._controls
     assert "longitudinal_frame" in window._baseline_panel._controls
     assert "longitudinal_family" in window._baseline_panel._controls
+    assert "longitudinal_peak" in window._baseline_panel._controls
+    assert window._baseline_panel._longitudinal_preview_label.text() == "profile (pending)"
+    assert window._baseline_panel._longitudinal_profile_preview is not None
+    assert window._baseline_panel._longitudinal_summary_label.text() == "summary (pending)"
+    assert window._baseline_panel._lookahead_preview_label.text() == "lookahead"
+    assert window._baseline_panel._lookahead_profile_preview is not None
     assert "transverse_family" in window._baseline_panel._controls
-    assert "transverse_scale" in window._baseline_panel._controls
+    assert window._baseline_panel._transverse_preview_label.text() == "profile (pending)"
+    assert window._baseline_panel._transverse_profile_preview is not None
+    assert window._baseline_panel._support_summary_label.text() == "summary (pending)"
+    assert window._baseline_panel._support_summary_preview is not None
+    assert "transverse_scale" not in window._baseline_panel._controls
     assert "anchor_spacing_m" in window._baseline_panel._controls
     assert "transverse_handoff_temperature" not in window._baseline_panel._controls
     assert window._baseline_panel._advanced_toggle.isChecked() is False
@@ -174,11 +185,87 @@ def test_profile_panel_builds_on_demand_when_profile_tab_is_selected(qtbot) -> N
     _wait_for_result(qtbot, window)
 
     assert window._profile_result is None
-    window._left_tabs.setCurrentIndex(2)
+    window._left_tabs.setCurrentIndex(3)
 
     qtbot.waitUntil(lambda: window._profile_result is not None, timeout=15000)
     summary = json.loads(window._summary_panel._text.toPlainText())
     assert summary["profile"]["available"] is True
+
+    window.close()
+
+
+def test_transverse_profile_preview_tracks_pending_config(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    panel = window._candidate_panel
+    panel._transverse_peak.setValue(2.5)
+    panel._transverse_shape.setValue(1.7)
+    panel._transverse_falloff.setValue(0.8)
+
+    progression = panel._transverse_profile_preview._config.progression
+    assert progression.transverse_peak == pytest.approx(2.5)
+    assert progression.transverse_shape == pytest.approx(1.7)
+    assert progression.transverse_falloff == pytest.approx(0.8)
+
+    window.close()
+
+
+def test_longitudinal_profile_preview_tracks_pending_config(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    panel = window._candidate_panel
+    panel._longitudinal_peak.setValue(1.7)
+    panel._longitudinal_gain.setValue(2.2)
+    panel._longitudinal_shape.setValue(3.0)
+
+    progression = panel._longitudinal_profile_preview._config.progression
+    assert progression.longitudinal_peak == pytest.approx(1.7)
+    assert progression.longitudinal_gain == pytest.approx(2.2)
+    assert progression.longitudinal_shape == pytest.approx(3.0)
+    assert "gain = 2.20" in panel._longitudinal_summary_preview.text()
+
+    window.close()
+
+
+def test_lookahead_profile_preview_tracks_pending_config(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    panel = window._candidate_panel
+    panel._lookahead_scale.setValue(0.7)
+
+    progression = panel._lookahead_profile_preview._config.progression
+    assert progression.lookahead_scale == pytest.approx(0.7)
+
+    window.close()
+
+
+def test_summary_previews_track_pending_config(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+
+    _wait_for_result(qtbot, window)
+
+    panel = window._candidate_panel
+    panel._support_ceiling.setValue(0.6)
+    panel._anchor_spacing_m.setValue(0.5)
+    panel._support_range.setValue(0.15)
+
+    assert "cap = 0.60" in panel._support_summary_preview.text()
+    assert "anchors ≈ 2.0 / m" in panel._summary_widgets["discretization"].text()
+    assert "support ∈ [0.95, 1.10]" in panel._summary_widgets["modulation"].text()
 
     window.close()
 
@@ -358,16 +445,16 @@ def test_scale_mode_toggle_updates_scale_info_and_summary(qtbot) -> None:
     window.show()
     _wait_for_result(qtbot, window)
 
-    fixed_info = window._scale_info_label.text()
-    assert fixed_info.startswith("fixed")
+    normalized_info = window._scale_info_label.text()
+    assert normalized_info.startswith("normalized")
 
-    index = window._scale_selector.findData("normalized")
+    index = window._scale_selector.findData("fixed")
     window._scale_selector.setCurrentIndex(index)
 
-    qtbot.waitUntil(lambda: window._scale_info_label.text() != fixed_info, timeout=15000)
-    assert window._scale_mode == "normalized"
-    assert window._scale_info_label.text().startswith("normalized")
-    assert '"scale_mode": "normalized"' in window._summary_panel._text.toPlainText()
+    qtbot.waitUntil(lambda: window._scale_info_label.text() != normalized_info, timeout=15000)
+    assert window._scale_mode == "fixed"
+    assert window._scale_info_label.text().startswith("fixed")
+    assert '"scale_mode": "fixed"' in window._summary_panel._text.toPlainText()
 
     window.close()
 
@@ -750,14 +837,16 @@ def test_language_switch_retranslates_ui_and_persists(qtbot) -> None:
     _wait_for_result(qtbot, window)
 
     assert window._language == DEFAULT_LANGUAGE
-    assert window._left_tabs.tabText(2) == "Profile"
+    assert window._left_tabs.tabText(1) == "Layers"
+    assert window._left_tabs.tabText(3) == "Profile"
     assert window._lab_help_action.text() == "Guide"
 
     index = window._language_selector.findData(LANG_KO)
     window._language_selector.setCurrentIndex(index)
 
     qtbot.waitUntil(lambda: window._language == LANG_KO, timeout=15000)
-    assert window._left_tabs.tabText(2) == "Profile"
+    assert window._left_tabs.tabText(1) == "Layers"
+    assert window._left_tabs.tabText(3) == "Profile"
     assert window._parameter_dock.windowTitle() == "Parameters"
     assert window._lab_help_action.text() == "Guide"
     assert window._baseline_panel._apply_button.text() == "Apply"
@@ -783,7 +872,8 @@ def test_language_switch_retranslates_ui_and_persists(qtbot) -> None:
     reopened.show()
     _wait_for_result(qtbot, reopened)
     assert reopened._language == LANG_KO
-    assert reopened._left_tabs.tabText(2) == "Profile"
+    assert reopened._left_tabs.tabText(1) == "Layers"
+    assert reopened._left_tabs.tabText(3) == "Profile"
     reopened.close()
 
 
@@ -832,7 +922,7 @@ def test_profile_panel_scrollbars_activate_for_large_preview_and_reset_on_placeh
     window.show()
     _wait_for_result(qtbot, window)
 
-    window._left_tabs.setCurrentIndex(2)
+    window._left_tabs.setCurrentIndex(3)
     payload = _png_bytes(2200, 1600)
     tab_specs = (
         ("Baseline", window._profile_panel._baseline_widget),
@@ -878,7 +968,7 @@ def test_profile_panel_degrades_gracefully_when_plot_rendering_fails(qtbot, monk
         raise RuntimeError("synthetic render failure")
 
     monkeypatch.setattr(profile_inspection, "profile_plot_png_bytes", _raise)
-    window._left_tabs.setCurrentIndex(2)
+    window._left_tabs.setCurrentIndex(3)
 
     qtbot.waitUntil(
         lambda: "synthetic render failure" in window._profile_panel.toolTip(),

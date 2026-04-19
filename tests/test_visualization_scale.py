@@ -56,3 +56,27 @@ def test_display_range_text_includes_mode_and_unit() -> None:
     assert "fixed" in text
     assert "cost score" in text
     assert display_unit("safety_soft", diff=True) == "cost delta"
+
+
+def test_longitudinal_component_fixed_range_matches_linear_shape_ceiling() -> None:
+    data = np.array([[0.2, 1.7], [2.8, 3.4]], dtype=float)
+
+    value_range = resolve_display_range(
+        data,
+        channel_name="progression_longitudinal_component",
+        scale_mode=SCALE_MODE_FIXED,
+    )
+
+    assert value_range == (0.0, 8.0)
+
+
+def test_transverse_component_fixed_range_matches_peak_ceiling() -> None:
+    data = np.array([[0.2, 1.7], [2.8, 3.4]], dtype=float)
+
+    value_range = resolve_display_range(
+        data,
+        channel_name="progression_transverse_term",
+        scale_mode=SCALE_MODE_FIXED,
+    )
+
+    assert value_range == (0.0, 4.0)

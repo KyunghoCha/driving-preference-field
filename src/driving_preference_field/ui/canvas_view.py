@@ -85,7 +85,17 @@ class RasterCanvasView(QGraphicsView):
         if self._content_rect is None:
             return
         x, y, width, height = self._content_rect
-        self.fitInView(x, y, width, height, Qt.AspectRatioMode.KeepAspectRatio)
+        left_pad = 0.08 * width
+        right_pad = 0.02 * width
+        bottom_pad = 0.10 * height
+        top_pad = 0.02 * height
+        self.fitInView(
+            x - left_pad,
+            y - bottom_pad,
+            width + left_pad + right_pad,
+            height + bottom_pad + top_pad,
+            Qt.AspectRatioMode.KeepAspectRatio,
+        )
 
     def wheelEvent(self, event) -> None:
         factor = 1.15 if event.angleDelta().y() > 0 else 1.0 / 1.15
@@ -206,6 +216,67 @@ class RasterCanvasView(QGraphicsView):
             cross = QGraphicsLineItem(point[0] + dx0, point[1] + dy0, point[0] + dx1, point[1] + dy1)
             cross.setPen(QPen(QColor("#ff4fd8"), 0.03))
             self._scene.addItem(cross)
+
+    def drawForeground(self, painter: QPainter, rect) -> None:  # noqa: N802
+        super().drawForeground(painter, rect)
+        if self._content_rect is None:
+            return
+
+        x, y, width, height = self._content_rect
+        bottom_left = self.mapFromScene(QPointF(x, y))
+        top_right = self.mapFromScene(QPointF(x + width, y + height))
+
+        left = min(bottom_left.x(), top_right.x())
+        right = max(bottom_left.x(), top_right.x())
+        top = min(bottom_left.y(), top_right.y())
+        bottom = max(bottom_left.y(), top_right.y())
+        mid_x = 0.5 * (left + right)
+        mid_y = 0.5 * (top + bottom)
+
+        painter.save()
+        painter.resetTransform()
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+
+        axis_pen = QPen(QColor("#64748b"), 1.2)
+        tick_pen = QPen(QColor("#64748b"), 1.0)
+        text_pen = QPen(QColor("#334155"), 1.0)
+        tick_len = 7
+        label_gap = 4
+
+        painter.setPen(axis_pen)
+        painter.drawLine(left, bottom, right, bottom)
+        painter.drawLine(left, top, left, bottom)
+
+        painter.setPen(tick_pen)
+        for tick_x in (left, mid_x, right):
+            painter.drawLine(int(tick_x), int(bottom), int(tick_x), int(bottom + tick_len))
+        for tick_y in (bottom, mid_y, top):
+            painter.drawLine(int(left - tick_len), int(tick_y), int(left), int(tick_y))
+
+        painter.setPen(text_pen)
+        self._draw_axis_label(painter, f"{x:.1f}", left, bottom + tick_len + label_gap, align="center_top")
+        self._draw_axis_label(painter, f"{x + 0.5 * width:.1f}", mid_x, bottom + tick_len + label_gap, align="center_top")
+        self._draw_axis_label(painter, f"{x + width:.1f}", right, bottom + tick_len + label_gap, align="center_top")
+
+        self._draw_axis_label(painter, f"{y:.1f}", left - tick_len - label_gap, bottom, align="right_middle")
+        self._draw_axis_label(painter, f"{y + 0.5 * height:.1f}", left - tick_len - label_gap, mid_y, align="right_middle")
+        self._draw_axis_label(painter, f"{y + height:.1f}", left - tick_len - label_gap, top, align="right_middle")
+
+        painter.restore()
+
+    def _draw_axis_label(self, painter: QPainter, text: str, x: float, y: float, *, align: str) -> None:
+        metrics = painter.fontMetrics()
+        width = metrics.horizontalAdvance(text)
+        height = metrics.height()
+        x_pos = x
+        y_pos = y
+        if align == "center_top":
+            x_pos -= 0.5 * width
+            y_pos += height
+        elif align == "right_middle":
+            x_pos -= width
+            y_pos += 0.35 * height
+        painter.drawText(QPointF(x_pos, y_pos), text)
 
 
 def raster_to_qimage(

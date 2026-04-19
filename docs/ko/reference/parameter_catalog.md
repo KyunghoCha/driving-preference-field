@@ -8,12 +8,14 @@
 
 - `longitudinal_frame`
 - `longitudinal_family`
+- `longitudinal_peak`
 - `longitudinal_gain`
 - `lookahead_scale`
 - `longitudinal_shape`
 - `transverse_family`
-- `transverse_scale`
+- `transverse_peak`
 - `transverse_shape`
+- `transverse_falloff`
 - `support_ceiling`
 
 이 항목들은 우측 `Parameters` 도크에 항상 보이고, preset/config에도 같이 저장된다.

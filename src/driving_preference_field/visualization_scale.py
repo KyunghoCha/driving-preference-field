@@ -52,14 +52,14 @@ CHANNEL_SCALE_SPECS = {
     "progression_longitudinal_component": ChannelScaleSpec(
         unit="score",
         fixed_min=0.0,
-        fixed_max=1.0,
-        diff_abs_max=1.0,
+        fixed_max=8.0,
+        diff_abs_max=8.0,
     ),
     "progression_transverse_term": ChannelScaleSpec(
         unit="score",
         fixed_min=0.0,
-        fixed_max=1.0,
-        diff_abs_max=1.0,
+        fixed_max=4.0,
+        diff_abs_max=4.0,
     ),
     "progression_support_mod": ChannelScaleSpec(
         unit="score",

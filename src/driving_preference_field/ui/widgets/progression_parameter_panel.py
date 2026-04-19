@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from dataclasses import fields, replace
 
-from PyQt6.QtCore import Qt, pyqtSignal
+import numpy as np
+from PyQt6.QtCore import QPointF, QRectF, QSize, Qt, pyqtSignal
+from PyQt6.QtGui import QColor, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
@@ -18,16 +20,272 @@ from PyQt6.QtWidgets import (
 )
 
 from driving_preference_field.config import FieldConfig
+from driving_preference_field.progression_surface import longitudinal_profile_array, transverse_profile_array
 from driving_preference_field.ui.help.catalog import ADVANCED_PARAMETER_GROUPS, MAIN_PARAMETER_KEYS, PARAMETER_SPECS, ParameterSpec
 from driving_preference_field.ui.help.render import panel_note_text, progression_parameter_guide, section_title
 from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, t
 
 
 MAIN_SECTION_KEYS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("longitudinal", ("longitudinal_frame", "longitudinal_family", "longitudinal_gain", "lookahead_scale", "longitudinal_shape")),
-    ("transverse", ("transverse_family", "transverse_scale", "transverse_shape")),
+    ("longitudinal", ("longitudinal_frame", "longitudinal_family", "longitudinal_peak", "longitudinal_gain", "lookahead_scale", "longitudinal_shape")),
+    ("transverse", ("transverse_family", "transverse_peak", "transverse_shape", "transverse_falloff")),
     ("support_gate", ("support_ceiling",)),
 )
+
+
+class _ProfilePreviewWidget(QWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE, title: str, tooltip_key: str) -> None:
+        super().__init__()
+        self._language = language
+        self._title = title
+        self._tooltip_key = tooltip_key
+        self._config = FieldConfig()
+        self.setMinimumHeight(140)
+        self.setToolTip(t(language, tooltip_key))
+
+    def minimumSizeHint(self) -> QSize:
+        return QSize(220, 140)
+
+    def sizeHint(self) -> QSize:
+        return QSize(260, 150)
+
+    def set_config(self, config: FieldConfig) -> None:
+        self._config = config
+        self.update()
+
+    def set_language(self, language: str) -> None:
+        self._language = language
+        self.setToolTip(t(language, self._tooltip_key))
+        self.update()
+
+    def _series(self) -> tuple[np.ndarray, np.ndarray, tuple[str, str, str]]:
+        raise NotImplementedError
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        del event
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+
+        painter.fillRect(self.rect(), QColor("#ffffff"))
+        outer = QRectF(self.rect()).adjusted(8.0, 8.0, -8.0, -8.0)
+        painter.setPen(QPen(QColor("#d1d5db"), 1.0))
+        painter.drawRoundedRect(outer, 8.0, 8.0)
+
+        plot = outer.adjusted(28.0, 22.0, -12.0, -28.0)
+        if plot.width() <= 10.0 or plot.height() <= 10.0:
+            return
+
+        x_values, y_values, tick_labels = self._series()
+        y_max = max(float(np.max(y_values)), 1.0)
+
+        painter.save()
+        painter.setClipRect(plot)
+        grid_pen = QPen(QColor("#eef2f7"), 1.0)
+        painter.setPen(grid_pen)
+        for ratio in np.linspace(0.0, 1.0, 9):
+            x = plot.left() + ratio * plot.width()
+            y = plot.top() + ratio * plot.height()
+            painter.drawLine(QPointF(x, plot.top()), QPointF(x, plot.bottom()))
+            painter.drawLine(QPointF(plot.left(), y), QPointF(plot.right(), y))
+        painter.restore()
+
+        x_min = float(np.min(x_values))
+        x_max = float(np.max(x_values))
+
+        def map_x(value: float) -> float:
+            span = max(x_max - x_min, 1e-9)
+            return float(plot.left() + ((value - x_min) / span) * plot.width())
+
+        def map_y(value: float) -> float:
+            return float(plot.bottom() - (value / y_max) * plot.height())
+
+        axis_pen = QPen(QColor("#4b5563"), 1.2)
+        painter.setPen(axis_pen)
+        painter.drawLine(QPointF(plot.left(), plot.bottom()), QPointF(plot.right(), plot.bottom()))
+        painter.drawLine(QPointF(plot.left(), plot.top()), QPointF(plot.left(), plot.bottom()))
+        if x_min < 0.0 < x_max:
+            center_x = map_x(0.0)
+            painter.drawLine(QPointF(center_x, plot.top()), QPointF(center_x, plot.bottom()))
+
+        curve = QPainterPath(QPointF(map_x(float(x_values[0])), map_y(float(y_values[0]))))
+        for x_value, y_value in zip(x_values[1:], y_values[1:], strict=False):
+            curve.lineTo(map_x(float(x_value)), map_y(float(y_value)))
+        painter.setPen(QPen(QColor("#2563eb"), 2.0))
+        painter.drawPath(curve)
+
+        label_pen = QPen(QColor("#374151"), 1.0)
+        painter.setPen(label_pen)
+        title_rect = QRectF(outer.left() + 8.0, outer.top() + 4.0, outer.width() * 0.6, 16.0)
+        max_rect = QRectF(outer.right() - 78.0, outer.top() + 4.0, 72.0, 16.0)
+        painter.drawText(title_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, self._title)
+        painter.drawText(max_rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, f"max={y_max:.2f}")
+
+        tick_y0 = plot.bottom()
+        tick_len = 6.0
+        x_left = plot.left()
+        x_mid = 0.5 * (plot.left() + plot.right())
+        x_right = plot.right()
+        for tick_x in (x_left, x_mid, x_right):
+            painter.drawLine(QPointF(tick_x, tick_y0), QPointF(tick_x, tick_y0 + tick_len))
+        painter.drawLine(QPointF(plot.left() - tick_len, plot.bottom()), QPointF(plot.left(), plot.bottom()))
+        painter.drawLine(QPointF(plot.left() - tick_len, plot.top()), QPointF(plot.left(), plot.top()))
+
+        painter.drawText(
+            QRectF(plot.left() - 8.0, plot.bottom() + 6.0, 44.0, 16.0),
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+            tick_labels[0],
+        )
+        painter.drawText(
+            QRectF(x_mid - 18.0, plot.bottom() + 6.0, 36.0, 16.0),
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+            tick_labels[1],
+        )
+        painter.drawText(
+            QRectF(plot.right() - 40.0, plot.bottom() + 6.0, 44.0, 16.0),
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop,
+            tick_labels[2],
+        )
+        painter.drawText(
+            QRectF(plot.left() - 24.0, plot.bottom() - 8.0, 20.0, 16.0),
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+            "0",
+        )
+        painter.drawText(
+            QRectF(plot.left() - 24.0, plot.top() - 8.0, 20.0, 16.0),
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+            f"{y_max:.1f}",
+        )
+
+class _TransverseProfilePreviewWidget(_ProfilePreviewWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
+        super().__init__(language=language, title="T(|r|), r[m]", tooltip_key="param.preview.transverse_tooltip")
+
+    def _series(self) -> tuple[np.ndarray, np.ndarray, tuple[str, str, str]]:
+        progression = self._config.progression
+        half_width = 3.0
+        x_values = np.linspace(-half_width, half_width, 241, dtype=float)
+        y_values = transverse_profile_array(x_values, progression)
+        return x_values, y_values, (f"{-half_width:.1f}m", "0", f"{half_width:.1f}m")
+
+
+class _LongitudinalProfilePreviewWidget(_ProfilePreviewWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
+        super().__init__(language=language, title="L(u), u∈[0,1]", tooltip_key="param.preview.longitudinal_tooltip")
+
+    def _series(self) -> tuple[np.ndarray, np.ndarray, tuple[str, str, str]]:
+        progression = self._config.progression
+        x_values = np.linspace(0.0, 1.0, 241, dtype=float)
+        y_values = longitudinal_profile_array(x_values, progression)
+        return x_values, y_values, ("0", "0.5", "1.0")
+
+
+class _LookaheadProfilePreviewWidget(_ProfilePreviewWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
+        super().__init__(language=language, title="blend(τ/span)", tooltip_key="param.preview.lookahead_tooltip")
+
+    def _series(self) -> tuple[np.ndarray, np.ndarray, tuple[str, str, str]]:
+        lookahead = max(float(self._config.progression.lookahead_scale), 1e-6)
+        x_values = np.linspace(-1.0, 1.0, 241, dtype=float)
+        y_values = np.exp(-0.5 * (x_values / lookahead) ** 2)
+        return x_values, y_values, ("-1.0", "0", "1.0")
+
+
+class _SummaryPreviewWidget(QLabel):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE, tooltip_key: str) -> None:
+        super().__init__()
+        self._language = language
+        self._tooltip_key = tooltip_key
+        self._config = FieldConfig()
+        self.setWordWrap(True)
+        self.setMinimumHeight(56)
+        self.setStyleSheet(
+            "background: #ffffff; border: 1px solid #d1d5db; border-radius: 8px; "
+            "padding: 8px; color: #374151;"
+        )
+        self.setToolTip(t(language, tooltip_key))
+
+    def set_config(self, config: FieldConfig) -> None:
+        self._config = config
+        self._refresh()
+
+    def set_language(self, language: str) -> None:
+        self._language = language
+        self.setToolTip(t(language, self._tooltip_key))
+        self._refresh()
+
+    def _summary_lines(self) -> tuple[str, ...]:
+        raise NotImplementedError
+
+    def _refresh(self) -> None:
+        self.setText("\n".join(self._summary_lines()))
+
+
+class _SupportSummaryWidget(_SummaryPreviewWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
+        super().__init__(language=language, tooltip_key="param.preview.summary_tooltip")
+
+    def _summary_lines(self) -> tuple[str, ...]:
+        progression = self._config.progression
+        return (
+            f"cap = {progression.support_ceiling:.2f}",
+            f"effective confidence <= {progression.support_ceiling:.2f}",
+        )
+
+
+class _LongitudinalMixSummaryWidget(_SummaryPreviewWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
+        super().__init__(language=language, tooltip_key="param.preview.summary_tooltip")
+
+    def _summary_lines(self) -> tuple[str, ...]:
+        progression = self._config.progression
+        u_values = np.linspace(0.0, 1.0, 129, dtype=float)
+        function_max = float(np.max(longitudinal_profile_array(u_values, progression)))
+        return (
+            f"gain = {progression.longitudinal_gain:.2f}",
+            f"weighted max ≈ {progression.longitudinal_gain * function_max:.2f}",
+        )
+
+
+class _DiscretizationSummaryWidget(_SummaryPreviewWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
+        super().__init__(language=language, tooltip_key="param.preview.summary_tooltip")
+
+    def _summary_lines(self) -> tuple[str, ...]:
+        tuning = self._config.surface_tuning
+        anchor_density = 1.0 / max(tuning.anchor_spacing_m, 1e-6)
+        spline_density = 1.0 / max(tuning.spline_sample_density_m, 1e-6)
+        return (
+            f"anchors ≈ {anchor_density:.1f} / m",
+            f"spline ≈ {spline_density:.1f} / m",
+            f"end ext = {tuning.end_extension_m:.2f} m",
+        )
+
+
+class _KernelSummaryWidget(_SummaryPreviewWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
+        super().__init__(language=language, tooltip_key="param.preview.summary_tooltip")
+
+    def _summary_lines(self) -> tuple[str, ...]:
+        tuning = self._config.surface_tuning
+        progression = self._config.progression
+        return (
+            f"σ_t floor = {tuning.min_sigma_t:.2f}, span coeff = {progression.lookahead_scale * tuning.sigma_t_scale:.3f}",
+            f"σ_n floor = {tuning.min_sigma_n:.2f}, scale coeff = {tuning.sigma_n_scale:.2f}",
+        )
+
+
+class _ModulationSummaryWidget(_SummaryPreviewWidget):
+    def __init__(self, *, language: str = DEFAULT_LANGUAGE) -> None:
+        super().__init__(language=language, tooltip_key="param.preview.summary_tooltip")
+
+    def _summary_lines(self) -> tuple[str, ...]:
+        tuning = self._config.surface_tuning
+        support_hi = tuning.support_base + tuning.support_range
+        align_hi = tuning.alignment_base + tuning.alignment_range
+        return (
+            f"support ∈ [{tuning.support_base:.2f}, {support_hi:.2f}]",
+            f"align ∈ [{tuning.alignment_base:.2f}, {align_hi:.2f}]",
+        )
 
 
 class ProgressionParameterPanelWidget(QWidget):
@@ -43,6 +301,8 @@ class ProgressionParameterPanelWidget(QWidget):
         self._controls: dict[str, QWidget] = {}
         self._label_widgets: dict[str, QLabel] = {}
         self._advanced_group_widgets: dict[str, QGroupBox] = {}
+        self._summary_label_widgets: dict[str, QLabel] = {}
+        self._summary_widgets: dict[str, _SummaryPreviewWidget] = {}
 
         layout = QVBoxLayout(self)
         self._root_group = QGroupBox(title)
@@ -65,6 +325,30 @@ class ProgressionParameterPanelWidget(QWidget):
                 self._controls[key] = control
                 setattr(self, f"_{key}", control)
                 form.addRow(self._make_label(key), control)
+        self._longitudinal_profile_preview = _LongitudinalProfilePreviewWidget(language=language)
+        self._longitudinal_preview_label = QLabel()
+        self._longitudinal_preview_label.setToolTip(t(language, "param.preview.longitudinal_tooltip"))
+        longitudinal_form.addRow(self._longitudinal_preview_label, self._longitudinal_profile_preview)
+        self._longitudinal_summary_preview = _LongitudinalMixSummaryWidget(language=language)
+        self._longitudinal_summary_label = QLabel()
+        self._longitudinal_summary_label.setToolTip(t(language, "param.preview.summary_tooltip"))
+        longitudinal_form.addRow(self._longitudinal_summary_label, self._longitudinal_summary_preview)
+        self._summary_label_widgets["longitudinal_mix"] = self._longitudinal_summary_label
+        self._summary_widgets["longitudinal_mix"] = self._longitudinal_summary_preview
+        self._lookahead_profile_preview = _LookaheadProfilePreviewWidget(language=language)
+        self._lookahead_preview_label = QLabel()
+        self._lookahead_preview_label.setToolTip(t(language, "param.preview.lookahead_tooltip"))
+        longitudinal_form.addRow(self._lookahead_preview_label, self._lookahead_profile_preview)
+        self._transverse_profile_preview = _TransverseProfilePreviewWidget(language=language)
+        self._transverse_preview_label = QLabel()
+        self._transverse_preview_label.setToolTip(t(language, "param.preview.transverse_tooltip"))
+        transverse_form.addRow(self._transverse_preview_label, self._transverse_profile_preview)
+        self._support_summary_preview = _SupportSummaryWidget(language=language)
+        self._support_summary_label = QLabel()
+        self._support_summary_label.setToolTip(t(language, "param.preview.summary_tooltip"))
+        support_form.addRow(self._support_summary_label, self._support_summary_preview)
+        self._summary_label_widgets["support_gate"] = self._support_summary_label
+        self._summary_widgets["support_gate"] = self._support_summary_preview
 
         root_layout.addWidget(self._longitudinal_group)
         root_layout.addWidget(self._transverse_group)
@@ -90,6 +374,19 @@ class ProgressionParameterPanelWidget(QWidget):
                 self._controls[key] = control
                 setattr(self, f"_{key}", control)
                 form.addRow(self._make_label(key), control)
+            summary_widget: _SummaryPreviewWidget | None = None
+            if group_key == "discretization":
+                summary_widget = _DiscretizationSummaryWidget(language=language)
+            elif group_key == "support_kernel":
+                summary_widget = _KernelSummaryWidget(language=language)
+            elif group_key == "modulation":
+                summary_widget = _ModulationSummaryWidget(language=language)
+            if summary_widget is not None:
+                summary_label = QLabel()
+                summary_label.setToolTip(t(language, "param.preview.summary_tooltip"))
+                form.addRow(summary_label, summary_widget)
+                self._summary_label_widgets[group_key] = summary_label
+                self._summary_widgets[group_key] = summary_widget
             self._advanced_content_layout.addWidget(group)
         self._advanced_content_layout.addStretch(1)
         self._advanced_content.setVisible(False)
@@ -211,11 +508,21 @@ class ProgressionParameterPanelWidget(QWidget):
             else:
                 control.setValue(float(value))
             control.blockSignals(False)
+        self._longitudinal_profile_preview.set_config(self._pending_config)
+        self._lookahead_profile_preview.set_config(self._pending_config)
+        self._transverse_profile_preview.set_config(self._pending_config)
+        for widget in self._summary_widgets.values():
+            widget.set_config(self._pending_config)
         self._apply_button.setEnabled(False)
         self._reset_button.setEnabled(False)
 
     def _on_changed(self) -> None:
         self._pending_config = self._build_config_from_controls()
+        self._longitudinal_profile_preview.set_config(self._pending_config)
+        self._lookahead_profile_preview.set_config(self._pending_config)
+        self._transverse_profile_preview.set_config(self._pending_config)
+        for widget in self._summary_widgets.values():
+            widget.set_config(self._pending_config)
         changed = self._pending_config != self._config
         self._apply_button.setEnabled(changed)
         self._reset_button.setEnabled(changed)
@@ -243,6 +550,19 @@ class ProgressionParameterPanelWidget(QWidget):
         self._transverse_group.setTitle(section_title(language, "transverse"))
         self._support_group.setTitle(section_title(language, "support_gate"))
         self._advanced_toggle.setText(section_title(language, "advanced"))
+        self._longitudinal_preview_label.setText(t(language, "param.preview.longitudinal"))
+        self._longitudinal_preview_label.setToolTip(t(language, "param.preview.longitudinal_tooltip"))
+        self._longitudinal_profile_preview.set_language(language)
+        self._lookahead_preview_label.setText(t(language, "param.preview.lookahead"))
+        self._lookahead_preview_label.setToolTip(t(language, "param.preview.lookahead_tooltip"))
+        self._lookahead_profile_preview.set_language(language)
+        self._transverse_preview_label.setText(t(language, "param.preview.transverse"))
+        self._transverse_preview_label.setToolTip(t(language, "param.preview.transverse_tooltip"))
+        self._transverse_profile_preview.set_language(language)
+        for section_key, label in self._summary_label_widgets.items():
+            label.setText(t(language, "param.preview.summary"))
+            label.setToolTip(t(language, "param.preview.summary_tooltip"))
+            self._summary_widgets[section_key].set_language(language)
         for group_key, group in self._advanced_group_widgets.items():
             group.setTitle(section_title(language, group_key))
         for key, label in self._label_widgets.items():

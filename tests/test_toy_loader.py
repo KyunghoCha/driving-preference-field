@@ -18,6 +18,34 @@ def test_toy_loader_builds_semantic_snapshot() -> None:
     assert context.local_window.x_max == 7.0
 
 
+@pytest.mark.parametrize(
+    ("case_name", "guide_end_x", "window_x_max", "window_y_min", "window_y_max"),
+    (
+        ("straight_corridor_10m", 10.0, 11.0, -6.0, 6.0),
+        ("straight_corridor_15m", 15.0, 16.0, -8.5, 8.5),
+    ),
+)
+def test_straight_corridor_length_variants_load_expected_extent(
+    case_name: str,
+    guide_end_x: float,
+    window_x_max: float,
+    window_y_min: float,
+    window_y_max: float,
+) -> None:
+    snapshot, context = load_toy_snapshot(ROOT / f"cases/toy/{case_name}.yaml")
+
+    assert snapshot.metadata["name"] == case_name
+    assert len(snapshot.drivable_support.regions) == 1
+    assert len(snapshot.progression_support.guides) == 1
+    assert snapshot.progression_support.guides[0].points[-1][0] == guide_end_x
+    assert context.local_window.x_max == window_x_max
+    assert context.local_window.y_min == window_y_min
+    assert context.local_window.y_max == window_y_max
+    assert context.local_window.x_max - context.local_window.x_min == pytest.approx(
+        context.local_window.y_max - context.local_window.y_min
+    )
+
+
 def test_summarize_snapshot_reports_slot_counts() -> None:
     snapshot, _ = load_toy_snapshot(ROOT / "cases/toy/split_branch.yaml")
     summary = summarize_snapshot(snapshot)

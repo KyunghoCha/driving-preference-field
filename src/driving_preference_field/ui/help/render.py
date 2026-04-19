@@ -288,7 +288,7 @@ def parameter_help_html(language: str = DEFAULT_LANGUAGE) -> str:
         <h2 id="when-main">{main_title}</h2>
         <p>{main_intro}</p>
         {_summary_table(guide, MAIN_PARAMETER_KEYS, anchor="group-longitudinal", title=section_title(lang, "longitudinal"), language=lang)}
-        {_summary_table(guide, ("transverse_family", "transverse_scale", "transverse_shape"), anchor="group-transverse", title=section_title(lang, "transverse"), language=lang)}
+        {_summary_table(guide, ("transverse_family", "transverse_peak", "transverse_shape", "transverse_falloff"), anchor="group-transverse", title=section_title(lang, "transverse"), language=lang)}
         {_summary_table(guide, ("support_ceiling",), anchor="group-support-gate", title=section_title(lang, "support_gate"), language=lang)}
 
         <h2 id="when-advanced">{advanced_title}</h2>

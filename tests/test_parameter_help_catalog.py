@@ -10,12 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_parameter_catalog_covers_progression_and_surface_tuning_fields() -> None:
     progression_keys = {field.name for field in fields(ProgressionConfig)}
+    active_progression_keys = progression_keys - {"transverse_scale"}
     surface_keys = {field.name for field in fields(SurfaceTuningConfig)}
 
-    assert set(MAIN_PARAMETER_KEYS) == progression_keys
-    assert {key for key, spec in PARAMETER_SPECS.items() if spec.config_namespace == "progression"} == progression_keys
+    assert set(MAIN_PARAMETER_KEYS) == active_progression_keys
+    assert {key for key, spec in PARAMETER_SPECS.items() if spec.config_namespace == "progression"} == active_progression_keys
     assert {key for key, spec in PARAMETER_SPECS.items() if spec.config_namespace == "surface_tuning"} == surface_keys
-    assert set(PARAMETER_ORDER) == progression_keys | surface_keys
+    assert set(PARAMETER_ORDER) == active_progression_keys | surface_keys
 
 
 def test_parameter_catalog_metadata_is_complete() -> None:

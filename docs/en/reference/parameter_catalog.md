@@ -8,12 +8,14 @@ The `Main` surface contains the progression knobs that directly shape semantics 
 
 - `longitudinal_frame`
 - `longitudinal_family`
+- `longitudinal_peak`
 - `longitudinal_gain`
 - `lookahead_scale`
 - `longitudinal_shape`
 - `transverse_family`
-- `transverse_scale`
+- `transverse_peak`
 - `transverse_shape`
+- `transverse_falloff`
 - `support_ceiling`
 
 These are exposed in the right-side `Parameters` panel and persist in presets/config.

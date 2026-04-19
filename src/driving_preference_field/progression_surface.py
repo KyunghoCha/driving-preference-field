@@ -523,7 +523,10 @@ def _guide_local_result(
     nu = dx * normal_x + dy * normal_y
 
     sigma_t = np.maximum(tuning.min_sigma_t, guide_lengths * config.lookahead_scale * tuning.sigma_t_scale)
-    sigma_n = max(tuning.min_sigma_n, config.transverse_scale * tuning.sigma_n_scale)
+    # Transverse shape now reads raw center distance directly. The lateral
+    # Gaussian width therefore comes only from the surface-tuning kernel,
+    # not from a user-facing transverse-width knob.
+    sigma_n = max(tuning.min_sigma_n, tuning.sigma_n_scale)
     raw_weights = guide_weights * confidences * np.exp(
         -0.5 * (((tau / sigma_t) ** 2) + ((nu / sigma_n) ** 2))
     )
@@ -554,8 +557,7 @@ def _guide_local_result(
         reference_s = float(ego_s_hat or 0.0)
         u_value = np.clip(np.maximum(0.0, s_hat - reference_s) / lookahead, 0.0, 1.0)
 
-    transverse_ratio = center_distance / max(config.transverse_scale, _EPS)
-    transverse_term = _transverse_value_array(transverse_ratio, config)
+    transverse_term = _transverse_value_array(center_distance, config)
     longitudinal_component = _longitudinal_value_array(u_value, config)
 
     heading_x = np.cos(heading_yaws)
@@ -634,7 +636,7 @@ def _guide_local_score_only(
     nu = dx * normal_x + dy * normal_y
 
     sigma_t = np.maximum(tuning.min_sigma_t, guide_lengths * config.lookahead_scale * tuning.sigma_t_scale)
-    sigma_n = max(tuning.min_sigma_n, config.transverse_scale * tuning.sigma_n_scale)
+    sigma_n = max(tuning.min_sigma_n, tuning.sigma_n_scale)
     raw_weights = guide_weights * confidences * np.exp(
         -0.5 * (((tau / sigma_t) ** 2) + ((nu / sigma_n) ** 2))
     )
@@ -663,8 +665,7 @@ def _guide_local_score_only(
         reference_s = float(ego_s_hat or 0.0)
         u_value = np.clip(np.maximum(0.0, s_hat - reference_s) / lookahead, 0.0, 1.0)
 
-    transverse_ratio = center_distance / max(config.transverse_scale, _EPS)
-    transverse_term = _transverse_value_array(transverse_ratio, config)
+    transverse_term = _transverse_value_array(center_distance, config)
     longitudinal_component = _longitudinal_value_array(u_value, config)
 
     heading_x = np.cos(heading_yaws)
@@ -821,24 +822,45 @@ def _ego_relative_lookahead(
 def _longitudinal_value_array(u_value: np.ndarray, config: ProgressionConfig) -> np.ndarray:
     u = np.clip(u_value, 0.0, 1.0)
     family = config.longitudinal_family
+    peak = max(config.longitudinal_peak, _EPS)
     shape = max(config.longitudinal_shape, _EPS)
     if family == "linear":
-        return u
+        return peak * shape * u
     if family == "inverse":
-        return ((1.0 + shape) * u) / (1.0 + shape * u)
+        return peak * (((1.0 + shape) * u) / (1.0 + shape * u))
     if family == "power":
-        return u**shape
-    return np.tanh(shape * u) / max(math.tanh(shape), _EPS)
+        return peak * (u**shape)
+    return peak * (np.tanh(shape * u) / max(math.tanh(shape), _EPS))
+
+
+def longitudinal_profile_array(u_value: np.ndarray, config: ProgressionConfig) -> np.ndarray:
+    return _longitudinal_value_array(np.asarray(u_value, dtype=float), config)
 
 
 def _transverse_value_array(ratio: np.ndarray, config: ProgressionConfig) -> np.ndarray:
     family = config.transverse_family
-    shape = max(config.transverse_shape, _EPS)
-    if family == "inverse":
-        return 1.0 / (1.0 + shape * ratio)
-    if family == "power":
-        return 1.0 / (1.0 + ratio**shape)
-    return np.exp(-shape * ratio)
+    peak = max(config.transverse_peak, _EPS)
+    core = max(config.transverse_shape, _EPS)
+    falloff = max(config.transverse_falloff, 0.0)
+    with np.errstate(over="ignore", under="ignore", invalid="ignore"):
+        tail = np.power(1.0 + ratio, falloff) if falloff > _EPS else np.ones_like(ratio)
+        if family == "linear":
+            base = np.clip(1.0 - ratio, 0.0, None) ** core
+            return peak * base / tail
+        if family == "inverse":
+            base = 1.0 / (1.0 + core * ratio)
+        elif family == "power":
+            base = 1.0 / (1.0 + ratio**core)
+        else:
+            # Generalized exponential core: core<1 sharpens the center, core=1 is classic exponential,
+            # core>1 makes the center flatter. falloff then presses down the outer shoulder separately.
+            base = np.exp(-(ratio**core))
+    return peak * base / tail
+
+
+def transverse_profile_array(offsets: np.ndarray, config: ProgressionConfig) -> np.ndarray:
+    distance = np.abs(np.asarray(offsets, dtype=float))
+    return _transverse_value_array(distance, config)
 
 
 def _unsigned_distance_to_polyline(

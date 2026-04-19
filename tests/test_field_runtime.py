@@ -17,12 +17,14 @@ def _canonical_config(*, surface_tuning: SurfaceTuningConfig | None = None, **kw
     payload = {
         "longitudinal_frame": "local_absolute",
         "longitudinal_family": "linear",
+        "longitudinal_peak": 1.0,
         "longitudinal_gain": 1.0,
         "lookahead_scale": 0.35,
         "longitudinal_shape": 1.0,
         "transverse_family": "exponential",
-        "transverse_scale": 1.0,
+        "transverse_peak": 1.0,
         "transverse_shape": 1.0,
+        "transverse_falloff": 0.0,
         "support_ceiling": 1.0,
     }
     payload.update(kwargs)
@@ -109,6 +111,82 @@ def test_field_runtime_debug_grid_exposes_progression_components() -> None:
     assert grid["progression_transverse_term"].shape == (6, 8)
     assert grid["progression_support_mod"].shape == (6, 8)
     assert grid["progression_alignment_mod"].shape == (6, 8)
+
+
+def test_linear_longitudinal_shape_scales_component_ceiling() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
+    runtime_shape1 = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(longitudinal_family="linear", longitudinal_gain=1.0, longitudinal_shape=1.0),
+    )
+    runtime_shape2 = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(longitudinal_family="linear", longitudinal_gain=1.0, longitudinal_shape=2.0),
+    )
+
+    x = np.asarray([5.0], dtype=float)
+    y = np.asarray([0.0], dtype=float)
+    comp1 = runtime_shape1.query_progression_points(x, y)["progression_longitudinal_component"][0]
+    comp2 = runtime_shape2.query_progression_points(x, y)["progression_longitudinal_component"][0]
+
+    assert comp1 > 0.0
+    assert comp2 == pytest.approx(2.0 * comp1)
+
+
+def test_longitudinal_peak_scales_component_ceiling_before_gain() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
+    runtime_peak1 = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(
+            longitudinal_family="tanh",
+            longitudinal_peak=1.0,
+            longitudinal_gain=1.0,
+            longitudinal_shape=2.0,
+        ),
+    )
+    runtime_peak2 = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(
+            longitudinal_family="tanh",
+            longitudinal_peak=2.0,
+            longitudinal_gain=1.0,
+            longitudinal_shape=2.0,
+        ),
+    )
+
+    x = np.asarray([5.0], dtype=float)
+    y = np.asarray([0.0], dtype=float)
+    comp1 = runtime_peak1.query_progression_points(x, y)["progression_longitudinal_component"][0]
+    comp2 = runtime_peak2.query_progression_points(x, y)["progression_longitudinal_component"][0]
+
+    assert comp1 > 0.0
+    assert comp2 == pytest.approx(2.0 * comp1)
+
+
+def test_transverse_peak_scales_component_ceiling() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
+    runtime_shape1 = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(transverse_family="exponential", transverse_peak=1.0, longitudinal_gain=0.0),
+    )
+    runtime_shape2 = build_field_runtime(
+        snapshot,
+        context,
+        config=_canonical_config(transverse_family="exponential", transverse_peak=2.0, longitudinal_gain=0.0),
+    )
+
+    x = np.asarray([5.0], dtype=float)
+    y = np.asarray([0.0], dtype=float)
+    comp1 = runtime_shape1.query_progression_points(x, y)["progression_transverse_term"][0]
+    comp2 = runtime_shape2.query_progression_points(x, y)["progression_transverse_term"][0]
+
+    assert comp1 > 0.0
+    assert comp2 == pytest.approx(2.0 * comp1)
 
 
 def test_field_runtime_public_contract_is_locked_for_late_phase4() -> None:

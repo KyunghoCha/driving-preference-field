@@ -25,7 +25,6 @@ def _canonical_config(*, surface_tuning: SurfaceTuningConfig | None = None, **kw
         "lookahead_scale": 0.35,
         "longitudinal_shape": 1.0,
         "transverse_family": "exponential",
-        "transverse_scale": 1.0,
         "transverse_shape": 1.0,
         "support_ceiling": 1.0,
     }

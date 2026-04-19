@@ -8,18 +8,24 @@ _REMOVED_SURFACE_TUNING_KEYS = (
     "transverse_handoff_score_delta",
     "transverse_handoff_temperature",
 )
+_REMOVED_PROGRESSION_KEYS = (
+    "transverse_scale",
+)
 
 
 @dataclass(frozen=True)
 class ProgressionConfig:
     longitudinal_frame: str = "local_absolute"
     longitudinal_family: str = "tanh"
+    longitudinal_peak: float = 1.0
     longitudinal_gain: float = 1.0
     lookahead_scale: float = 0.25
     longitudinal_shape: float = 1.0
     transverse_family: str = "exponential"
+    transverse_peak: float = 1.0
     transverse_scale: float = 1.0
     transverse_shape: float = 1.0
+    transverse_falloff: float = 0.0
     support_ceiling: float = 1.0
 
 
@@ -45,11 +51,19 @@ class FieldConfig:
     surface_tuning: SurfaceTuningConfig = field(default_factory=SurfaceTuningConfig)
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        payload = asdict(self)
+        progression_payload = dict(payload.get("progression", {}) or {})
+        for key in _REMOVED_PROGRESSION_KEYS:
+            progression_payload.pop(key, None)
+        payload["progression"] = progression_payload
+        return payload
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> "FieldConfig":
-        progression = ProgressionConfig(**dict(payload.get("progression", {}) or {}))
+        progression_payload = dict(payload.get("progression", {}) or {})
+        for key in _REMOVED_PROGRESSION_KEYS:
+            progression_payload.pop(key, None)
+        progression = ProgressionConfig(**progression_payload)
         surface_tuning_payload = dict(payload.get("surface_tuning", {}) or {})
         for key in _REMOVED_SURFACE_TUNING_KEYS:
             if key in surface_tuning_payload:

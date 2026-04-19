@@ -38,11 +38,11 @@ The longitudinal frame can be interpreted as `local_absolute` or `ego_relative`,
 
 ### Longitudinal families
 
-The runtime supports several longitudinal families such as `tanh`, `linear`, `inverse`, and `power`, all controlled by the active configuration.
+The runtime supports several longitudinal families such as `tanh`, `linear`, `inverse`, and `power`, all controlled by the active configuration. In the current implementation, `longitudinal_peak` sets the function-space ceiling directly before gain is applied. In the `linear` family, `longitudinal_shape` still scales the ramp slope and therefore also the endpoint ceiling.
 
 ### Transverse families
 
-The runtime supports several transverse families such as `exponential`, `inverse`, and `power`. Each guide's transverse term is built from the shortest unsigned distance to that guide's raw visible polyline. The exported `progression_transverse_term` channel is the dominant guide's actual score transverse term.
+The runtime supports several transverse families such as `exponential`, `inverse`, `power`, and `linear`. Each guide's transverse term is built directly from the shortest unsigned distance in meters to that guide's raw visible polyline. In the current implementation, `transverse_peak` sets the center ceiling directly, `transverse_shape` controls the core profile near the center, and `transverse_falloff` adds extra outer-tail suppression. The exported `progression_transverse_term` can therefore exceed `1.0` through `transverse_peak`. The old user-facing transverse-width knob is no longer part of the active runtime contract.
 
 ### Secondary modulation
 

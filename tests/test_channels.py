@@ -21,8 +21,9 @@ def _canonical_config(*, surface_tuning: SurfaceTuningConfig | None = None, **kw
         "lookahead_scale": 0.35,
         "longitudinal_shape": 1.0,
         "transverse_family": "exponential",
-        "transverse_scale": 1.0,
+        "transverse_peak": 1.0,
         "transverse_shape": 1.0,
+        "transverse_falloff": 0.0,
         "support_ceiling": 1.0,
     }
     payload.update(kwargs)
@@ -75,13 +76,13 @@ def test_progression_transverse_is_center_high_with_same_longitudinal_slice() ->
     )
 
 
-def test_progression_transverse_scale_controls_off_axis_falloff() -> None:
+def test_legacy_transverse_scale_no_longer_changes_off_axis_falloff() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
     offset = StateSample(x=4.4, y=0.8, yaw=0.0)
     narrow = _canonical_config(transverse_scale=0.5)
     wide = _canonical_config(transverse_scale=2.0)
 
-    assert progression_tilted(snapshot, context, offset, config=wide) > progression_tilted(
+    assert progression_tilted(snapshot, context, offset, config=wide) == progression_tilted(
         snapshot,
         context,
         offset,
@@ -89,18 +90,64 @@ def test_progression_transverse_scale_controls_off_axis_falloff() -> None:
     )
 
 
-def test_progression_transverse_shape_controls_off_axis_contrast() -> None:
+def test_progression_transverse_peak_scales_center_ceiling() -> None:
     snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
-    offset = StateSample(x=4.4, y=1.6, yaw=0.0)
-    soft = _canonical_config(transverse_family="power", transverse_shape=1.0)
-    sharp = _canonical_config(transverse_family="power", transverse_shape=3.0)
+    center = StateSample(x=4.4, y=0.0, yaw=0.0)
+    low_peak = _canonical_config(transverse_family="exponential", transverse_peak=1.0, longitudinal_gain=0.0)
+    high_peak = _canonical_config(transverse_family="exponential", transverse_peak=3.0, longitudinal_gain=0.0)
 
-    assert progression_tilted(snapshot, context, offset, config=soft) > progression_tilted(
+    assert progression_tilted(snapshot, context, center, config=high_peak) > progression_tilted(
         snapshot,
         context,
-        offset,
-        config=sharp,
+        center,
+        config=low_peak,
     )
+
+
+def test_progression_transverse_shape_controls_core_flatness() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
+    near_axis = StateSample(x=4.4, y=0.35, yaw=0.0)
+    pointy = _canonical_config(transverse_family="exponential", transverse_shape=0.6, longitudinal_gain=0.0)
+    broad = _canonical_config(transverse_family="exponential", transverse_shape=2.0, longitudinal_gain=0.0)
+
+    assert progression_tilted(snapshot, context, near_axis, config=broad) > progression_tilted(
+        snapshot,
+        context,
+        near_axis,
+        config=pointy,
+    )
+
+
+def test_progression_transverse_falloff_controls_outer_tail() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
+    far_offset = StateSample(x=4.4, y=1.6, yaw=0.0)
+    low_falloff = _canonical_config(transverse_family="exponential", transverse_falloff=0.0, longitudinal_gain=0.0)
+    high_falloff = _canonical_config(transverse_family="exponential", transverse_falloff=3.0, longitudinal_gain=0.0)
+
+    assert progression_tilted(snapshot, context, far_offset, config=low_falloff) > progression_tilted(
+        snapshot,
+        context,
+        far_offset,
+        config=high_falloff,
+    )
+
+
+def test_progression_transverse_linear_family_produces_linear_flanks() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/straight_corridor.yaml")
+    config = _canonical_config(
+        transverse_family="linear",
+        transverse_peak=2.0,
+        transverse_shape=1.0,
+        transverse_falloff=0.0,
+        longitudinal_gain=0.0,
+    )
+    center = progression_tilted_details(snapshot, context, StateSample(x=4.4, y=0.0, yaw=0.0), config=config)
+    mid = progression_tilted_details(snapshot, context, StateSample(x=4.4, y=0.5, yaw=0.0), config=config)
+    edge = progression_tilted_details(snapshot, context, StateSample(x=4.4, y=1.0, yaw=0.0), config=config)
+
+    assert center["transverse_term"] == 2.0
+    assert abs(mid["transverse_term"] - 1.0) < 1e-6
+    assert abs(edge["transverse_term"]) < 1e-6
 
 
 def test_progression_follows_bend_guide_better_than_off_curve_point() -> None:
@@ -155,7 +202,6 @@ def test_strong_longitudinal_can_outweigh_near_center_preference() -> None:
         longitudinal_family="linear",
         longitudinal_gain=4.0,
         transverse_family="exponential",
-        transverse_scale=1.0,
         transverse_shape=1.0,
     )
     near_center = StateSample(x=1.0, y=0.0, yaw=0.0)
@@ -176,7 +222,6 @@ def test_longitudinal_frame_choice_changes_point_ordering() -> None:
         longitudinal_family="linear",
         longitudinal_gain=1.0,
         transverse_family="exponential",
-        transverse_scale=1.0,
         transverse_shape=1.0,
     )
     ego_relative = _canonical_config(
@@ -185,7 +230,6 @@ def test_longitudinal_frame_choice_changes_point_ordering() -> None:
         longitudinal_gain=1.0,
         lookahead_scale=0.25,
         transverse_family="exponential",
-        transverse_scale=1.0,
         transverse_shape=1.0,
     )
     behind_center = StateSample(x=0.2, y=0.0, yaw=0.0)
@@ -281,7 +325,6 @@ def test_strong_longitudinal_can_prefer_farther_return_leg_in_u_turn() -> None:
         longitudinal_family="linear",
         longitudinal_gain=3.0,
         transverse_family="exponential",
-        transverse_scale=1.0,
         transverse_shape=1.0,
     )
     near_entry_center = StateSample(x=1.0, y=0.0, yaw=0.0)

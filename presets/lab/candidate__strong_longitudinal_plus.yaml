@@ -7,8 +7,9 @@ field_config:
     lookahead_scale: 0.38
     longitudinal_shape: 1.8
     transverse_family: exponential
-    transverse_scale: 0.7
+    transverse_peak: 1.0
     transverse_shape: 1.4
+    transverse_falloff: 0.0
     support_ceiling: 1.0
   interior_boundary:
     gain: 1.0

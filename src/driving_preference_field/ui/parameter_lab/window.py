@@ -139,7 +139,7 @@ class ParameterLabWindow(QMainWindow):
         )
 
         self._selected_channel = "progression_tilted"
-        self._scale_mode = SCALE_MODE_FIXED
+        self._scale_mode = SCALE_MODE_NORMALIZED
         self._compare_layout = "stacked"
         self._single_side = "baseline"
         self._qualitative_note = ""
@@ -409,9 +409,9 @@ class ParameterLabWindow(QMainWindow):
         self._case_dock = self._add_dock("", self._case_panel, Qt.DockWidgetArea.LeftDockWidgetArea)
         self._left_tabs = QTabWidget()
         self._left_tabs.addTab(self._preset_panel, "")
+        self._left_tabs.addTab(self._layer_panel, "")
         self._left_tabs.addTab(self._summary_panel, "")
         self._left_tabs.addTab(self._profile_panel, "")
-        self._left_tabs.addTab(self._layer_panel, "")
         self._left_tabs.setDocumentMode(True)
         self._left_tabs.currentChanged.connect(self._on_left_tab_changed)
         self._left_stack_dock = self._add_dock("", self._left_tabs, Qt.DockWidgetArea.LeftDockWidgetArea)
@@ -569,9 +569,9 @@ class ParameterLabWindow(QMainWindow):
         self._left_stack_dock.setWindowTitle(t(self._language, "dock.workspace"))
         self._parameter_dock.setWindowTitle(t(self._language, "dock.parameters"))
         self._left_tabs.setTabText(0, t(self._language, "tab.presets"))
-        self._left_tabs.setTabText(1, t(self._language, "tab.summary"))
-        self._left_tabs.setTabText(2, t(self._language, "tab.profile"))
-        self._left_tabs.setTabText(3, t(self._language, "tab.layers"))
+        self._left_tabs.setTabText(1, t(self._language, "tab.layers"))
+        self._left_tabs.setTabText(2, t(self._language, "tab.summary"))
+        self._left_tabs.setTabText(3, t(self._language, "tab.profile"))
         self._parameter_tabs.setTabText(0, t(self._language, "tab.baseline"))
         self._parameter_tabs.setTabText(1, t(self._language, "tab.candidate"))
         self._tabs.setTabText(0, t(self._language, "tab.single"))
