@@ -62,6 +62,8 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._tabs.tabText(2) == "Diff"
     assert window._scale_mode == "normalized"
     assert window._scale_selector.currentData() == "normalized"
+    assert window._fixed_min_spin.isEnabled() is False
+    assert window._fixed_max_spin.isEnabled() is False
     assert window._selected_channel == "progression_tilted"
     assert window._channel_selector.currentData() == "progression_tilted"
     assert window._reload_action.text() == "Reload Case"
@@ -454,7 +456,33 @@ def test_scale_mode_toggle_updates_scale_info_and_summary(qtbot) -> None:
     qtbot.waitUntil(lambda: window._scale_info_label.text() != normalized_info, timeout=15000)
     assert window._scale_mode == "fixed"
     assert window._scale_info_label.text().startswith("fixed")
+    assert window._fixed_min_spin.isEnabled() is True
+    assert window._fixed_max_spin.isEnabled() is True
     assert '"scale_mode": "fixed"' in window._summary_panel._text.toPlainText()
+
+    window.close()
+
+
+def test_fixed_scale_override_updates_view_and_summary(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    fixed_index = window._scale_selector.findData("fixed")
+    window._scale_selector.setCurrentIndex(fixed_index)
+    qtbot.waitUntil(lambda: window._scale_mode == "fixed", timeout=15000)
+
+    old_text = window._scale_info_label.text()
+    window._fixed_min_spin.setValue(1.5)
+    window._fixed_max_spin.setValue(3.5)
+
+    qtbot.waitUntil(lambda: window._scale_info_label.text() != old_text, timeout=15000)
+    assert "range=[1.500, 3.500]" in window._scale_info_label.text()
+    summary_text = window._summary_panel._text.toPlainText()
+    assert '"baseline_range": [' in summary_text
+    assert "1.5" in summary_text
+    assert "3.5" in summary_text
 
     window.close()
 

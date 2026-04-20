@@ -6,11 +6,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import numpy as np
 from PyQt6.QtCore import QSettings, Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QComboBox,
     QDockWidget,
+    QDoubleSpinBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -140,6 +142,7 @@ class ParameterLabWindow(QMainWindow):
 
         self._selected_channel = "progression_tilted"
         self._scale_mode = SCALE_MODE_NORMALIZED
+        self._fixed_range_overrides: dict[tuple[str, bool], tuple[float, float]] = {}
         self._compare_layout = "stacked"
         self._single_side = "baseline"
         self._qualitative_note = ""
@@ -189,6 +192,16 @@ class ParameterLabWindow(QMainWindow):
             self._language_selector.addItem(label, code)
         self._language_selector.setCurrentIndex(self._language_selector.findData(self._language))
         self._scale_info_label = QLabel()
+        self._fixed_min_label = QLabel()
+        self._fixed_min_spin = QDoubleSpinBox()
+        self._fixed_max_label = QLabel()
+        self._fixed_max_spin = QDoubleSpinBox()
+        for spin in (self._fixed_min_spin, self._fixed_max_spin):
+            spin.setDecimals(3)
+            spin.setRange(-1_000_000.0, 1_000_000.0)
+            spin.setSingleStep(0.1)
+            spin.setKeyboardTracking(False)
+            spin.setFixedWidth(92)
         self._compare_layout_button = QToolButton()
         self._compare_layout_button.setAutoRaise(True)
         self._compare_layout_button.setFixedSize(22, 20)
@@ -465,6 +478,10 @@ class ParameterLabWindow(QMainWindow):
         self._toolbar.addSeparator()
         self._toolbar.addWidget(self._scale_label)
         self._toolbar.addWidget(self._scale_selector)
+        self._toolbar.addWidget(self._fixed_min_label)
+        self._toolbar.addWidget(self._fixed_min_spin)
+        self._toolbar.addWidget(self._fixed_max_label)
+        self._toolbar.addWidget(self._fixed_max_spin)
         self._toolbar.addWidget(self._scale_info_label)
         self._toolbar.addSeparator()
         self._toolbar.addWidget(self._language_label)
@@ -518,11 +535,13 @@ class ParameterLabWindow(QMainWindow):
         self._preset_panel.copyRequested.connect(self._copy_side)
         self._channel_selector.currentIndexChanged.connect(self._on_channel_changed)
         self._scale_selector.currentIndexChanged.connect(self._on_scale_mode_changed)
+        self._fixed_min_spin.valueChanged.connect(self._on_fixed_range_changed)
+        self._fixed_max_spin.valueChanged.connect(self._on_fixed_range_changed)
         self._language_selector.currentIndexChanged.connect(self._on_language_changed)
         self._compare_layout_button.clicked.connect(self._toggle_compare_layout)
         self._single_selector.currentTextChanged.connect(self._on_single_side_changed)
         self._profile_panel.profileSpecChanged.connect(self._on_profile_spec_changed)
-        self._tabs.currentChanged.connect(lambda *_: self._refresh_scale_info_label())
+        self._tabs.currentChanged.connect(self._on_visualization_tab_changed)
         self._summary_panel.noteChanged.connect(self._on_note_changed)
         for view in (self._baseline_view, self._candidate_view, self._diff_view, self._single_view):
             view.hoverChanged.connect(self._update_hover)
@@ -559,6 +578,8 @@ class ParameterLabWindow(QMainWindow):
         self._lab_help_action.setStatusTip(t(self._language, "toolbar.status.guide"))
         self._channel_label.setText(t(self._language, "toolbar.channel"))
         self._scale_label.setText(t(self._language, "toolbar.scale"))
+        self._fixed_min_label.setText(t(self._language, "toolbar.scale_min"))
+        self._fixed_max_label.setText(t(self._language, "toolbar.scale_max"))
         self._language_label.setText(t(self._language, "toolbar.language"))
         self._populate_channel_selector()
         self._populate_scale_selector()
@@ -598,6 +619,7 @@ class ParameterLabWindow(QMainWindow):
         self._single_selector.blockSignals(False)
         self._update_compare_layout_button()
         self._help_actions.retranslate(self._language)
+        self._refresh_fixed_range_controls()
 
     def _on_language_changed(self) -> None:
         self._language = normalize_language(str(self._language_selector.currentData()))
@@ -736,12 +758,77 @@ class ParameterLabWindow(QMainWindow):
 
     def _on_channel_changed(self) -> None:
         self._selected_channel = str(self._channel_selector.currentData())
+        self._refresh_fixed_range_controls()
         self._refresh_views()
         self._refresh_profile_panel()
         self._refresh_summary()
 
     def _on_scale_mode_changed(self) -> None:
         self._scale_mode = str(self._scale_selector.currentData())
+        self._refresh_fixed_range_controls()
+        self._refresh_views()
+        self._refresh_summary()
+
+    def _on_visualization_tab_changed(self, _index: int) -> None:
+        self._refresh_fixed_range_controls()
+        self._refresh_scale_info_label()
+
+    def _current_diff_mode(self) -> bool:
+        return self._tabs.currentIndex() == 2
+
+    def _current_range_key(self, *, diff: bool) -> tuple[str, bool]:
+        return (self._selected_channel, diff)
+
+    def _fixed_override_for(self, *, diff: bool) -> tuple[float, float] | None:
+        return self._fixed_range_overrides.get(self._current_range_key(diff=diff))
+
+    def _refresh_fixed_range_controls(self) -> None:
+        diff = self._current_diff_mode()
+        if self._comparison_result is not None:
+            sample = self._comparison_result.baseline_raster.channels[self._selected_channel]
+        else:
+            sample = np.zeros((1, 1), dtype=float)
+        value_range = resolve_display_range(
+            sample,
+            channel_name=self._selected_channel,
+            scale_mode=SCALE_MODE_FIXED,
+            diff=diff,
+            fixed_override=self._fixed_override_for(diff=diff),
+        )
+        enabled = self._scale_mode == SCALE_MODE_FIXED
+        for widget in (
+            self._fixed_min_label,
+            self._fixed_min_spin,
+            self._fixed_max_label,
+            self._fixed_max_spin,
+        ):
+            widget.setEnabled(enabled)
+        self._fixed_min_spin.blockSignals(True)
+        self._fixed_max_spin.blockSignals(True)
+        self._fixed_min_spin.setValue(float(value_range[0]))
+        self._fixed_max_spin.setValue(float(value_range[1]))
+        self._fixed_min_spin.blockSignals(False)
+        self._fixed_max_spin.blockSignals(False)
+
+    def _on_fixed_range_changed(self) -> None:
+        min_value = float(self._fixed_min_spin.value())
+        max_value = float(self._fixed_max_spin.value())
+        if max_value <= min_value:
+            sender = self.sender()
+            if sender is self._fixed_min_spin:
+                max_value = min_value + 1e-3
+                self._fixed_max_spin.blockSignals(True)
+                self._fixed_max_spin.setValue(max_value)
+                self._fixed_max_spin.blockSignals(False)
+            else:
+                min_value = max_value - 1e-3
+                self._fixed_min_spin.blockSignals(True)
+                self._fixed_min_spin.setValue(min_value)
+                self._fixed_min_spin.blockSignals(False)
+        self._fixed_range_overrides[self._current_range_key(diff=self._current_diff_mode())] = (
+            min_value,
+            max_value,
+        )
         self._refresh_views()
         self._refresh_summary()
 
@@ -818,6 +905,7 @@ class ParameterLabWindow(QMainWindow):
             channel_name=self._selected_channel,
             scale_mode=self._scale_mode,
             diff=diff,
+            fixed_override=self._fixed_override_for(diff=diff),
         )
 
     def _refresh_scale_info_label(self) -> None:
@@ -944,6 +1032,12 @@ class ParameterLabWindow(QMainWindow):
             profile_result=self._current_profile_result(),
             qualitative_note=self._qualitative_note,
         )
+        baseline_data = self._comparison_result.baseline_raster.channels[self._selected_channel]
+        candidate_data = self._comparison_result.candidate_raster.channels[self._selected_channel]
+        diff_data = self._selected_diff_array()
+        summary["visualization"]["baseline_range"] = self._display_range(baseline_data, diff=False)
+        summary["visualization"]["candidate_range"] = self._display_range(candidate_data, diff=False)
+        summary["visualization"]["diff_range"] = self._display_range(diff_data, diff=True)
         self._summary_panel.set_summary(summary)
 
     def _channel_status_text(self, label: str) -> str:

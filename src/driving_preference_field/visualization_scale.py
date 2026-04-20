@@ -122,9 +122,12 @@ def resolve_display_range(
     channel_name: str,
     scale_mode: str,
     diff: bool = False,
+    fixed_override: tuple[float, float] | None = None,
 ) -> tuple[float, float]:
     spec = scale_spec_for(channel_name)
     if scale_mode == SCALE_MODE_FIXED:
+        if fixed_override is not None:
+            return fixed_override
         if diff:
             return (-spec.diff_abs_max, spec.diff_abs_max)
         return (spec.fixed_min, spec.fixed_max)
