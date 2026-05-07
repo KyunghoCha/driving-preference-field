@@ -22,7 +22,7 @@ Windows 실행기 안내
   - `numpy`
   - `matplotlib`
   - `PyQt6`
-  - `driving_preference_field`
+  - `local_reference_path_cost`
 - probe 결과는 바탕화면 로그에 UTF-8로 남음
 - 현재 Windows known-good NumPy는 `1.26.4`로 본다
 
@@ -34,9 +34,9 @@ Windows 실행기 안내
   - `desktop/windows/install_desktop_shortcut.ps1`
   - `assets/parameter_lab_launcher.ico`
 - 바탕화면
-  - `Driving Preference Field Lab.lnk`
+  - `Local Reference Path Cost Lab.lnk`
 - 필요하면 repo 안 생성물
-  - `desktop/windows/Driving Preference Field Lab.lnk`
+  - `desktop/windows/Local Reference Path Cost Lab.lnk`
 
 즉 바탕화면에는 `.lnk`만 남기고 실행 로직은 repo 안에서만 관리하는 구조임
 - `.lnk`는 설치 스크립트가 현재 머신 경로로 다시 생성하는 generated artifact임
@@ -63,8 +63,8 @@ Windows 실행기 안내
 바탕화면 바로가기 다시 만들기
 
 - 아래 명령을 실행하면
-  - `desktop/windows/Driving Preference Field Lab.lnk`
-  - 바탕화면의 `Driving Preference Field Lab.lnk`
+  - `desktop/windows/Local Reference Path Cost Lab.lnk`
+  - 바탕화면의 `Local Reference Path Cost Lab.lnk`
   두 파일이 모두 repo 안 실행기를 직접 가리키도록 갱신됨
 
 `powershell -ExecutionPolicy Bypass -File .\desktop\windows\install_desktop_shortcut.ps1`
@@ -76,22 +76,22 @@ Windows 실행기 안내
 
 환경 변수
 
-- `DPF_PYTHON_EXE`
+- `LRPC_PYTHON_EXE`
   - 기본 Python 실행 파일 경로를 덮어쓸 때 사용
-- `DPF_CASE_PATH`
+- `LRPC_CASE_PATH`
   - 기본 case 파일 대신 다른 case를 실행할 때 사용
 
 현재 기본값
 
 - Python
-  - `%USERPROFILE%\anaconda3\envs\driving-preference-field\python.exe`
+  - `%USERPROFILE%\anaconda3\envs\local-reference-path-cost\python.exe`
 - Case
   - `cases/toy/straight_corridor.yaml`
 
 문제 발생 시 확인
 
 - 바탕화면 로그 파일
-  - `Driving Preference Field Lab.log`
+  - `Local Reference Path Cost Lab.log`
 - 먼저 확인할 항목
   - `PROBE_NUMPY`, `PROBE_MPL` 버전이 어떻게 찍히는지
   - Python 경로가 실제 존재하는지

@@ -13,9 +13,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from driving_preference_field.field_runtime import build_field_runtime
-from driving_preference_field.planner_lookup import build_progression_lookup, query_progression_lookup_trajectories
-from driving_preference_field.toy_loader import load_toy_snapshot
+from local_reference_path_cost.field_runtime import build_field_runtime
+from local_reference_path_cost.planner_lookup import build_progression_lookup, query_progression_lookup_trajectories
+from local_reference_path_cost.toy_loader import load_toy_snapshot
 
 
 def main() -> None:

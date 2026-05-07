@@ -41,4 +41,4 @@
 
 - `Semantic Input Snapshot`와 `Query Context` 경계를 canonical로 얼마나 단단히 잠글지
 - `ego_pose`, `local_window`, branch winner 같은 항목을 canonical이 아닌 experiment 영역으로 계속 둘지
-- `선호장`, `score function`, `goal cost function` 중 어떤 언어가 사용자 의도와 가장 덜 어긋나는지
+- `reference-path cost surface`, `score function`, `goal cost function` 중 어떤 언어가 사용자 의도와 가장 덜 어긋나는지

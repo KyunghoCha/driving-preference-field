@@ -10,11 +10,11 @@ The source adapter translates source-specific scene information into the repo’
 
 ### SemanticInputSnapshot
 
-The snapshot carries the semantic supports that the field itself consumes. Progression support is the main base-field input. Drivable support carries domain and geometry support. Optional layer supports can exist without being promoted into the base field.
+The snapshot carries the semantic supports that the field itself consumes. Progression support is the main base-field input. Drivable support carries domain and geometry support. Optional layer supports can exist without being promoted into the reference-path cost model.
 
 ### QueryContext
 
-The query context carries the effective ego pose, local window, and evaluation mode. These values shape how the runtime is queried. They are not themselves the base field meaning.
+The query context carries the effective ego pose, local window, and evaluation mode. These values shape how the runtime is queried. They are not themselves the reference-path cost model meaning.
 
 ## Generic reference input schema
 

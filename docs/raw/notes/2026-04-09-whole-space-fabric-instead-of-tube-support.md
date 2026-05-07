@@ -11,7 +11,7 @@
 ## Source sessions
 
 - confirmed materialized source: `$HOME/.codex/sessions/2026/04/09/rollout-2026-04-09T22-25-35-019d726b-6c39-7b80-8512-6d4e9d3e97b4.jsonl`
-- this note captures the user's raw objection to tube-like support fields and the whole-space fabric intuition that later feeds the DPF framing
+- this note captures the user's raw objection to tube-like support fields and the whole-space fabric intuition that later feeds the LRPC framing
 
 ## User original messages
 

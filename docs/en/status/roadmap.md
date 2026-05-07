@@ -4,7 +4,7 @@ This document records the current phase ordering for the repo. The active state 
 
 ## Current position
 
-The repo has stabilized its canonical docs, toy/runtime comparison tooling, source-adapter contract, and progression-centered field semantics enough to move into the next preparation stage.
+The repo has stabilized its canonical docs, toy/runtime comparison tooling, source-adapter contract, and progression-centered score semantics enough to move into the next preparation stage.
 
 ## Phase structure
 

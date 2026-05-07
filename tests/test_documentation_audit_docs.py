@@ -154,7 +154,7 @@ def test_raw_owner_notes_expand_referential_fragments_with_surrounding_messages(
     score_space_note = _read("docs/raw/notes/2026-04-09-progress-tilted-score-space-and-layer-separation.md")
     fabric_note = _read("docs/raw/notes/2026-04-09-whole-space-fabric-instead-of-tube-support.md")
     snapshot_note = _read("docs/raw/notes/2026-04-10-semantic-snapshot-query-context-and-score-function.md")
-    progress_note = _read("docs/raw/notes/2026-04-17-dpf-as-progress-preference-device.md")
+    progress_note = _read("docs/raw/notes/2026-04-17-lrpc-as-progress-preference-device.md")
     weighting_note = _read("docs/raw/notes/2026-04-17-longitudinal-vs-transverse-weighting.md")
     simulator_note = _read("docs/raw/notes/2026-04-18-simulator-comparison-methodology-and-mppi-tuning.md")
 
@@ -195,8 +195,8 @@ def test_owner_design_notebook_tracks_latest_user_framing() -> None:
     notebook = _read("docs/raw/owner_design_notebook.md")
 
     for heading in (
-        "## DPF가 하는 일",
-        "## DPF가 하지 않는 일",
+        "## LRPC가 하는 일",
+        "## LRPC가 하지 않는 일",
         "## 입력 의미와 layer 분리",
         "## 공간 전체의 점수 구조",
         "## 진행을 읽는 기준과 게이트 직관",
@@ -226,7 +226,7 @@ def test_owner_design_history_tracks_design_evolution() -> None:
         "## progress-tilted score space와 layer 분리",
         "## whole-space fabric instead of tube support",
         "## Semantic Snapshot / Query Context / score function 언어",
-        "## DPF를 progress-preference device로 읽게 된 전환",
+        "## LRPC를 progress-preference device로 읽게 된 전환",
         "## longitudinal와 transverse에 대한 역할 재정의",
         "## planner / behavior와의 책임 경계가 분리된 과정",
         "## 비교 방법론이 설계와 분리된 과정",
@@ -250,10 +250,9 @@ def test_owner_design_history_tracks_design_evolution() -> None:
 
 def test_workflow_guard_mentions_raw_owner_thought_capture() -> None:
     agents = _read("AGENTS.md")
-    repo_skill = _read("plugins/dpf-working-rules/skills/dpf-working-rules/SKILL.md")
-    home_skill = Path("/home/ckh/.codex/skills/dpf-repo-guard/SKILL.md").read_text(encoding="utf-8")
+    repo_skill = _read("plugins/lrpc-working-rules/skills/lrpc-working-rules/SKILL.md")
 
-    for body in (agents, repo_skill, home_skill):
+    for body in (agents, repo_skill):
         assert "docs/raw/notes/" in body
         assert "owner_thought_tracker.md" in body
         assert "owner_design_notebook.md" in body

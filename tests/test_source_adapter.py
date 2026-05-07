@@ -5,11 +5,11 @@ from pathlib import Path
 import pytest
 import yaml
 
-from driving_preference_field.contracts import QueryContext, SemanticInputSnapshot, StateSample
-from driving_preference_field.evaluator import evaluate_state
-from driving_preference_field.field_runtime import build_field_runtime
-from driving_preference_field.input_loader import detect_input_kind, load_semantic_input
-from driving_preference_field.source_adapter import (
+from local_reference_path_cost.contracts import QueryContext, SemanticInputSnapshot, StateSample
+from local_reference_path_cost.evaluator import evaluate_state
+from local_reference_path_cost.field_runtime import build_field_runtime
+from local_reference_path_cost.input_loader import detect_input_kind, load_semantic_input
+from local_reference_path_cost.source_adapter import (
     GenericAdapterValidationError,
     load_generic_snapshot,
     serialize_canonical_bundle,

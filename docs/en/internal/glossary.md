@@ -1,8 +1,8 @@
 # Internal Glossary
 
-## base driving preference field
+## base local reference path cost
 
-The main whole-space preference field over the visible local map.
+The main local reference path cost surface over the visible local map.
 
 ## input semantics
 
@@ -26,4 +26,4 @@ The canonical pieces of meaning expected in `SemanticInputSnapshot`.
 
 ## hard violation flags
 
-Hard mask or hard-constraint style signals that stay separate from the base field score.
+Hard mask or hard-constraint style signals that stay separate from the reference-path cost model score.

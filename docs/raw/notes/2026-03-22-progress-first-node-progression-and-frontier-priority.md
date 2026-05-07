@@ -41,4 +41,4 @@
 
 - gate consume와 blocked frontier 전진을 같은 progression 정의 안에 둘지
 - frontier-first가 local splice fallback인지, 더 앞선 progression rule인지
-- 이 전환을 이후 DPF progression semantics로 얼마나 직접 가져갈지
+- 이 전환을 이후 LRPC progression semantics로 얼마나 직접 가져갈지

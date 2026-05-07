@@ -35,7 +35,7 @@ adapter output은 다음 두 타입으로 고정한다.
 
 추가 원칙:
 
-- `progression_support`는 base preference를 만드는 본체 support다.
+- `progression_support`는 base ordering를 만드는 본체 support다.
 - `drivable_support`는 domain / support / reconstruction 재료다.
 - progression과 drivable은 분리된 semantic slot로 유지한다.
 - branch winner는 canonical snapshot이 직접 정하지 않는다.

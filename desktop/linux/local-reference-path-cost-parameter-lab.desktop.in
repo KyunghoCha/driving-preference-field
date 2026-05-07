@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Local Reference Path Cost Lab
+Comment=Open the local-reference-path-cost Parameter Lab
+Exec=@LAUNCHER_PATH@
+Path=@REPO_ROOT@
+Icon=@ICON_PATH@
+Terminal=false
+StartupNotify=true
+Categories=Development;Science;
+Keywords=driving;preference;field;parameter;lab;

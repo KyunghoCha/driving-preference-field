@@ -1,10 +1,10 @@
 import json
 from pathlib import Path
 
-from driving_preference_field.cli import main
-from driving_preference_field.raster import sample_local_raster
-from driving_preference_field.rendering import render_case
-from driving_preference_field.toy_loader import load_toy_snapshot
+from local_reference_path_cost.cli import main
+from local_reference_path_cost.raster import sample_local_raster
+from local_reference_path_cost.rendering import render_case
+from local_reference_path_cost.toy_loader import load_toy_snapshot
 
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -6,7 +6,7 @@
 
 - 새 workspace 생성
 - docs-first 재시작
-- 운영 원칙 / 연구 범위 / base field 관련 canonical 문서 정리
+- 운영 원칙 / 연구 범위 / reference-path cost model 관련 canonical 문서 정리
 - input semantics / field terms / layer composition / runtime contract 정리
 - canonical progression field를 단일 source-agnostic 모델 기준으로 다시 정리
 - 전용 conda 환경 생성
@@ -36,7 +36,7 @@
 
 ## 현재 합의
 
-- 외부에서 주어진 주행 가능 의미와 진행 의미를 받아 base driving preference field를 정의하는 프로젝트다.
+- 외부에서 주어진 주행 가능 의미와 진행 의미를 받아 base local reference path cost를 정의하는 프로젝트다.
 - progression field는 특정 source 예시에 종속되지 않는다.
 - runtime은 현재 보이는 local map 전체를 analytic하게 평가할 수 있어야 한다.
 - progression field는 최소한 longitudinal term과 transverse term을 가져야 하며, 이 둘은 독립적으로 조정 가능해야 한다.

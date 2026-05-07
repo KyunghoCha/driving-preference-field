@@ -4,7 +4,7 @@ This document records the current implementation math. It does not define the ca
 
 ## How to read this document
 
-Use this page when you need the active formula and current implementation shape, not when you need the higher-level design intent. For design intent, read [Base Field Foundation](../explanation/base_field_foundation.md).
+Use this page when you need the active formula and current implementation shape, not when you need the higher-level design intent. For design intent, read [Reference-Path Cost Model Foundation](../explanation/base_field_foundation.md).
 
 ## Common notation
 
@@ -62,4 +62,4 @@ Obstacle, rule, and dynamic signals are not part of the base progression formula
 
 ## Current tiny evaluator composition
 
-The current tiny evaluator treats `progression_tilted` as the main base score and keeps obstacle / rule / dynamic costs separate from the base field contract.
+The current tiny evaluator treats `progression_tilted` as the main base score and keeps obstacle / rule / dynamic costs separate from the reference-path cost model contract.

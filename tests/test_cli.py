@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from driving_preference_field.cli import _load_trajectory_arg, main
+from local_reference_path_cost.cli import _load_trajectory_arg, main
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -116,7 +116,7 @@ def test_inline_trajectory_json_is_parsed_before_path_probe(monkeypatch) -> None
         def __init__(self, *_args, **_kwargs) -> None:
             raise AssertionError("Path probing should not happen for inline trajectory JSON")
 
-    monkeypatch.setattr("driving_preference_field.cli.Path", _ForbiddenPath)
+    monkeypatch.setattr("local_reference_path_cost.cli.Path", _ForbiddenPath)
 
     trajectory = _load_trajectory_arg('{"states":[{"x":1.0,"y":2.0,"yaw":0.5}]}')
 
@@ -148,7 +148,7 @@ def test_parameter_lab_cli_starts_and_returns_zero(monkeypatch) -> None:
             return None
 
     monkeypatch.setattr("PyQt6.QtWidgets.QApplication", _FakeApp)
-    monkeypatch.setattr("driving_preference_field.ui.parameter_lab_window.ParameterLabWindow", _FakeWindow)
+    monkeypatch.setattr("local_reference_path_cost.ui.parameter_lab_window.ParameterLabWindow", _FakeWindow)
 
     exit_code = main(["parameter-lab", "--case", str(case_path)])
 
@@ -159,11 +159,11 @@ def test_parameter_lab_import_path_does_not_import_matplotlib() -> None:
     script = """
 import json
 import sys
-import driving_preference_field
+import local_reference_path_cost
 payload = {"package": "matplotlib" in sys.modules}
-import driving_preference_field.cli
+import local_reference_path_cost.cli
 payload["cli"] = "matplotlib" in sys.modules
-import driving_preference_field.ui.parameter_lab_window
+import local_reference_path_cost.ui.parameter_lab_window
 payload["window"] = "matplotlib" in sys.modules
 print(json.dumps(payload, sort_keys=True))
 """

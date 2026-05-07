@@ -10,7 +10,7 @@
 
 ## Source sessions
 
-- current active DPF thread from the gate-intuition cluster onward; later portions of the thread were not yet materialized under `$HOME/.codex/sessions/...` at edit time
+- current active LRPC thread from the gate-intuition cluster onward; later portions of the thread were not yet materialized under `$HOME/.codex/sessions/...` at edit time
 - early source anchor confirmed in `$HOME/.codex/sessions/2026/03/18/rollout-2026-03-18T03-56-06-019cfd27-be1f-7671-a901-4be788cca7bd.jsonl`
 
 ## User original messages

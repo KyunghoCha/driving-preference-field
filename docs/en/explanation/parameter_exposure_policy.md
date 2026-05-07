@@ -1,6 +1,6 @@
 # Parameter Exposure Policy
 
-This document explains how knobs should be exposed in `driving-preference-field`. The core question is not whether a value can be changed, but whether exposing it helps users reason about the field without turning the tool into a pile of implementation details.
+This document explains how knobs should be exposed in `local-reference-path-cost`. The core question is not whether a value can be changed, but whether exposing it helps users reason about the field without turning the tool into a pile of implementation details.
 
 Not every tunable belongs in the main GUI. Some parameters change the visible semantics and should be easy to reach. Others only tune morphology quality or runtime behavior and should stay behind an advanced surface. Some values are internal safety guards and should not be promoted into the user-facing interface at all.
 
@@ -14,4 +14,4 @@ This repo therefore uses three tiers.
 
 This tiering also affects layout. The left-side `Workspace` is for reading outputs such as presets, summary, profiles, and overlays. The right-side `Parameters` dock is the place for controls. If an advanced knob is promoted, it should still stay on the right side and remain secondary to the main semantic controls.
 
-The rule for adding a new exposed knob is straightforward. First add it to the reference catalog. Then decide whether it belongs to `Main`, `Advanced`, or `Internal`. Promotion to `Main` should only happen when the value is useful for interpreting field semantics directly rather than only tuning implementation quality.
+The rule for adding a new exposed knob is straightforward. First add it to the reference catalog. Then decide whether it belongs to `Main`, `Advanced`, or `Internal`. Promotion to `Main` should only happen when the value is useful for interpreting score semantics directly rather than only tuning implementation quality.

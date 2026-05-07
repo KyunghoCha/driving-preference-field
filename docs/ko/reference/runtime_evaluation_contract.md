@@ -1,14 +1,14 @@
 # 런타임 계약
 
-이 문서는 base field의 의미와 runtime 계산 방식을 분리해서 정리하고, 현재 repo가 제공하는 public runtime interface와 evaluator contract를 고정한다. canonical score는 `higher is better`로 읽는다. 여기서 고정하는 것은 public runtime contract와 layer split이며, current tiny evaluator의 구체 합성 규칙은 별도 `현재 구현` 문단에서만 다룬다.
+이 문서는 reference-path cost model의 의미와 runtime 계산 방식을 분리해서 정리하고, 현재 repo가 제공하는 public runtime interface와 evaluator contract를 고정한다. canonical score는 `higher is better`로 읽는다. 여기서 고정하는 것은 public runtime contract와 layer split이며, current tiny evaluator의 구체 합성 규칙은 별도 `현재 구현` 문단에서만 다룬다.
 
 ## 정의
 
-- field는 의미론적으로 `whole-space preference field`이며, 진행 인지 포텐셜 장(`progression-aware potential field`)으로 읽는다.
+- field는 의미론적으로 `local reference path cost surface`이며, 진행 인지 포텐셜 장(`progression-aware potential field`)으로 읽는다.
 - runtime에서는 항상 전역 dense map을 만들 필요가 없다.
 - raster는 local map 위에서 연속 함수를 샘플링한 secondary visualization이다.
 - downstream consumer는 current formula를 복제하지 않고 runtime layer를 소비한다.
-- soft / hard burden은 base field와 별도 계층이다.
+- soft / hard burden은 reference-path cost model와 별도 계층이다.
 
 ## 이 field가 말하는 것
 
@@ -73,7 +73,7 @@ trajectory evaluator는 state evaluation의 누적으로 해석한다.
   - `trajectory_base_preference_channels`
   - optional derived ordering key
 
-costmap / exception burden은 raster와 rendering 경로에서만 남긴다. public runtime payload는 progression-centered base field와 그 debug coordinate를 보여주는 쪽으로 제한한다.
+costmap / exception burden은 raster와 rendering 경로에서만 남긴다. public runtime payload는 progression-centered reference-path cost model와 그 debug coordinate를 보여주는 쪽으로 제한한다.
 
 ## 현재 구현
 

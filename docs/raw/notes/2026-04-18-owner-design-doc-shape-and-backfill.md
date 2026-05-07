@@ -10,7 +10,7 @@
 
 ## Source sessions
 
-- current active DPF thread after the gate-intuition cluster; later portions of the thread were not yet materialized under `$HOME/.codex/sessions/...` at edit time
+- current active LRPC thread after the gate-intuition cluster; later portions of the thread were not yet materialized under `$HOME/.codex/sessions/...` at edit time
 - early source anchor confirmed in `$HOME/.codex/sessions/2026/03/18/rollout-2026-03-18T03-56-06-019cfd27-be1f-7671-a901-4be788cca7bd.jsonl`
 
 ## User original messages
@@ -19,11 +19,11 @@
 
 > 그리고 설계 문서는 저런 메타는 필요 없고 설계만 깔끔하게 정리를 해줘
 
-> 그리고 raw에 보니까 1번 2번 이런게 대화에 있는데 그게 뭔지 안보여서 그거도 조치가 필요할듯 /home/ckh/Projects/driving-preference-field/docs/raw/notes/2026-04-17-dpf-as-progress-preference-device.md 이런거 skill도 업데이트 하고 내 프롬프트에 매몰되서 최대한 똑같게 안해도 되 그건 알지?
+> 그리고 raw에 보니까 1번 2번 이런게 대화에 있는데 그게 뭔지 안보여서 그거도 조치가 필요할듯 /home/ckh/Projects/local-reference-path-cost/docs/raw/notes/2026-04-17-lrpc-as-progress-preference-device.md 이런거 skill도 업데이트 하고 내 프롬프트에 매몰되서 최대한 똑같게 안해도 되 그건 알지?
 
 > 대화를 다 뽑아온게 아니구나 아직 할거야 아니면 못하는거야?
 
-> /home/ckh/Projects/driving-preference-field/docs/raw/owner_design_notebook.md 얘는 raw/notes 를 기준으로 해야되 꼭 그러고 있어?
+> /home/ckh/Projects/local-reference-path-cost/docs/raw/owner_design_notebook.md 얘는 raw/notes 를 기준으로 해야되 꼭 그러고 있어?
 
 > 그리고 이 세션의 대화만 뽑으면 될거 같은데 그게 뭔지는 알잖아 그거기 열어서 쭉 올라가면 되지 딱히 다른데서 설계나 개념 대화를 하진 않았어
 

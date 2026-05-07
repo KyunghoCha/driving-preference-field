@@ -1,17 +1,17 @@
 # Documentation Index
 
-This is the English documentation portal for `driving-preference-field`. The current project state is `Phase 5 complete, Phase 6 preparation`.
+This is the English documentation portal for `local-reference-path-cost`. The current project state is `Phase 5 complete, Phase 6 preparation`.
 
 ## AI Workflow
 
-If you are using Codex or another AI agent for repo work, start from [../../AGENTS.md](../../AGENTS.md). The agent-facing workflow guard is maintained in English under [../../plugins/dpf-working-rules/](../../plugins/dpf-working-rules/).
+If you are using Codex or another AI agent for repo work, start from [../../AGENTS.md](../../AGENTS.md). The agent-facing workflow guard is maintained in English under [../../plugins/lrpc-working-rules/](../../plugins/lrpc-working-rules/).
 
 ## Newcomer Spine
 
 1. [Project Overview](./explanation/project_overview.md)
 2. [Engineering Operating Principles](./explanation/engineering_operating_principles.md)
 3. [Research Scope](./explanation/research_scope.md)
-4. [Base Field Foundation](./explanation/base_field_foundation.md)
+4. [Reference-Path Cost Model Foundation](./explanation/base_field_foundation.md)
 5. [Input Semantics](./reference/input_semantics.md)
 6. [Source Adapter](./reference/source_adapter.md)
 7. [Runtime Evaluation Contract](./reference/runtime_evaluation_contract.md)
@@ -27,7 +27,7 @@ If you are using Codex or another AI agent for repo work, start from [../../AGEN
 | [Documentation Writing Principles](./explanation/documentation_writing_principles.md) | writing rules | read before rewriting docs |
 | [Parameter Exposure Policy](./explanation/parameter_exposure_policy.md) | knob exposure policy | read before adding or hiding controls |
 | [Research Scope](./explanation/research_scope.md) | scope boundary | read before expanding claims |
-| [Base Field Foundation](./explanation/base_field_foundation.md) | base-field concept | read before touching progression semantics |
+| [Reference-Path Cost Model Foundation](./explanation/base_field_foundation.md) | base-field concept | read before touching progression semantics |
 
 ## Reference
 
@@ -35,11 +35,12 @@ If you are using Codex or another AI agent for repo work, start from [../../AGEN
 | --- | --- | --- |
 | [Input Semantics](./reference/input_semantics.md) | canonical semantic slots | read before changing input contracts |
 | [Source Adapter](./reference/source_adapter.md) | adapter output contract | read before changing loaders or adapters |
-| [Base Field Terms](./reference/base_field_terms.md) | base field term breakdown | read before changing layer meaning |
+| [Reference-Path Cost Model Terms](./reference/base_field_terms.md) | reference-path cost model term breakdown | read before changing layer meaning |
 | [Layer Composition](./reference/layer_composition.md) | layer composition rules | read before changing runtime composition |
 | [Parameter Catalog](./reference/parameter_catalog.md) | current knobs and hidden tunables | read before exposing new parameters |
 | [Runtime Evaluation Contract](./reference/runtime_evaluation_contract.md) | runtime API contract | read before changing public runtime behavior |
 | [Current Formula Reference](./reference/current_formula_reference.md) | current implementation formula | read when you need the exact current math |
+| [SSC Pure-Field Consumption](./reference/ssc_pure_field_consumption.md) | downstream SSC objective and MPPI consumption path | read when you need the current SSC field-first control semantics |
 
 ## How-to
 

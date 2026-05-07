@@ -119,7 +119,7 @@ def test_raw_owner_thought_surface_is_linked_and_noncanonical() -> None:
     assert "./notes/2026-04-09-whole-space-fabric-instead-of-tube-support.md" in raw_readme
     assert "./notes/2026-04-10-semantic-snapshot-query-context-and-score-function.md" in raw_readme
     assert "./notes/2026-04-17-longitudinal-vs-transverse-weighting.md" in raw_readme
-    assert "./notes/2026-04-17-dpf-as-progress-preference-device.md" in raw_readme
+    assert "./notes/2026-04-17-lrpc-as-progress-preference-device.md" in raw_readme
     assert "./notes/2026-04-17-raw-thought-capture-workflow.md" in raw_readme
     assert "./notes/2026-04-18-owner-design-doc-shape-and-backfill.md" in raw_readme
     assert "./notes/2026-04-18-simulator-comparison-methodology-and-mppi-tuning.md" in raw_readme
@@ -161,8 +161,8 @@ def test_key_truths_survive_in_both_languages() -> None:
     runtime_en = _read("docs/en/reference/runtime_evaluation_contract.md")
     runtime_ko = _read("docs/ko/reference/runtime_evaluation_contract.md")
 
-    assert "whole-space preference field" in overview_en
-    assert "whole-space preference field" in overview_ko
+    assert "local reference path cost surface" in overview_en
+    assert "local reference path cost surface" in overview_ko
     assert "Phase 5 complete, Phase 6 preparation" in overview_en
     assert "Phase 5 완료, Phase 6 준비 상태" in overview_ko
     assert "Start here" in guide_en

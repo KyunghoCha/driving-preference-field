@@ -10,7 +10,7 @@
 
 ## Source sessions
 
-- current active DPF thread from the gate-intuition cluster onward; later portions of the thread were not yet materialized under `$HOME/.codex/sessions/...` at edit time
+- current active LRPC thread from the gate-intuition cluster onward; later portions of the thread were not yet materialized under `$HOME/.codex/sessions/...` at edit time
 - early source anchor confirmed in `$HOME/.codex/sessions/2026/03/18/rollout-2026-03-18T03-56-06-019cfd27-be1f-7671-a901-4be788cca7bd.jsonl`
 
 ## User original messages
@@ -28,6 +28,6 @@
 
 ## Open questions at the time
 
-- 이 문제는 tuning인가, DPF object definition인가
+- 이 문제는 tuning인가, LRPC object definition인가
 - longitudinal dominance를 높여도 branch/corridor structure를 어디까지 유지해야 하는가
 - `Fixed` scale 기준으로도 같은 직관이 유지되는가

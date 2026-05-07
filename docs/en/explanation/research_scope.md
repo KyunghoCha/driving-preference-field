@@ -2,7 +2,7 @@
 
 This document fixes what the repo currently claims, and what it does not claim yet. It is not a roadmap and not a marketing page. Its job is to keep the research boundary clear enough that implementation detail, downstream success, and future ambitions do not silently expand the scope.
 
-The current scope is a progression-centered whole-space preference field over the visible local map. That includes the base field concept, the split between progression semantics and drivable semantics, the runtime contract for evaluating states and trajectories, and the tooling needed to inspect morphology and compare parameter settings.
+The current scope is a progression-centered local reference path cost surface over the visible local map. That includes the reference-path cost model concept, the split between progression semantics and drivable semantics, the runtime contract for evaluating states and trajectories, and the tooling needed to inspect morphology and compare parameter settings.
 
 The scope also includes a generic source-adapter contract. The repo is allowed to define how a source should provide progression support, drivable support, optional layer support, and query context. It is not required to bind that contract to one downstream system.
 

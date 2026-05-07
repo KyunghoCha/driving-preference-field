@@ -6,7 +6,7 @@
 
 ### Facts already fixed in canonical docs
 
-Progression support is the main base-field input. Drivable support is domain/support input rather than base additive preference. Branches are represented with multiple progression guides.
+Progression support is the main base-field input. Drivable support is domain/support input rather than base additive ordering. Branches are represented with multiple progression guides.
 
 ### Information confirmed in discussion
 

@@ -13,7 +13,7 @@ def test_agents_entry_point_references_repo_operating_docs() -> None:
     assert "./docs/en/explanation/engineering_operating_principles.md" in body
     assert "./docs/en/status/experiment_plan.md" in body
     assert "./docs/en/explanation/documentation_writing_principles.md" in body
-    assert "./plugins/dpf-working-rules/" in body
+    assert "./plugins/lrpc-working-rules/" in body
     assert "study the relevant official docs or other strong external references" in body
     assert "intent, baseline, hypothesis, non-goals, and verification boundaries" in body
     assert "discuss the proposal and get approval before mutating those surfaces" in body
@@ -22,30 +22,30 @@ def test_agents_entry_point_references_repo_operating_docs() -> None:
 
 
 def test_repo_local_workflow_plugin_manifest_and_marketplace_exist() -> None:
-    manifest_path = ROOT / "plugins" / "dpf-working-rules" / ".codex-plugin" / "plugin.json"
+    manifest_path = ROOT / "plugins" / "lrpc-working-rules" / ".codex-plugin" / "plugin.json"
     marketplace_path = ROOT / ".agents" / "plugins" / "marketplace.json"
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
 
-    assert manifest["name"] == "dpf-working-rules"
+    assert manifest["name"] == "lrpc-working-rules"
     assert manifest["skills"] == "./skills/"
-    assert manifest["interface"]["displayName"] == "DPF Working Rules"
+    assert manifest["interface"]["displayName"] == "LRPC Working Rules"
 
-    assert marketplace["name"] == "driving-preference-field-local"
-    assert marketplace["plugins"][0]["name"] == "dpf-working-rules"
-    assert marketplace["plugins"][0]["source"]["path"] == "./plugins/dpf-working-rules"
+    assert marketplace["name"] == "local-reference-path-cost-local"
+    assert marketplace["plugins"][0]["name"] == "lrpc-working-rules"
+    assert marketplace["plugins"][0]["source"]["path"] == "./plugins/lrpc-working-rules"
 
 
 def test_repo_local_workflow_skill_routes_to_repo_docs_without_copying_them() -> None:
-    skill_path = ROOT / "plugins" / "dpf-working-rules" / "skills" / "dpf-working-rules" / "SKILL.md"
+    skill_path = ROOT / "plugins" / "lrpc-working-rules" / "skills" / "lrpc-working-rules" / "SKILL.md"
     body = skill_path.read_text(encoding="utf-8")
     openai_yaml = (
         ROOT
         / "plugins"
-        / "dpf-working-rules"
+        / "lrpc-working-rules"
         / "skills"
-        / "dpf-working-rules"
+        / "lrpc-working-rules"
         / "agents"
         / "openai.yaml"
     ).read_text(encoding="utf-8")
@@ -61,8 +61,8 @@ def test_repo_local_workflow_skill_routes_to_repo_docs_without_copying_them() ->
     assert "get approval before mutating those surfaces" in body
     assert "Do not comment obvious code" in body
     assert "Do not copy the full operating principles or experiment plan into the skill." in body
-    assert 'display_name: "DPF Working Rules"' in openai_yaml
-    assert 'default_prompt: "Use $dpf-working-rules' in openai_yaml
+    assert 'display_name: "LRPC Working Rules"' in openai_yaml
+    assert 'default_prompt: "Use $lrpc-working-rules' in openai_yaml
     assert "intent, baseline, hypothesis, non-goals, and verification boundary" in openai_yaml
     assert "before mutating them" in openai_yaml
 
@@ -106,8 +106,8 @@ def test_readmes_and_doc_portals_point_to_workflow_guard() -> None:
 
     assert "./AGENTS.md" in readme_en
     assert "./AGENTS.md" in readme_ko
-    assert "./plugins/dpf-working-rules/" in readme_ko
+    assert "./plugins/lrpc-working-rules/" in readme_ko
     assert "../../AGENTS.md" in docs_en
-    assert "../../plugins/dpf-working-rules/" in docs_en
+    assert "../../plugins/lrpc-working-rules/" in docs_en
     assert "../../AGENTS.md" in docs_ko
-    assert "../../plugins/dpf-working-rules/" in docs_ko
+    assert "../../plugins/lrpc-working-rules/" in docs_ko

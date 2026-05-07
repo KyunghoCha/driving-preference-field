@@ -19,7 +19,7 @@ Structure
 - `desktop/linux/install_desktop_entry.sh`
   Helper script that renders an installed Linux desktop entry for the current
   repo location
-- `desktop/linux/driving-preference-field-parameter-lab.desktop.in`
+- `desktop/linux/local-reference-path-cost-parameter-lab.desktop.in`
   Linux desktop entry template with placeholders
 - `assets/parameter_lab_launcher.svg`
   Shared launcher icon source for Linux
@@ -31,11 +31,11 @@ Notes
 - These launchers are reproduction-layer assets only
 - They must not change field semantics, config semantics, or preset semantics
 - The default case is `cases/toy/straight_corridor.yaml`
-- Override the Python executable on Windows with `DPF_PYTHON_EXE` if needed
+- Override the Python executable on Windows with `LRPC_PYTHON_EXE` if needed
 - Profile preview is optional tooling. If plotting dependencies fail, Parameter
   Lab should still launch and degrade the preview pane instead of crashing.
 - Windows launcher runs an import probe for `numpy`, `matplotlib`, `PyQt6`,
-  and `driving_preference_field` before opening the UI
+  and `local_reference_path_cost` before opening the UI
 - The current Windows known-good NumPy version is `1.26.4`
 
 Windows

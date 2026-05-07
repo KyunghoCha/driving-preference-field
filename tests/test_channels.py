@@ -1,13 +1,13 @@
 from pathlib import Path
 
-from driving_preference_field.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
-from driving_preference_field.channels import (
+from local_reference_path_cost.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
+from local_reference_path_cost.channels import (
     progression_tilted,
     progression_tilted_details,
 )
-from driving_preference_field.contracts import StateSample
-from driving_preference_field.presets import load_preset
-from driving_preference_field.toy_loader import load_toy_snapshot
+from local_reference_path_cost.contracts import StateSample
+from local_reference_path_cost.presets import load_preset
+from local_reference_path_cost.toy_loader import load_toy_snapshot
 
 
 ROOT = Path(__file__).resolve().parents[1]

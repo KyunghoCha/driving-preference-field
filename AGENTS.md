@@ -1,6 +1,6 @@
-# DPF Agent Entry Point
+# LRPC Agent Entry Point
 
-Use this file as the repo-local starting point for AI-assisted work in `driving-preference-field`.
+Use this file as the repo-local starting point for AI-assisted work in `local-reference-path-cost`.
 
 Before changing code, formulas, tests, docs, or experiment workflow, read:
 
@@ -30,4 +30,4 @@ Default working discipline:
 - treat no-touch or out-of-scope boundaries as batch-local defaults, not permanent law; if better evidence appears, update the boundary explicitly with the change
 - when code has non-obvious intent or a deliberate tradeoff, capture that intent in naming, a short comment, or a docstring; do not add comments that only restate obvious code
 
-For Codex-specific routing, also see the repo-local skill under [`plugins/dpf-working-rules/`](./plugins/dpf-working-rules/).
+For Codex-specific routing, also see the repo-local skill under [`plugins/lrpc-working-rules/`](./plugins/lrpc-working-rules/).

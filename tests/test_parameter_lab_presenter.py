@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from driving_preference_field.evaluator import evaluate_state
-from driving_preference_field.raster import sample_local_raster
-from driving_preference_field.ui.async_raster_evaluator import RasterComparisonResult
-from driving_preference_field.ui.parameter_lab.presenter import build_comparison_session, summary_payload
-from driving_preference_field.ui.parameter_lab.state import ParameterLabState
+from local_reference_path_cost.evaluator import evaluate_state
+from local_reference_path_cost.raster import sample_local_raster
+from local_reference_path_cost.ui.async_raster_evaluator import RasterComparisonResult
+from local_reference_path_cost.ui.parameter_lab.presenter import build_comparison_session, summary_payload
+from local_reference_path_cost.ui.parameter_lab.state import ParameterLabState
 
 
 ROOT = Path(__file__).resolve().parents[1]

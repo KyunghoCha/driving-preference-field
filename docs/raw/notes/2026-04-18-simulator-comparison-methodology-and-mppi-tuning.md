@@ -12,7 +12,7 @@
 
 ## Source sessions
 
-- current active SSC/DPF comparison discussion thread on 2026-04-18
+- current active SSC/LRPC comparison discussion thread on 2026-04-18
 - current thread was explicitly treated as the authoritative source for this design direction
 
 ## User original messages
@@ -25,13 +25,13 @@
 
 ## Assistant context (optional)
 
-- 대화에서는 `DPF-current-port`를 실험 본체에서 빼고 `SSC-baseline` vs 미래 `DPF-next` 비교로 다시 정리하는 흐름이 먼저 합의됐다.
+- 대화에서는 `LRPC-current-port`를 실험 본체에서 빼고 `SSC-baseline` vs 미래 `LRPC-next` 비교로 다시 정리하는 흐름이 먼저 합의됐다.
 - 이어서 사용자는 성능 비교만이 아니라 `mppi를 얼마나 최적화할 수 있는지`, 그리고 `Hz를 못 올릴 때 실험을 어떻게 공정하게 설계해야 하는지`를 함께 보고 싶다고 명시했다.
 - 이 지점에서 assistant는 세 가지 실험을 분리해야 한다고 정리했다.
-  - `real-time constrained benchmark`: target Hz를 고정하고, 그 제약을 만족하도록 내부 MPPI budget을 조정한 상태에서 baseline과 DPF를 비교
+  - `real-time constrained benchmark`: target Hz를 고정하고, 그 제약을 만족하도록 내부 MPPI budget을 조정한 상태에서 baseline과 LRPC를 비교
   - `fixed-MPPI-budget benchmark`: `batch_size`, `time_steps`, `model_dt` 같은 planning budget을 고정하고, achieved Hz와 overrun이 얼마나 달라지는지 측정
   - `parameter optimization / Pareto tuning study`: MPPI budget과 behavior 파라미터를 sweep해서 성능 대 비용 frontier를 그림
-- 사용자의 핵심 우려는 `DPF가 느리다고 그냥 Hz를 낮춰서 비교하면 제대로 된 실험이 아닌 것 같다`는 점이었다.
+- 사용자의 핵심 우려는 `LRPC가 느리다고 그냥 Hz를 낮춰서 비교하면 제대로 된 실험이 아닌 것 같다`는 점이었다.
 - 따라서 메인 비교는 외부 real-time 제약을 고정하고, 별도 실험에서 fixed-budget cost와 tuning 가능성을 따로 보는 방향이 current thread에서 잠겼다.
 
 ## Locked design transition in this thread

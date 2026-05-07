@@ -1,6 +1,6 @@
-# Base Field 구성 항목
+# Reference-Path Cost Model 구성 항목
 
-이 문서는 base driving preference field가 어떤 종류의 선호 구조를 생성해야 하는지 항별로 정리한다. 최종 수식을 고정하기보다, evaluator를 설계할 수 있을 정도로 각 항의 역할과 입력 소비를 먼저 분리해 둔다.
+이 문서는 base local reference path cost가 어떤 종류의 ordering 구조를 생성해야 하는지 항별로 정리한다. 최종 수식을 고정하기보다, evaluator를 설계할 수 있을 정도로 각 항의 역할과 입력 소비를 먼저 분리해 둔다.
 
 ## 필수 항
 
@@ -18,7 +18,7 @@
 - trajectory 해석:
   - progression-consistent한 흐름을 높게 읽는다.
 
-현재 구현은 `score = support_mod * alignment_mod * (transverse_term + longitudinal_gain * longitudinal_component)` 형태의 가산형 surface를 사용한다. 같은 longitudinal slice에서는 center-high transverse profile을 읽고, strong longitudinal 설정에서는 더 먼 progression gain이 가까운 중심 선호를 이길 수 있다.
+현재 구현은 `score = support_mod * alignment_mod * (transverse_term + longitudinal_gain * longitudinal_component)` 형태의 가산형 surface를 사용한다. 같은 longitudinal slice에서는 center-high transverse profile을 읽고, strong longitudinal 설정에서는 더 먼 progression gain이 가까운 중심 score를 이길 수 있다.
 
 ### 2. interior / boundary 기반 선호
 
@@ -54,9 +54,9 @@
 ## 항 사이의 관계
 
 - progression-aware potential structure가 longitudinal / transverse 주성분을 만든다.
-- interior / boundary-derived preference가 local cross-section shape를 보강한다.
+- interior / boundary-derived ordering가 local cross-section shape를 보강한다.
 - continuity / branch structure가 대안적 이어짐 사이의 선호를 만든다.
 
 ## 현재 기준
 
-base field는 최소한 progression-aware potential structure, interior / boundary-derived preference, continuity / branch structure를 생성할 수 있어야 하며, 추가 항은 이후 prototype에서 확장한다.
+reference-path cost model는 최소한 progression-aware potential structure, interior / boundary-derived ordering, continuity / branch structure를 생성할 수 있어야 하며, 추가 항은 이후 prototype에서 확장한다.

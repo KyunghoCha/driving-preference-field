@@ -1,6 +1,6 @@
 # 운영 원칙
 
-이 문서는 repo가 drift 없이 움직이기 위한 기본 방향을 적는다. 법전처럼 영원히 고정된 규칙을 나열하려는 문서가 아니다. 더 좋은 근거와 더 나은 운영 방식이 생기면 이 문서 자체도 바뀔 수 있다. 중요한 것은 복종이 아니라, `driving-preference-field`의 code health와 계약 일관성을 계속 더 좋게 만드는 것이다.
+이 문서는 repo가 drift 없이 움직이기 위한 기본 방향을 적는다. 법전처럼 영원히 고정된 규칙을 나열하려는 문서가 아니다. 더 좋은 근거와 더 나은 운영 방식이 생기면 이 문서 자체도 바뀔 수 있다. 중요한 것은 복종이 아니라, `local-reference-path-cost`의 code health와 계약 일관성을 계속 더 좋게 만드는 것이다.
 
 ## 1. 증상보다 원인에서 시작한다
 
@@ -22,7 +22,7 @@
 
 ## 4. SSOT는 플랫폼과 downstream보다 위에 둔다
 
-플랫폼 차이가 canonical meaning이 되면 안 된다. Linux, Windows 같은 환경은 launcher, packaging, troubleshooting에서 차이가 날 수 있지만 field semantics, config semantics, preset semantics는 그 위에 있어야 한다. 플랫폼 문제는 가능하면 dependency graph, capability detection, runtime fallback 같은 재현 계층에서 해결한다.
+플랫폼 차이가 canonical meaning이 되면 안 된다. Linux, Windows 같은 환경은 launcher, packaging, troubleshooting에서 차이가 날 수 있지만 score semantics, config semantics, preset semantics는 그 위에 있어야 한다. 플랫폼 문제는 가능하면 dependency graph, capability detection, runtime fallback 같은 재현 계층에서 해결한다.
 
 같은 논리는 SSC 같은 downstream consumer에도 적용된다. downstream이 설계를 검증할 수는 있어도, repo 자신의 계약을 조용히 대체하면 안 된다.
 
@@ -30,7 +30,7 @@
 
 실험적 수정은 clean baseline에서 시작하고, 한 번에 한 가지 의미 있는 가설만 검증하는 편이 좋다. Git 사용 방식은 바뀔 수 있지만 운영 원칙은 같다. dirty state 위에 실험을 계속 덧칠해서, 어느 시도가 어떤 효과를 냈는지 설명할 수 없게 만드는 방향은 피한다.
 
-이 원칙은 DPF morphology 실험에서 특히 중요하다. 수식, support logic, coordinate definition, visualization이 서로 얽혀 있기 때문에, 분리와 추적 가능성을 편의보다 우선하는 쪽이 맞다.
+이 원칙은 LRPC morphology 실험에서 특히 중요하다. 수식, support logic, coordinate definition, visualization이 서로 얽혀 있기 때문에, 분리와 추적 가능성을 편의보다 우선하는 쪽이 맞다.
 
 ## 6. 변경은 작게 묶고 검증은 끝까지 한다
 

@@ -17,7 +17,7 @@
 ### Supporting files
 
 - `scripts/launch_parameter_lab.sh`
-- `desktop/linux/driving-preference-field-parameter-lab.desktop.in`
+- `desktop/linux/local-reference-path-cost-parameter-lab.desktop.in`
 - `desktop/linux/install_desktop_entry.sh`
 - `assets/parameter_lab_launcher.svg`
 - `assets/parameter_lab_launcher.ico`

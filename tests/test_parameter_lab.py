@@ -6,9 +6,9 @@ import pytest
 from PyQt6.QtCore import QBuffer, QByteArray, QIODevice, QSettings, Qt, QUrl
 from PyQt6.QtGui import QColor, QImage
 
-from driving_preference_field.ui.locale import DEFAULT_LANGUAGE, LANG_EN, LANG_KO, UI_TEXTS, guide_doc_path
-from driving_preference_field.ui.parameter_guide import PANEL_NOTE_TEXT, parameter_help_html
-from driving_preference_field.ui.parameter_lab_window import ParameterLabWindow
+from local_reference_path_cost.ui.locale import DEFAULT_LANGUAGE, LANG_EN, LANG_KO, UI_TEXTS, guide_doc_path
+from local_reference_path_cost.ui.parameter_guide import PANEL_NOTE_TEXT, parameter_help_html
+from local_reference_path_cost.ui.parameter_lab_window import ParameterLabWindow
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,7 +18,7 @@ PRODUCT_LABELS = {"Guide", "Parameter Help", "Main", "Advanced Surface", "Profil
 
 @pytest.fixture(autouse=True)
 def _clear_parameter_lab_settings() -> None:
-    settings = QSettings("driving-preference-field", "ParameterLab")
+    settings = QSettings("local-reference-path-cost", "ParameterLab")
     settings.clear()
     settings.sync()
     yield
@@ -62,6 +62,10 @@ def test_parameter_lab_window_opens_and_populates_compare_views(qtbot) -> None:
     assert window._tabs.tabText(2) == "Diff"
     assert window._scale_mode == "normalized"
     assert window._scale_selector.currentData() == "normalized"
+    assert window._resolution_x_spin.value() == 160
+    assert window._resolution_y_spin.value() == 160
+    assert window._fixed_min_spin.isEnabled() is False
+    assert window._fixed_max_spin.isEnabled() is False
     assert window._selected_channel == "progression_tilted"
     assert window._channel_selector.currentData() == "progression_tilted"
     assert window._reload_action.text() == "Reload Case"
@@ -160,7 +164,7 @@ def test_guide_and_parameter_help_keep_distinct_roles_in_both_languages() -> Non
 
 
 def test_high_risk_ui_modules_do_not_hardcode_product_labels() -> None:
-    ui_root = ROOT / "src" / "driving_preference_field" / "ui"
+    ui_root = ROOT / "src" / "local_reference_path_cost" / "ui"
     targets = [ui_root / "parameter_lab_window.py", *sorted((ui_root / "widgets").glob("*.py"))]
     offenders: list[str] = []
 
@@ -454,7 +458,61 @@ def test_scale_mode_toggle_updates_scale_info_and_summary(qtbot) -> None:
     qtbot.waitUntil(lambda: window._scale_info_label.text() != normalized_info, timeout=15000)
     assert window._scale_mode == "fixed"
     assert window._scale_info_label.text().startswith("fixed")
+    assert window._fixed_min_spin.isEnabled() is True
+    assert window._fixed_max_spin.isEnabled() is True
     assert '"scale_mode": "fixed"' in window._summary_panel._text.toPlainText()
+
+    window.close()
+
+
+def test_fixed_scale_override_updates_view_and_summary(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    fixed_index = window._scale_selector.findData("fixed")
+    window._scale_selector.setCurrentIndex(fixed_index)
+    qtbot.waitUntil(lambda: window._scale_mode == "fixed", timeout=15000)
+
+    old_text = window._scale_info_label.text()
+    window._fixed_min_spin.setValue(1.5)
+    window._fixed_max_spin.setValue(3.5)
+
+    qtbot.waitUntil(lambda: window._scale_info_label.text() != old_text, timeout=15000)
+    assert "range=[1.500, 3.500]" in window._scale_info_label.text()
+    summary_text = window._summary_panel._text.toPlainText()
+    assert '"baseline_range": [' in summary_text
+    assert "1.5" in summary_text
+    assert "3.5" in summary_text
+
+    window.close()
+
+
+def test_resolution_change_recomputes_raster_at_requested_samples(qtbot) -> None:
+    case_path = ROOT / "cases/toy/straight_corridor.yaml"
+    window = ParameterLabWindow(case_path=case_path)
+    window.show()
+    _wait_for_result(qtbot, window)
+
+    old_generation = window._async._latest_generation
+    window._resolution_x_spin.setValue(96)
+    window._resolution_y_spin.setValue(80)
+
+    qtbot.waitUntil(lambda: window._async._latest_generation > old_generation, timeout=15000)
+    qtbot.waitUntil(
+        lambda: window._comparison_result is not None
+        and window._comparison_result.baseline_raster.metadata["x_samples"] == 96
+        and window._comparison_result.baseline_raster.metadata["y_samples"] == 80,
+        timeout=15000,
+    )
+
+    baseline_meta = window._comparison_result.baseline_raster.metadata
+    candidate_meta = window._comparison_result.candidate_raster.metadata
+    assert baseline_meta["x_samples"] == 96
+    assert baseline_meta["y_samples"] == 80
+    assert candidate_meta["x_samples"] == 96
+    assert candidate_meta["y_samples"] == 80
 
     window.close()
 
@@ -827,7 +885,7 @@ def test_toolbar_docs_opens_parameter_lab_docs_browser(qtbot) -> None:
 
 
 def test_language_switch_retranslates_ui_and_persists(qtbot) -> None:
-    settings = QSettings("driving-preference-field", "ParameterLab")
+    settings = QSettings("local-reference-path-cost", "ParameterLab")
     settings.clear()
     settings.sync()
 
@@ -962,7 +1020,7 @@ def test_profile_panel_degrades_gracefully_when_plot_rendering_fails(qtbot, monk
     window.show()
     _wait_for_result(qtbot, window)
 
-    import driving_preference_field.profile_inspection as profile_inspection
+    import local_reference_path_cost.profile_inspection as profile_inspection
 
     def _raise(*_args, **_kwargs):
         raise RuntimeError("synthetic render failure")

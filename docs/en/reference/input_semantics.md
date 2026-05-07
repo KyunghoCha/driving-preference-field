@@ -24,7 +24,7 @@ Boundary or interior support can be provided when the source knows useful geomet
 
 ### 4. Exception-layer support
 
-Obstacle, rule, and dynamic-layer support live outside the base field. They can be provided as separate exception or burden-style inputs, but they are not the same semantic layer as the progression-centered base score.
+Obstacle, rule, and dynamic-layer support live outside the reference-path cost model. They can be provided as separate exception or burden-style inputs, but they are not the same semantic layer as the progression-centered base score.
 
 ## Partial input
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from driving_preference_field.config import FieldConfig, ProgressionConfig
-from driving_preference_field.ui.parameter_lab.state import ParameterLabState
+from local_reference_path_cost.config import FieldConfig, ProgressionConfig
+from local_reference_path_cost.ui.parameter_lab.state import ParameterLabState
 
 
 ROOT = Path(__file__).resolve().parents[1]
