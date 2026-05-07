@@ -11,7 +11,7 @@
 ## Source sessions
 
 - confirmed materialized source: `$HOME/.codex/sessions/2026/03/18/rollout-2026-03-18T03-56-06-019cfd27-be1f-7671-a901-4be788cca7bd.jsonl`
-- this note is treated as the earliest confirmed anchor for the current DPF thread that later continues into the active 2026-04-17 to 2026-04-18 design discussion
+- this note is treated as the earliest confirmed anchor for the current LRPC thread that later continues into the active 2026-04-17 to 2026-04-18 design discussion
 
 ## User original messages
 
@@ -25,5 +25,5 @@
 
 ## Open questions at the time
 
-- gate crossing intuition을 이후 DPF progression 정의에 얼마나 직접 연결할지
+- gate crossing intuition을 이후 LRPC progression 정의에 얼마나 직접 연결할지
 - 정상 gate 통과와 local splice fallback의 경계를 어떤 기준으로 둘지

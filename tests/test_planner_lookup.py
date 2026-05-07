@@ -2,17 +2,18 @@ from pathlib import Path
 
 import numpy as np
 
-from driving_preference_field.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
-from driving_preference_field.contracts import Point2
-from driving_preference_field.field_runtime import build_field_runtime
-from driving_preference_field.planner_lookup import (
+from local_reference_path_cost.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
+from local_reference_path_cost.contracts import Point2
+from local_reference_path_cost.field_runtime import build_field_runtime
+from local_reference_path_cost.planner_lookup import (
     build_progression_lookup,
+    build_progression_lookup_on_grid,
     clear_progression_lookup_cache,
     query_progression_lookup_points,
     query_progression_lookup_trajectories,
 )
-from driving_preference_field.raster import sample_local_raster
-from driving_preference_field.toy_loader import load_toy_snapshot
+from local_reference_path_cost.raster import sample_local_raster
+from local_reference_path_cost.toy_loader import load_toy_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -98,6 +99,24 @@ def test_progression_lookup_build_uses_exact_score_grid_oracle() -> None:
     exact_score = runtime.query_progression_score_grid(prepared.x_coords, prepared.y_coords)
 
     assert np.allclose(prepared.progression_tilted, exact_score)
+
+
+def test_progression_lookup_explicit_grid_matches_exact_score_grid_oracle() -> None:
+    snapshot, context = load_toy_snapshot(ROOT / "cases/toy/left_bend.yaml")
+    runtime = build_field_runtime(snapshot, context)
+    x_coords = np.linspace(context.local_window.x_min, context.local_window.x_max, 37)
+    y_coords = np.linspace(context.local_window.y_min, context.local_window.y_max, 29)
+
+    prepared = build_progression_lookup_on_grid(
+        snapshot,
+        context,
+        x_coords=x_coords,
+        y_coords=y_coords,
+    )
+    exact_score = runtime.query_progression_score_grid(x_coords, y_coords)
+
+    assert np.allclose(prepared.progression_tilted, exact_score)
+    assert prepared.build_metadata["grid_kind"] == "explicit_coords"
 
 
 def test_progression_lookup_trajectory_query_preserves_shape_and_dtype() -> None:

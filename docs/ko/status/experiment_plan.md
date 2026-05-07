@@ -1,6 +1,6 @@
 # 실험 계획
 
-이 문서는 DPF 비교 실험을 어떻게 실행하고 기록할지 정리한다. morphology를 대충 보는 페이지가 아니라, 실험을 비교 가능하고 설명 가능하고 되돌릴 수 있게 유지하는 실행 문서다.
+이 문서는 LRPC 비교 실험을 어떻게 실행하고 기록할지 정리한다. morphology를 대충 보는 페이지가 아니라, 실험을 비교 가능하고 설명 가능하고 되돌릴 수 있게 유지하는 실행 문서다.
 
 ## 현재 phase
 
@@ -19,14 +19,14 @@
 
 ## baseline은 무엇을 뜻하나
 
-DPF 실험에서는 baseline이 하나만 있는 것이 아니다.
+LRPC 실험에서는 baseline이 하나만 있는 것이 아니다.
 
 - `code baseline`: 실험이 출발하는 clean commit, branch, worktree
 - `comparison baseline`: candidate를 직접 비교하는 preset/config/case 묶음
 - `historical baseline`: 새 방향이 실제로 나아졌는지 보기 위해 다시 가져오는 이전 상태
 - `rollback baseline`: 실험이 틀렸을 때 되돌아갈 clean state
 
-실제로는 `commit + case + local context + preset`이 같이 있어야 DPF baseline이 된다. commit만 같아도 case나 local window, preset이 다르면 같은 baseline으로 보기 어렵다.
+실제로는 `commit + case + local context + preset`이 같이 있어야 LRPC baseline이 된다. commit만 같아도 case나 local window, preset이 다르면 같은 baseline으로 보기 어렵다.
 
 ## 권장 실험 격리 방식
 

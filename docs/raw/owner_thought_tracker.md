@@ -33,7 +33,7 @@
 
 ### Open questions
 
-- segment consumption을 DPF 입력 경로 역할의 기원으로 어디까지 끌어올릴지
+- segment consumption을 LRPC 입력 경로 역할의 기원으로 어디까지 끌어올릴지
 - reachable progress를 이후 preference ordering으로 어떻게 일반화할지
 
 ## progression / gate intuition
@@ -51,7 +51,7 @@
 
 - 2026-03-17: `게이트를 지나면 다음 노드로 갈아타기`가 simplest progression rule로 제안됐다.
 - 2026-03-17: `게이트 지나면 다음 노드`, `범위 내면 경로 수정 안함`이라는 식으로 규칙이 더 단순하게 다시 말해졌다.
-- 2026-04-18: gate 직관을 DPF 설계 문서의 기원으로 다시 세우기로 결정했다.
+- 2026-04-18: gate 직관을 LRPC 설계 문서의 기원으로 다시 세우기로 결정했다.
 
 ### Linked raw notes
 
@@ -67,7 +67,7 @@
 
 ### Open questions
 
-- gate crossing이 이후 DPF progression semantics의 직접 정의가 될지
+- gate crossing이 이후 LRPC progression semantics의 직접 정의가 될지
 - gate와 consume을 pure geometry로 둘지, preference interpretation까지 끌어올릴지
 
 ## progress-first node progression and frontier priority
@@ -136,7 +136,7 @@
 
 ### Open questions
 
-- local splice를 DPF 설계의 핵심 비유로 둘지
+- local splice를 LRPC 설계의 핵심 비유로 둘지
 - blocked-case fallback으로만 둘지
 
 ## segment-first global path contract and visualization
@@ -170,7 +170,7 @@
 
 ### Open questions
 
-- 이 contract를 DPF 입력 경로 역할 설명으로 얼마나 끌어올릴지
+- 이 contract를 LRPC 입력 경로 역할 설명으로 얼마나 끌어올릴지
 - visualization choice와 conceptual contract를 어디까지 분리할지
 
 ## docs-first reset and canonical semantics
@@ -218,7 +218,7 @@
 
 ### Current framing
 
-- DPF/score field의 본체는 path generator가 아니라, 진행방향으로 기울어진 score space에 더 가깝다는 raw 설명이 나왔다.
+- LRPC/score surface의 본체는 path generator가 아니라, 진행방향으로 기울어진 score space에 더 가깝다는 raw 설명이 나왔다.
 - exception은 base score space 위에 얹히는 다른 layer로 봐야 하며, 단순 additive costmap처럼 섞으면 안 된다는 경계가 같이 올라왔다.
 
 ### Key changes by date
@@ -241,7 +241,7 @@
 
 ### Open questions
 
-- 이 object를 preference field, score function, goal cost function 중 어떤 언어로 설명할지
+- 이 object를 reference-path cost surface, score function, goal cost function 중 어떤 언어로 설명할지
 - layer separation을 canonical에서 어디까지 구조로 고정할지
 
 ## whole-space fabric instead of tube support
@@ -387,7 +387,7 @@
 
 - 2026-04-10: long-form user message에서 `의미번역기만`, `ego_pose는 최소 필수 출력이 아님`, `local map 범위는 실험 영역`, `branch winner는 canonical에서 정하지 않음`, `SSC에 매몰되면 안됨`이 한 번에 정리됐다.
 - 2026-04-10: `Semantic Input Snapshot` / `Query Context` 표 구성이 raw anchor로 올라왔다.
-- 2026-04-10: `선호장`, `score function`, `goal cost function` 언어 선택에 대한 질문이 explicit하게 나왔다.
+- 2026-04-10: `reference-path cost surface`, `score function`, `goal cost function` 언어 선택에 대한 질문이 explicit하게 나왔다.
 
 ### Linked raw notes
 
@@ -406,7 +406,7 @@
 - `score function` 언어가 사용자의 원래 의도와 얼마나 맞는지
 - `Query Context`와 field generator 경계를 얼마나 강하게 고정할지
 
-## DPF as progress-preference device
+## LRPC as progress-preference device
 
 ### First raised
 
@@ -414,7 +414,7 @@
 
 ### Current framing
 
-- DPF는 입력 경로를 참고해 “어디로 가는 게 더 좋은지”를 bias로 주는 장치라는 framing이 사용자 쪽에서 분명하게 제안됐다.
+- LRPC는 입력 경로를 참고해 “어디로 가는 게 더 좋은지”를 bias로 주는 장치라는 framing이 사용자 쪽에서 분명하게 제안됐다.
 - detailed path responsibility는 downstream planner/behavior가 더 많이 져야 한다는 문제의식이 같이 올라왔다.
 
 ### Key changes by date
@@ -425,7 +425,7 @@
 
 ### Linked raw notes
 
-- [2026-04-17-dpf-as-progress-preference-device](./notes/2026-04-17-dpf-as-progress-preference-device.md)
+- [2026-04-17-lrpc-as-progress-preference-device](./notes/2026-04-17-lrpc-as-progress-preference-device.md)
 
 ### Current status
 
@@ -449,13 +449,13 @@
 ### Current framing
 
 - `transverse`가 corridor를 강하게 붙잡는 주역이기보다, `longitudinal`가 진행 선호를 더 직접적으로 주는 주역이 될 수 있다는 문제의식이 나왔다.
-- 이 주제는 단순 tuning이 아니라 DPF가 어떤 종류의 preference field여야 하는지와 연결된다.
+- 이 주제는 단순 tuning이 아니라 LRPC가 어떤 종류의 reference-path cost surface여야 하는지와 연결된다.
 
 ### Key changes by date
 
 - 2026-04-17: 진행방향 성분이 메인으로 더 강해질 수 있다는 사용자 직관이 raw로 올라왔다.
 - 2026-04-17: `Normalized`는 계산을 막는 것이 아니라 visualization range를 다시 펴는 것이라는 구분이 같이 정리됐다.
-- 2026-04-18: 이 주제는 tuning보다 DPF object definition 문제라는 쪽이 더 분명해졌다.
+- 2026-04-18: 이 주제는 tuning보다 LRPC object definition 문제라는 쪽이 더 분명해졌다.
 
 ### Linked raw notes
 
@@ -471,7 +471,7 @@
 
 ### Open questions
 
-- corridor fidelity를 어디까지 base field가 책임져야 하는가
+- corridor fidelity를 어디까지 reference-path cost model가 책임져야 하는가
 - longitudinal dominance를 언제 current design belief로 올릴지
 
 ## simulator comparison methodology and MPPI tuning
@@ -482,7 +482,7 @@
 
 ### Current framing
 
-- DPF 비교는 하나의 승패 표로 끝나는 것이 아니라, 공정한 real-time benchmark, 구조 비용 benchmark, tuning frontier를 분리해서 봐야 한다는 문제의식이 나왔다.
+- LRPC 비교는 하나의 승패 표로 끝나는 것이 아니라, 공정한 real-time benchmark, 구조 비용 benchmark, tuning frontier를 분리해서 봐야 한다는 문제의식이 나왔다.
 - MPPI budget과 control frequency를 어떻게 다루는지 자체가 설계와 평가의 일부라는 생각이 올라왔다.
 
 ### Key changes by date
@@ -506,7 +506,7 @@
 ### Open questions
 
 - tuned target profile을 어느 숫자로 잠글지
-- DPF 평가 문서에서 이 benchmark split을 언제 canonical evaluation guidance로 올릴지
+- LRPC 평가 문서에서 이 benchmark split을 언제 canonical evaluation guidance로 올릴지
 
 ## raw thought capture workflow
 

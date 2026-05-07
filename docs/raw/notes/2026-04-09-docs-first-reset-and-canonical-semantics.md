@@ -25,19 +25,19 @@
 > 당연히 그대로 이사는 안하고 나는 문서랑 생각 철학 이런거만 가져가서 새로 만드는게 낫다고 생각하거든 아니면 문서도 거기 새로 만들던가 우선 거기 문서를 만들고 PROMPTS에 있는거 정독해서 형식대로 그리고 다시 구현하는게 낫지 않을까 싶어서
 
 > PLEASE IMPLEMENT THIS PLAN:
-> # `driving-preference-field` Docs-First 재시작 계획
+> # `local-reference-path-cost` Docs-First 재시작 계획
 >
 > ## Summary
-> - 새 workspace는 `/home/ckh/Projects/driving-preference-field` 로 고정한다.
+> - 새 workspace는 `/home/ckh/Projects/local-reference-path-cost` 로 고정한다.
 > - 새 프로젝트는 **코드 이관 없이 문서부터 다시 세운다**.
 > - 새 canonical의 중심은 다음으로 고정한다.
 > - 외부에서 주어지는 주행 가능 의미를 입력으로 받는다
-> - base driving preference field를 정의한다
+> - base local reference path cost를 정의한다
 > - obstacle/rule/dynamic은 별도 layer로 다룬다
 > - runtime은 local 함수 평가가 가능하다
 
 > PLEASE IMPLEMENT THIS PLAN:
-> # `driving-preference-field` 전체 문서 정리 계획
+> # `local-reference-path-cost` 전체 문서 정리 계획
 >
 > ## Summary
 > - 새 canonical은 `주행 가능 의미 + 진행 의미`를 입력으로 받고, **선호는 입력이 아니라 field 구조가 생성한다**는 가설로 고정한다.

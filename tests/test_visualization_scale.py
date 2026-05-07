@@ -1,6 +1,6 @@
 import numpy as np
 
-from driving_preference_field.visualization_scale import (
+from local_reference_path_cost.visualization_scale import (
     SCALE_MODE_FIXED,
     SCALE_MODE_NORMALIZED,
     display_unit,

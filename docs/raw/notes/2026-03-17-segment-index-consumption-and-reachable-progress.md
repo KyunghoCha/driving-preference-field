@@ -11,7 +11,7 @@
 ## Source sessions
 
 - confirmed materialized source: `$HOME/.codex/sessions/2026/03/18/rollout-2026-03-18T03-56-06-019cfd27-be1f-7671-a901-4be788cca7bd.jsonl`
-- this note captures the earlier user framing that appeared before the gate-only simplification and later DPF design discussion
+- this note captures the earlier user framing that appeared before the gate-only simplification and later LRPC design discussion
 
 ## User original messages
 

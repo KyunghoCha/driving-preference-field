@@ -1,0 +1,7 @@
+interface:
+  display_name: "LRPC Working Rules"
+  short_description: "Load LRPC operating docs and raw-thought workflow before repo changes"
+  default_prompt: "Use $lrpc-working-rules to load the LRPC operating docs, study relevant external references first, define the intent, baseline, hypothesis, non-goals, and verification boundary for this repo task, discuss policy/docs/user-facing semantics proposals before mutating them, capture approved owner-origin raw thoughts under docs/raw/notes with enough surrounding user context, prefer the current thread and any confirmed materialized cluster when the user designates the active thread as authoritative, update docs/raw/owner_thought_tracker.md, and update docs/raw/owner_design_notebook.md as raw-grounded clean design prose before canonicalizing them."
+
+policy:
+  allow_implicit_invocation: true

@@ -2,11 +2,23 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
 $projectRoot = $repoRoot
-$defaultPythonExe = Join-Path $env:USERPROFILE "anaconda3\envs\driving-preference-field\python.exe"
-$pythonExe = if ($env:DPF_PYTHON_EXE) { $env:DPF_PYTHON_EXE } else { $defaultPythonExe }
-$casePath = if ($env:DPF_CASE_PATH) { $env:DPF_CASE_PATH } else { "cases/toy/straight_corridor.yaml" }
+$defaultPythonExe = Join-Path $env:USERPROFILE "anaconda3\envs\local-reference-path-cost\python.exe"
+$legacyPythonExe = Join-Path $env:USERPROFILE "anaconda3\envs\driving-preference-field\python.exe"
+if ($env:LRPC_PYTHON_EXE) {
+    $pythonExe = $env:LRPC_PYTHON_EXE
+}
+elseif (Test-Path -LiteralPath $defaultPythonExe) {
+    $pythonExe = $defaultPythonExe
+}
+elseif (Test-Path -LiteralPath $legacyPythonExe) {
+    $pythonExe = $legacyPythonExe
+}
+else {
+    $pythonExe = $defaultPythonExe
+}
+$casePath = if ($env:LRPC_CASE_PATH) { $env:LRPC_CASE_PATH } else { "cases/toy/straight_corridor.yaml" }
 $desktop = [Environment]::GetFolderPath("Desktop")
-$logPath = Join-Path $desktop "Driving Preference Field Lab.log"
+$logPath = Join-Path $desktop "Local Reference Path Cost Lab.log"
 
 function Write-Log {
     param([string]$Message)
@@ -19,7 +31,7 @@ function Show-LaunchError {
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.MessageBox]::Show(
         "$Message`r`n`r`nLog: $logPath",
-        "Driving Preference Field Lab",
+        "Local Reference Path Cost Lab",
         [System.Windows.Forms.MessageBoxButtons]::OK,
         [System.Windows.Forms.MessageBoxIcon]::Error
     ) | Out-Null
@@ -136,14 +148,14 @@ try {
     Write-Log "PYTHONPATH=$pythonPath"
     Write-Log "CASE_PATH=$caseFullPath"
 
-    $probePath = Join-Path $env:TEMP "driving_preference_field_probe.py"
+    $probePath = Join-Path $env:TEMP "local_reference_path_cost_probe.py"
     $probeScript = @"
 import sys
 sys.path.insert(0, r"$pythonPath")
 import matplotlib
 import numpy
 from PyQt6.QtWidgets import QApplication
-import driving_preference_field
+import local_reference_path_cost
 print(f"PROBE_PYTHON={sys.version.split()[0]}")
 print(f"PROBE_NUMPY={numpy.__version__}")
 print(f"PROBE_MPL={matplotlib.__version__}")
@@ -183,7 +195,7 @@ print("PROBE_OK")
 
     Remove-Item -LiteralPath $probePath -Force -ErrorAction SilentlyContinue
 
-    $launchArguments = "-m driving_preference_field parameter-lab --case $casePath"
+    $launchArguments = "-m local_reference_path_cost parameter-lab --case $casePath"
     Write-Log "Launching Parameter Lab"
     $uiProcess = Start-DetachedProcess `
         -FilePath $pythonExe `

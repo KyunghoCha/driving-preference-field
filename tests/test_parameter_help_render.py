@@ -1,5 +1,5 @@
-from driving_preference_field.ui.help.render import parameter_help_html
-from driving_preference_field.ui.locale import LANG_EN, LANG_KO
+from local_reference_path_cost.ui.help.render import parameter_help_html
+from local_reference_path_cost.ui.locale import LANG_EN, LANG_KO
 
 
 def test_parameter_help_html_has_reference_first_sections_in_english_and_korean() -> None:

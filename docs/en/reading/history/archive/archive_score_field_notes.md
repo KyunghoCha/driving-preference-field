@@ -10,7 +10,7 @@ The field should exist before one trajectory is chosen.
 
 ### 2. Layer separation matters
 
-Base preference, drivable support, and exception layers should not be collapsed without care.
+Base ordering, drivable support, and exception layers should not be collapsed without care.
 
 ### 3. Visualization and canonical truth should stay separate
 

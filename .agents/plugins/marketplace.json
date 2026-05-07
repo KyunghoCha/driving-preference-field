@@ -1,14 +1,14 @@
 {
-  "name": "driving-preference-field-local",
+  "name": "local-reference-path-cost-local",
   "interface": {
-    "displayName": "Driving Preference Field Local"
+    "displayName": "Local Reference Path Cost Local"
   },
   "plugins": [
     {
-      "name": "dpf-working-rules",
+      "name": "lrpc-working-rules",
       "source": {
         "source": "local",
-        "path": "./plugins/dpf-working-rules"
+        "path": "./plugins/lrpc-working-rules"
       },
       "policy": {
         "installation": "AVAILABLE",

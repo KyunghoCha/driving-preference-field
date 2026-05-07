@@ -1,17 +1,17 @@
 # 문서 인덱스
 
-`driving-preference-field`의 한국어 문서 포털이다. 현재 프로젝트 상태는 `Phase 5 완료, Phase 6 준비 상태`다.
+`local-reference-path-cost`의 한국어 문서 포털이다. 현재 프로젝트 상태는 `Phase 5 완료, Phase 6 준비 상태`다.
 
 ## AI workflow
 
-이 repo에는 AI/Codex 작업용 workflow guard가 있다. agent-facing file은 영문 [../../AGENTS.md](../../AGENTS.md)와 [../../plugins/dpf-working-rules/](../../plugins/dpf-working-rules/) 아래만 유지한다.
+이 repo에는 AI/Codex 작업용 workflow guard가 있다. agent-facing file은 영문 [../../AGENTS.md](../../AGENTS.md)와 [../../plugins/lrpc-working-rules/](../../plugins/lrpc-working-rules/) 아래만 유지한다.
 
 ## 처음 읽는 순서
 
 1. [프로젝트 개요](./explanation/project_overview.md)
 2. [운영 원칙](./explanation/engineering_operating_principles.md)
 3. [연구 범위](./explanation/research_scope.md)
-4. [Base Field 기초](./explanation/base_field_foundation.md)
+4. [Reference-Path Cost Model 기초](./explanation/base_field_foundation.md)
 5. [입력 의미 계약](./reference/input_semantics.md)
 6. [소스 어댑터](./reference/source_adapter.md)
 7. [런타임 계약](./reference/runtime_evaluation_contract.md)
@@ -27,7 +27,7 @@
 | [문서 작성 원칙](./explanation/documentation_writing_principles.md) | 문서 작성 기준 | 문서를 다시 쓸 때 |
 | [파라미터 노출 정책](./explanation/parameter_exposure_policy.md) | knob 노출 기준 | 새 control을 추가하거나 숨기기 전에 |
 | [연구 범위](./explanation/research_scope.md) | 범위 경계 | claim을 넓히기 전에 |
-| [Base Field 기초](./explanation/base_field_foundation.md) | Base Field 개념 | progression semantics를 건드리기 전에 |
+| [Reference-Path Cost Model 기초](./explanation/base_field_foundation.md) | Reference-Path Cost Model 개념 | progression semantics를 건드리기 전에 |
 
 ## 레퍼런스
 
@@ -35,7 +35,7 @@
 | --- | --- | --- |
 | [입력 의미 계약](./reference/input_semantics.md) | canonical 입력 구조 | 입력 계약을 바꾸기 전에 |
 | [소스 어댑터](./reference/source_adapter.md) | adapter 출력 계약 | loader/adapter를 바꾸기 전에 |
-| [Base Field 항](./reference/base_field_terms.md) | Base Field 항 구분 | layer 의미를 바꾸기 전에 |
+| [Reference-Path Cost Model 항](./reference/base_field_terms.md) | Reference-Path Cost Model 항 구분 | layer 의미를 바꾸기 전에 |
 | [Layer 조합](./reference/layer_composition.md) | layer 조합 규칙 | runtime composition을 바꾸기 전에 |
 | [파라미터 카탈로그](./reference/parameter_catalog.md) | 현재 knob와 숨겨진 tunable | 새 파라미터를 노출하기 전에 |
 | [런타임 계약](./reference/runtime_evaluation_contract.md) | runtime API 계약 | public runtime behavior를 바꾸기 전에 |

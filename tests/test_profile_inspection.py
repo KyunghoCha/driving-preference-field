@@ -3,13 +3,13 @@ import json
 
 import numpy as np
 
-from driving_preference_field.profile_inspection import (
+from local_reference_path_cost.profile_inspection import (
     ProfileSpec,
     build_comparison_profile,
     export_profile_bundle,
 )
-from driving_preference_field.raster import sample_local_raster
-from driving_preference_field.toy_loader import load_toy_snapshot
+from local_reference_path_cost.raster import sample_local_raster
+from local_reference_path_cost.toy_loader import load_toy_snapshot
 
 
 ROOT = Path(__file__).resolve().parents[1]

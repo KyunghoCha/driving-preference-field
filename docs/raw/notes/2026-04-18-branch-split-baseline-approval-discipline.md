@@ -10,7 +10,7 @@
 
 ## Source sessions
 
-- current active DPF thread; the user explicitly treated the current thread as the authoritative source for the workflow correction
+- current active LRPC thread; the user explicitly treated the current thread as the authoritative source for the workflow correction
 
 ## User original messages
 

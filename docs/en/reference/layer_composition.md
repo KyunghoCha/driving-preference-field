@@ -1,21 +1,21 @@
 # Layer Composition
 
-This page defines how the repo separates the base field from other layers. It is a reference page about composition rules, not a current implementation walkthrough.
+This page defines how the repo separates the reference-path cost model from other layers. It is a reference page about composition rules, not a current implementation walkthrough.
 
 ## Basic rule
 
-The progression-centered base field should remain conceptually separate from drivable support, geometry priors, and exception-style layers. If everything is merged too early, the field becomes harder to interpret and harder to compare across sources.
+The progression-centered reference-path cost model should remain conceptually separate from drivable support, geometry priors, and exception-style layers. If everything is merged too early, the field becomes harder to interpret and harder to compare across sources.
 
 ## Composition rules
 
-- the base field carries the main progression-centered ordering
+- the reference-path cost model carries the main progression-centered ordering
 - drivable support acts as domain, support, or reconstruction input
 - geometry priors may influence interpretation but should remain secondary
 - obstacle, rule, and dynamic layers remain separate burden or cost-like layers
 
 ## Prototype default order
 
-The base field comes first. Support and geometry modulation come second. Exception-style layers remain outside the base score and should be consumed as separate overlays or penalties by downstream tooling.
+The reference-path cost model comes first. Support and geometry modulation come second. Exception-style layers remain outside the base score and should be consumed as separate overlays or penalties by downstream tooling.
 
 ## Out of scope
 

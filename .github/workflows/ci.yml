@@ -32,7 +32,7 @@ jobs:
       - name: Set up Conda environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: driving-preference-field
+          activate-environment: local-reference-path-cost
           environment-file: environment.yml
           auto-activate: true
           channels: conda-forge
@@ -53,11 +53,11 @@ jobs:
           import matplotlib
           import numpy
           from PyQt6.QtWidgets import QApplication
-          import driving_preference_field
+          import local_reference_path_cost
 
           print("numpy", numpy.__version__)
           print("matplotlib", matplotlib.__version__)
-          print("package", getattr(driving_preference_field, "__version__", "import-ok"))
+          print("package", getattr(local_reference_path_cost, "__version__", "import-ok"))
           PY
 
       - name: Run pytest

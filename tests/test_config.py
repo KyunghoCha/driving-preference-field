@@ -2,16 +2,16 @@ from pathlib import Path
 
 import pytest
 
-from driving_preference_field.config import (
+from local_reference_path_cost.config import (
     DEFAULT_FIELD_CONFIG,
     ComparisonPreset,
     FieldConfig,
     ProgressionConfig,
     SurfaceTuningConfig,
 )
-from driving_preference_field.evaluator import evaluate_state
-from driving_preference_field.presets import load_preset, save_preset
-from driving_preference_field.toy_loader import load_toy_snapshot
+from local_reference_path_cost.evaluator import evaluate_state
+from local_reference_path_cost.presets import load_preset, save_preset
+from local_reference_path_cost.toy_loader import load_toy_snapshot
 
 
 ROOT = Path(__file__).resolve().parents[1]

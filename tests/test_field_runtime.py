@@ -3,11 +3,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from driving_preference_field.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
-from driving_preference_field.contracts import QueryContext, QueryWindow, StateSample, TrajectorySample
-from driving_preference_field.evaluator import evaluate_state, evaluate_trajectory
-from driving_preference_field.field_runtime import FieldRuntime, build_field_runtime
-from driving_preference_field.toy_loader import load_toy_snapshot
+from local_reference_path_cost.config import FieldConfig, ProgressionConfig, SurfaceTuningConfig
+from local_reference_path_cost.contracts import QueryContext, QueryWindow, StateSample, TrajectorySample
+from local_reference_path_cost.evaluator import evaluate_state, evaluate_trajectory
+from local_reference_path_cost.field_runtime import FieldRuntime, build_field_runtime
+from local_reference_path_cost.toy_loader import load_toy_snapshot
 
 
 ROOT = Path(__file__).resolve().parents[1]

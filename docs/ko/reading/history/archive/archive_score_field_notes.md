@@ -12,7 +12,7 @@ archive 문서에서 현재도 참고 가치가 있는 아이디어를 reading n
 
 ### 2. layer 분리 필요성
 
-ideal driving preference를 담는 층과 obstacle / rule / dynamic exception을 담는 층은 구분되어야 한다는 문제의식은 계속 유지할 가치가 있다.
+ideal motion ordering를 담는 층과 obstacle / rule / dynamic exception을 담는 층은 구분되어야 한다는 문제의식은 계속 유지할 가치가 있다.
 
 ### 3. visualization과 canonical의 분리
 

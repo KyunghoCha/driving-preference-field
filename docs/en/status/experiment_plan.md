@@ -1,6 +1,6 @@
 # Experiment Plan
 
-This page records how the repo should run and record DPF comparison experiments. It is not only a morphology checklist. It is the working execution guide for keeping experiments comparable, explainable, and easy to discard or recombine.
+This page records how the repo should run and record LRPC comparison experiments. It is not only a morphology checklist. It is the working execution guide for keeping experiments comparable, explainable, and easy to discard or recombine.
 
 ## Current phase
 
@@ -14,14 +14,14 @@ The repo is in `Phase 5 complete, Phase 6 preparation`.
 
 ## What counts as a baseline
 
-DPF experiments need more than one kind of baseline.
+LRPC experiments need more than one kind of baseline.
 
 - `code baseline`: the clean commit, branch, or worktree that the experiment starts from
 - `comparison baseline`: the preset/config/case bundle that the candidate is compared against
 - `historical baseline`: an earlier known state used to check whether a newer direction actually improved the behavior
 - `rollback baseline`: the clean state that the experiment can return to if the direction turns out to be wrong
 
-In practice, a meaningful DPF baseline includes `commit + case + local context + preset`. A commit alone is not enough if the experiment changes case selection, query window, or preset shape.
+In practice, a meaningful LRPC baseline includes `commit + case + local context + preset`. A commit alone is not enough if the experiment changes case selection, query window, or preset shape.
 
 ## Recommended experiment isolation
 

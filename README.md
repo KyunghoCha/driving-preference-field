@@ -1,14 +1,14 @@
-# driving-preference-field
+# local-reference-path-cost
 
 [한국어 README](./README.ko.md)
 
-[![ci](https://github.com/KyunghoCha/driving-preference-field/actions/workflows/ci.yml/badge.svg)](https://github.com/KyunghoCha/driving-preference-field/actions/workflows/ci.yml)
+[![ci](https://github.com/KyunghoCha/local-reference-path-cost/actions/workflows/ci.yml/badge.svg)](https://github.com/KyunghoCha/local-reference-path-cost/actions/workflows/ci.yml)
 
-`driving-preference-field` is a research workspace for defining and testing a whole-space driving preference field over the visible local map. Current state: `Phase 5 complete, Phase 6 preparation`.
+`local-reference-path-cost` is a research workspace for defining and testing a whole-space local reference path cost over the visible local map. Current state: `Phase 5 complete, Phase 6 preparation`.
 
 ## What This Repo Is For
 
-- keep the canonical progression-centered field semantics and runtime contract stable
+- keep the canonical progression-centered score semantics and runtime contract stable
 - run repeatable morphology experiments in Parameter Lab
 - keep the source-adapter contract generic enough for downstream consumers
 
@@ -17,14 +17,14 @@ This repo is not currently responsible for planner integration, Gazebo/RViz hook
 ## Prerequisites
 
 - Python/conda environment defined in [environment.yml](./environment.yml)
-- Recommended environment name: `driving-preference-field`
+- Recommended environment name: `local-reference-path-cost`
 - Current known-good NumPy version: `1.26.4`
 
 ## Quick Start
 
 1. `conda env create -f environment.yml`
-2. `conda activate driving-preference-field`
-3. `PYTHONPATH=src python -m driving_preference_field parameter-lab`
+2. `conda activate local-reference-path-cost`
+3. `PYTHONPATH=src python -m local_reference_path_cost parameter-lab`
 
 ## Docs
 
@@ -38,7 +38,7 @@ Recommended newcomer reading order:
 
 1. [Project Overview](./docs/en/explanation/project_overview.md)
 2. [Engineering Operating Principles](./docs/en/explanation/engineering_operating_principles.md)
-3. [Base Field Foundation](./docs/en/explanation/base_field_foundation.md)
+3. [Reference-Path Cost Model Foundation](./docs/en/explanation/base_field_foundation.md)
 4. [Source Adapter](./docs/en/reference/source_adapter.md)
 5. [Runtime Evaluation Contract](./docs/en/reference/runtime_evaluation_contract.md)
 6. [Roadmap](./docs/en/status/roadmap.md)

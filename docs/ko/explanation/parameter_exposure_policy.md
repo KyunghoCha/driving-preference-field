@@ -2,12 +2,12 @@
 
 이 문서는 어떤 tunable을 바로 GUI에 노출하고, 어떤 것은 숨겨 두며, 어떤 것은 끝까지 internal로 유지할지를 설명한다. 질문은 단순하다. “코드 안에 상수가 있으니 slider를 만들자”가 아니라, 사용자가 무엇을 직접 읽고 조정해야 하는가를 어떻게 구분할 것인가다.
 
-Parameter Lab은 현재 whole-space preference field의 morphology를 반복 가능하게 비교하는 연구 도구다. 그래서 먼저 노출해야 하는 것은 field semantics를 직접 읽는 knob다. 반대로 discretization, kernel, modulation 같은 항목은 구현 품질과 성능에 영향을 주므로, 같은 급의 기본 패널이 아니라 한 단계 낮은 연구용 섹션으로 두는 편이 맞다.
+Parameter Lab은 현재 local reference path cost surface의 morphology를 반복 가능하게 비교하는 연구 도구다. 그래서 먼저 노출해야 하는 것은 score semantics를 직접 읽는 knob다. 반대로 discretization, kernel, modulation 같은 항목은 구현 품질과 성능에 영향을 주므로, 같은 급의 기본 패널이 아니라 한 단계 낮은 연구용 섹션으로 두는 편이 맞다.
 
 이 repo는 파라미터를 세 tier로 나눈다.
 
 - `Main`
-  - field semantics를 직접 읽는 canonical knob
+  - score semantics를 직접 읽는 canonical knob
 - `Advanced`
   - parameterization 가치는 있지만 구현 품질과 성능 tuning에 가까운 연구용 knob
 - `Internal`
@@ -23,4 +23,4 @@ Parameter Lab은 현재 whole-space preference field의 morphology를 반복 가
 
 현재 UI 배치도 이 정책을 따른다. 좌측 `Workspace`는 `Presets`, `Summary`, `Profile`, `Layers`처럼 결과를 읽는 공간이다. 우측 `Parameters` 도크는 조정 공간이고, `Main`과 접이식 `Advanced Surface`를 함께 둔다. 좌측 읽기 공간을 tuning panel로 바꾸는 것은 피한다.
 
-이 정책의 목적은 숨기는 것이 아니라, 먼저 드러나야 할 의미를 우선순위대로 드러내는 것이다. 이렇게 해야 Parameter Lab이 field semantics 비교 도구로 남고, 현재 구현의 미세 상수 때문에 canonical 의미가 흔들리지 않는다.
+이 정책의 목적은 숨기는 것이 아니라, 먼저 드러나야 할 의미를 우선순위대로 드러내는 것이다. 이렇게 해야 Parameter Lab이 score semantics 비교 도구로 남고, 현재 구현의 미세 상수 때문에 canonical 의미가 흔들리지 않는다.

@@ -56,7 +56,7 @@
 - [2026-04-09-whole-space-fabric-instead-of-tube-support](./notes/2026-04-09-whole-space-fabric-instead-of-tube-support.md)
 - [2026-04-10-semantic-snapshot-query-context-and-score-function](./notes/2026-04-10-semantic-snapshot-query-context-and-score-function.md)
 - [2026-04-17-longitudinal-vs-transverse-weighting](./notes/2026-04-17-longitudinal-vs-transverse-weighting.md)
-- [2026-04-17-dpf-as-progress-preference-device](./notes/2026-04-17-dpf-as-progress-preference-device.md)
+- [2026-04-17-lrpc-as-progress-preference-device](./notes/2026-04-17-lrpc-as-progress-preference-device.md)
 - [2026-04-17-raw-thought-capture-workflow](./notes/2026-04-17-raw-thought-capture-workflow.md)
 - [2026-04-18-owner-design-doc-shape-and-backfill](./notes/2026-04-18-owner-design-doc-shape-and-backfill.md)
 - [2026-04-18-simulator-comparison-methodology-and-mppi-tuning](./notes/2026-04-18-simulator-comparison-methodology-and-mppi-tuning.md)

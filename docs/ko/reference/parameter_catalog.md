@@ -4,7 +4,7 @@
 
 ## Main
 
-`Main`은 사용자가 field semantics를 읽을 때 가장 먼저 만져야 하는 progression 파라미터다.
+`Main`은 사용자가 score semantics를 읽을 때 가장 먼저 만져야 하는 progression 파라미터다.
 
 - `longitudinal_frame`
 - `longitudinal_family`
@@ -43,7 +43,7 @@
 
 ## View / Tool 후보
 
-overlay visibility, scale normalization, interpolation style, export presentation 같은 항목은 실제 knob가 될 수는 있지만 field semantics knob는 아니다. 이런 것들은 앞으로 `View` 계층으로 분리할 수 있어도, 이번 배치의 `Advanced Surface`에는 넣지 않았다.
+overlay visibility, scale normalization, interpolation style, export presentation 같은 항목은 실제 knob가 될 수는 있지만 score semantics knob는 아니다. 이런 것들은 앞으로 `View` 계층으로 분리할 수 있어도, 이번 배치의 `Advanced Surface`에는 넣지 않았다.
 
 ## Internal
 

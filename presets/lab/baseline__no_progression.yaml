@@ -25,7 +25,7 @@ metadata:
   origin: reference
   label: No Progression
   family: disabled
-  description: progression surface contribution 없이 base field의 다른 항만 확인하는 reference baseline
+  description: progression surface contribution 없이 reference-path cost model의 다른 항만 확인하는 reference baseline
   recommended_cases:
     - straight_corridor
     - left_bend

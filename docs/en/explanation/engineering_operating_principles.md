@@ -1,6 +1,6 @@
 # Engineering Operating Principles
 
-This document records the repo's default operating direction. It is not a law book, and it is not meant to freeze the repo into one permanent process. If better evidence or a cleaner approach appears, this document can change too. The point is not obedience. The point is to keep `driving-preference-field` moving in ways that improve code health without letting contracts, docs, and experiments drift apart.
+This document records the repo's default operating direction. It is not a law book, and it is not meant to freeze the repo into one permanent process. If better evidence or a cleaner approach appears, this document can change too. The point is not obedience. The point is to keep `local-reference-path-cost` moving in ways that improve code health without letting contracts, docs, and experiments drift apart.
 
 ## 1. Start from causes, not symptoms
 
@@ -30,7 +30,7 @@ The same logic applies to downstream consumers such as SSC. A downstream system 
 
 Experimental work should start from a clean baseline and keep one meaningful hypothesis at a time. The exact Git mechanics can change, but the operating idea stays the same: do not keep layering experiments on top of a dirty state until the change history becomes impossible to reason about.
 
-This principle is especially important for DPF morphology work, where field formulas, support logic, coordinate definitions, and visualization behavior can interact in non-obvious ways. The repo should bias toward isolation and traceability over convenience.
+This principle is especially important for LRPC morphology work, where field formulas, support logic, coordinate definitions, and visualization behavior can interact in non-obvious ways. The repo should bias toward isolation and traceability over convenience.
 
 ## 6. Prefer small coherent changes and verify them end to end
 

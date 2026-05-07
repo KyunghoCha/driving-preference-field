@@ -1,6 +1,6 @@
 # Documentation Writing Principles
 
-This document explains how documentation in `driving-preference-field` should be written. If `engineering_operating_principles.md` governs how the repo moves without drifting, this document governs how a page should answer the reader’s question clearly enough for both humans and tools to reconstruct the current truth.
+This document explains how documentation in `local-reference-path-cost` should be written. If `engineering_operating_principles.md` governs how the repo moves without drifting, this document governs how a page should answer the reader’s question clearly enough for both humans and tools to reconstruct the current truth.
 
 The primary rule is simple: documentation exists to answer a question. A page that does not make its question explicit will usually sprawl into mixed roles. Explanation pages should answer why something exists or how to think about it. Reference pages should answer what the contract is. How-to pages should answer how to complete a task. Status pages should answer where the project currently stands. Reading and internal pages should stay clearly non-canonical.
 

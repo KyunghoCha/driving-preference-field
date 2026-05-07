@@ -3,9 +3,9 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-TEMPLATE_PATH="${REPO_ROOT}/desktop/linux/driving-preference-field-parameter-lab.desktop.in"
+TEMPLATE_PATH="${REPO_ROOT}/desktop/linux/local-reference-path-cost-parameter-lab.desktop.in"
 TARGET_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
-TARGET_PATH="${TARGET_DIR}/driving-preference-field-parameter-lab.desktop"
+TARGET_PATH="${TARGET_DIR}/local-reference-path-cost-parameter-lab.desktop"
 LAUNCHER_PATH="${REPO_ROOT}/desktop/linux/launch_parameter_lab.sh"
 ICON_PATH="${REPO_ROOT}/assets/parameter_lab_launcher.svg"
 

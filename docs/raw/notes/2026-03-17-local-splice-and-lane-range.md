@@ -28,4 +28,4 @@
 
 - lane range를 차선 폭 그대로 둘지, 차량 중심 corridor로 줄일지
 - local splice가 실패했을 때 정지/대기와 재시도 경계를 어떻게 둘지
-- local splice를 DPF progression의 본질로 볼지, blocked-case fallback으로만 볼지
+- local splice를 LRPC progression의 본질로 볼지, blocked-case fallback으로만 볼지

@@ -24,13 +24,13 @@
 
 구현 경로:
 
-- `src/driving_preference_field/progression_surface.py`
-- `src/driving_preference_field/channels.py`
-- `src/driving_preference_field/field_runtime.py`
+- `src/local_reference_path_cost/progression_surface.py`
+- `src/local_reference_path_cost/channels.py`
+- `src/local_reference_path_cost/field_runtime.py`
 
 progression surface는 local map 전체에 진행 좌표와 횡방향 좌표를 동시에 부여하기 위해 필요하다. 현재 구현은 progression guide마다 Gaussian anchor blend로 guide-local progress coordinate를 먼저 계산하고, 횡방향은 raw visible progression guide polyline까지의 최단거리로 읽은 뒤, guide-local score를 만든 다음 guide 간 hard max envelope를 취한다. score와 exported transverse channel 모두 dominant guide 기준 exact 값을 유지한다.
 
-현재 구현에서 progression surface는 canonical 본체에 가장 가까운 층이다. progression-centered whole-space preference를 가장 직접적으로 근사하는 수식이 이 섹션에 있다.
+현재 구현에서 progression surface는 canonical 본체에 가장 가까운 층이다. progression-centered whole-space ordering를 가장 직접적으로 근사하는 수식이 이 섹션에 있다.
 
 ### `guide-local` anchor 좌표
 
@@ -185,7 +185,7 @@ detail channel 가운데 `progression_transverse_term`은 dominant guide의 actu
 
 ## `exception layer` 계산
 
-exception layer는 base field와 다른 층이다. safety / rule / dynamic burden을 soft와 hard로 분리해 계산하고, base preference로 상쇄되지 않게 둔다. 이 채널들은 costmap / exception 성격의 burden channel로 읽는 편이 맞다.
+exception layer는 reference-path cost model와 다른 층이다. safety / rule / dynamic burden을 soft와 hard로 분리해 계산하고, base ordering로 상쇄되지 않게 둔다. 이 채널들은 costmap / exception 성격의 burden channel로 읽는 편이 맞다.
 
 ```math
 b_{\text{soft}}(p,R)=

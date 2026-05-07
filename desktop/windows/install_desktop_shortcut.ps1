@@ -2,9 +2,9 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))
 $desktop = [Environment]::GetFolderPath("Desktop")
-$shortcutPath = Join-Path $desktop "Driving Preference Field Lab.lnk"
+$shortcutPath = Join-Path $desktop "Local Reference Path Cost Lab.lnk"
 $repoLauncherPath = Join-Path $repoRoot "desktop\windows\launch_parameter_lab.cmd"
-$repoShortcutPath = Join-Path $PSScriptRoot "Driving Preference Field Lab.lnk"
+$repoShortcutPath = Join-Path $PSScriptRoot "Local Reference Path Cost Lab.lnk"
 $repoIconPath = Join-Path $repoRoot "assets\parameter_lab_launcher.ico"
 
 if (-not (Test-Path -LiteralPath $repoLauncherPath)) {

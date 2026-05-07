@@ -2,7 +2,7 @@
 
 > 참고용 기록 문서다. 현재 문서 작성 판단은 `docs/ko/explanation/documentation_writing_principles.md`를 기준으로 읽는다.
 
-이 문서는 `driving-preference-field`의 문서 품질을 다듬을 때 참고한 공식 자료를 기록한다.
+이 문서는 `local-reference-path-cost`의 문서 품질을 다듬을 때 참고한 공식 자료를 기록한다.
 canonical 문서에 외부 기준을 그대로 인용하지 않기 위해,
 출처와 핵심 원칙, 그리고 이 repo에 적용할 때의 해석 포인트만 분리해 둔다.
 

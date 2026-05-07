@@ -1,30 +1,30 @@
 # SSC Pure-Field Consumption
 
-This page records how the current SSC field-first controller consumes DPF. It is a downstream-specific reference page, not a canonical DPF runtime contract. Read it when you need to reconstruct the current SSC objective, the obstacle semantics, and the exact way MPPI turns DPF ordering into control.
+This page records how the current SSC field-first controller consumes LRPC scoring. It is a downstream-specific reference page, not a canonical LRPC runtime contract. Read it when you need to reconstruct the current SSC objective, the obstacle semantics, and the exact way MPPI turns LRPC ordering into control.
 
 ## Scope
 
 The scope of this page is the current SSC pure-field path. In that path:
 
-- DPF stays a pure preference field
-- obstacle information does not attenuate or rewrite the DPF value itself
+- LRPC stays a pure reference-path cost surface
+- obstacle information does not attenuate or rewrite the LRPC value itself
 - costmap + footprint checks classify trajectories as feasible or infeasible before field ranking
 - only safe trajectories are ranked by pure field reward
 
-This is a downstream control policy. It does not replace the base DPF contract described in [Runtime Evaluation Contract](./runtime_evaluation_contract.md) and [Layer Composition](./layer_composition.md).
+This is a downstream control policy. It does not replace the base LRPC contract described in [Runtime Evaluation Contract](./runtime_evaluation_contract.md) and [Layer Composition](./layer_composition.md).
 
 ## Why SSC uses this structure
 
-SSC wants DPF to remain the main ordering signal. The controller should basically follow the field.
+SSC wants LRPC to remain the main ordering signal. The controller should basically follow the field.
 
 At the same time, SSC does not want a soft tradeoff where a high-field trajectory can still win by paying an obstacle penalty. In practice that can produce near-obstacle override, late stopping, or unstable left-right switching when the optimizer sees several trajectories with similar field values.
 
 The current SSC policy therefore separates the roles:
 
-- DPF answers which safe states and trajectories are more preferred
+- LRPC answers which safe states and trajectories are more preferred
 - obstacle checks answer whether a trajectory is admissible at all
 
-That separation keeps DPF pure and makes the overwrite rule explicit: unsafe trajectories are discarded before ranking.
+That separation keeps LRPC pure and makes the overwrite rule explicit: unsafe trajectories are discarded before ranking.
 
 ## Data path
 
@@ -36,7 +36,7 @@ The current SSC field-first path is:
 4. MPPI samples rollout trajectories in SSC state space.
 5. Each trajectory is checked against the costmap with footprint samples.
 6. Infeasible trajectories are removed from effective ranking by assigning a large sentinel cost.
-7. Safe trajectories are scored only with the pure DPF lookup.
+7. Safe trajectories are scored only with the pure LRPC lookup.
 8. MPPI updates the nominal control sequence from the weighted sample population.
 
 ## Current local context and operating point
@@ -65,7 +65,7 @@ The current optimizer operating point is:
 
 ## Pure field reward
 
-Let `f_t` be the DPF value queried from `progression_tilted` at rollout sample `t`:
+Let `f_t` be the LRPC value queried from `progression_tilted` at rollout sample `t`:
 
 `f_t = progression_tilted(x_t, y_t)`
 
@@ -187,19 +187,19 @@ Goal completion remains separate from field ranking. The current controller stil
 
 ## Visualization policy
 
-The score-field mesh shown in SSC visualization is pure DPF, not obstacle-masked DPF.
+The score-field mesh shown in SSC visualization is pure LRPC score, not obstacle-masked LRPC score.
 
 The mesh is produced from the same prepared planner lookup and the same bilinear lookup operator that the controller uses for scoring. Obstacles are not mixed into the color values. This keeps the display interpretable:
 
-- the mesh shows the pure preference field
+- the mesh shows the pure reference-path cost surface
 - costmap/obstacle logic decides feasibility separately
 
-## Relation to the DPF contract
+## Relation to the LRPC contract
 
 This SSC path is intentionally downstream-specific.
 
-- DPF still provides a whole-space preference ordering
-- obstacle, rule, and dynamic layers remain conceptually separate from the base field
-- SSC chooses to consume that base field with a safe-set-first MPPI policy
+- LRPC still provides a whole-space preference ordering
+- obstacle, rule, and dynamic layers remain conceptually separate from the reference-path cost model
+- SSC chooses to consume that reference-path cost model with a safe-set-first MPPI policy
 
-Another downstream consumer could choose a different policy. This page records the current SSC choice. It does not redefine the canonical DPF runtime semantics for every consumer.
+Another downstream consumer could choose a different policy. This page records the current SSC choice. It does not redefine the canonical LRPC runtime semantics for every consumer.

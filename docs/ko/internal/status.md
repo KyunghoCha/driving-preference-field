@@ -19,11 +19,11 @@
 
 지금 이 프로젝트가 정의하고 있는 것은 다음과 같다.
 
-- base field가 무엇인지
+- reference-path cost model가 무엇인지
 - local-map-wide progression-aware field를 어떻게 설명하는지
 - longitudinal / transverse를 독립 축으로 어떻게 다루는지
 - support, confidence, continuity, alignment를 어떻게 약한 secondary modulation으로 남기는지
-- exception layer를 base field와 분리해서 어떻게 읽는지
+- exception layer를 reference-path cost model와 분리해서 어떻게 읽는지
 - runtime local evaluation을 어떻게 해석하는지
 - config-driven comparison과 preset-based experiment가 lab 안에서 어떻게 동작해야 하는지
 - 현재 truth를 downstream 세부사항 없이 문서가 어떻게 설명하는지

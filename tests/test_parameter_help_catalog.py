@@ -1,8 +1,8 @@
 from dataclasses import fields
 from pathlib import Path
 
-from driving_preference_field.config import ProgressionConfig, SurfaceTuningConfig
-from driving_preference_field.ui.help.catalog import ADVANCED_PARAMETER_GROUPS, MAIN_PARAMETER_KEYS, PARAMETER_ORDER, PARAMETER_SPECS
+from local_reference_path_cost.config import ProgressionConfig, SurfaceTuningConfig
+from local_reference_path_cost.ui.help.catalog import ADVANCED_PARAMETER_GROUPS, MAIN_PARAMETER_KEYS, PARAMETER_ORDER, PARAMETER_SPECS
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,12 +39,12 @@ def test_parameter_catalog_metadata_is_complete() -> None:
 
 
 def test_parameter_help_shims_are_thin_compatibility_modules() -> None:
-    parameter_lab_window = ROOT / "src/driving_preference_field/ui/parameter_lab_window.py"
-    parameter_guide = ROOT / "src/driving_preference_field/ui/parameter_guide.py"
+    parameter_lab_window = ROOT / "src/local_reference_path_cost/ui/parameter_lab_window.py"
+    parameter_guide = ROOT / "src/local_reference_path_cost/ui/parameter_guide.py"
 
-    assert "from driving_preference_field.ui.parameter_lab.window import ParameterLabWindow" in parameter_lab_window.read_text(
+    assert "from local_reference_path_cost.ui.parameter_lab.window import ParameterLabWindow" in parameter_lab_window.read_text(
         encoding="utf-8"
     )
     guide_text = parameter_guide.read_text(encoding="utf-8")
-    assert "from driving_preference_field.ui.help.catalog import" in guide_text
-    assert "from driving_preference_field.ui.help.render import" in guide_text
+    assert "from local_reference_path_cost.ui.help.catalog import" in guide_text
+    assert "from local_reference_path_cost.ui.help.render import" in guide_text

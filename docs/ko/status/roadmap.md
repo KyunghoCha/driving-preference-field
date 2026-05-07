@@ -1,6 +1,6 @@
 # 로드맵
 
-`driving-preference-field`의 전체 진행 단계를 phase 기준으로 정리한 문서다. 현재 프로젝트가 어느 phase에 있는지, 각 phase에서 무엇을 끝냈는지, 다음에 무엇을 할지를 한 곳에서 본다.
+`local-reference-path-cost`의 전체 진행 단계를 phase 기준으로 정리한 문서다. 현재 프로젝트가 어느 phase에 있는지, 각 phase에서 무엇을 끝냈는지, 다음에 무엇을 할지를 한 곳에서 본다.
 
 ## 현재 위치
 
@@ -20,7 +20,7 @@
 
 - 목표:
   - 프로젝트 범위와 비범위를 고정
-  - 입력 semantics, base field, layer composition, runtime contract를 문서 SSOT로 정리
+  - 입력 semantics, reference-path cost model, layer composition, runtime contract를 문서 SSOT로 정리
   - canonical 문서가 과거 문서나 특정 구현체에 기대지 않도록 정리
 - 완료 기준:
   - `docs/ko/explanation/`와 `docs/ko/reference/` 핵심 문서가 서로 충돌하지 않는다.
@@ -34,7 +34,7 @@
 - 목표:
   - 문서 계약을 코드 타입과 함수 시그니처로 옮긴다.
   - toy case 기반 state / trajectory evaluator를 만든다.
-  - base field와 exception layer를 separate output으로 유지한다.
+  - reference-path cost model와 exception layer를 separate output으로 유지한다.
   - CLI와 최소 테스트를 추가한다.
 - 완료 기준:
   - semantic slot contract가 코드 타입으로 존재한다.

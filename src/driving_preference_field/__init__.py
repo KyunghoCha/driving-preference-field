@@ -1,79 +1,14 @@
-"""Tiny analytic evaluator skeleton for driving-preference-field."""
+"""Compatibility wrapper for the pre-rename ``driving_preference_field`` import path.
 
-from .config import (
-    DEFAULT_FIELD_CONFIG,
-    ComparisonPreset,
-    FieldConfig,
-    ProgressionConfig,
-)
-from .contracts import (
-    BoundaryInteriorSupport,
-    DirectedPolyline,
-    DrivableSupport,
-    ExceptionLayerSupport,
-    PolygonRegion,
-    ProgressionSupport,
-    QueryContext,
-    QueryWindow,
-    SemanticInputSnapshot,
-    StateSample,
-    TrajectorySample,
-)
-from .evaluator import (
-    StateEvaluationResult,
-    TrajectoryEvaluationResult,
-    evaluate_state,
-    evaluate_trajectory,
-)
-from .field_runtime import FieldRuntime, build_field_runtime
-from .input_loader import LoadedSemanticInput, detect_input_kind, load_semantic_input
-from .presets import DEFAULT_PRESET_DIR, load_preset, save_preset
-from .source_adapter import GenericAdapterValidationError, load_generic_snapshot
+The implementation package was renamed to ``local_reference_path_cost``.
+Downstream consumers should migrate imports when practical; this shim keeps
+existing SSC integrations importable during the transition.
+"""
 
-__all__ = [
-    "DEFAULT_FIELD_CONFIG",
-    "ComparisonPreset",
-    "BoundaryInteriorSupport",
-    "DirectedPolyline",
-    "DrivableSupport",
-    "ExceptionLayerSupport",
-    "FieldConfig",
-    "PolygonRegion",
-    "ProgressionConfig",
-    "ProgressionSupport",
-    "QueryContext",
-    "QueryWindow",
-    "SemanticInputSnapshot",
-    "StateEvaluationResult",
-    "StateSample",
-    "TrajectoryEvaluationResult",
-    "TrajectorySample",
-    "DEFAULT_PRESET_DIR",
-    "evaluate_state",
-    "evaluate_trajectory",
-    "FieldRuntime",
-    "GenericAdapterValidationError",
-    "LoadedSemanticInput",
-    "build_field_runtime",
-    "detect_input_kind",
-    "load_preset",
-    "load_generic_snapshot",
-    "load_semantic_input",
-    "RenderArtifacts",
-    "render_case",
-    "save_preset",
-]
+from __future__ import annotations
 
+import local_reference_path_cost as _impl
+from local_reference_path_cost import *  # noqa: F401,F403
 
-def __getattr__(name: str):
-    if name in {"RenderArtifacts", "render_case"}:
-        from .rendering import RenderArtifacts, render_case
-
-        globals().update(
-            {
-                "RenderArtifacts": RenderArtifacts,
-                "render_case": render_case,
-            }
-        )
-        return globals()[name]
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+__path__ = _impl.__path__
+__all__ = getattr(_impl, "__all__", ())

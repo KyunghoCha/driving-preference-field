@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from driving_preference_field.config import ComparisonPreset, FieldConfig, SurfaceTuningConfig
-from driving_preference_field.presets import (
+from local_reference_path_cost.config import ComparisonPreset, FieldConfig, SurfaceTuningConfig
+from local_reference_path_cost.presets import (
     can_overwrite_preset,
     default_preset_path,
     indexed_presets,

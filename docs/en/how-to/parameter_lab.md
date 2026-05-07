@@ -29,8 +29,8 @@ Use `Guide` when the question is “what should I do on this screen?” Use `Par
 
 The shortest path to a useful comparison is:
 
-1. `conda activate driving-preference-field`
-2. From the repo root, run `PYTHONPATH=src python -m driving_preference_field parameter-lab`
+1. `conda activate local-reference-path-cost`
+2. From the repo root, run `PYTHONPATH=src python -m local_reference_path_cost parameter-lab`
 3. Pick a case.
 4. Pick baseline and candidate presets.
 5. Keep `progression_tilted` on `Fixed` scale.
@@ -79,7 +79,7 @@ Use the left side to read. Use the right side to change parameters.
 
 The right `Parameters` dock is the control area.
 
-- `Main`: start here when you are interpreting field semantics directly
+- `Main`: start here when you are interpreting score semantics directly
 - `Advanced Surface`: open only when you are tuning morphology quality, discretization, support kernels, or modulation
 
 The rule is simple: lock semantics with `Main` first, then open `Advanced Surface` only if a quality issue still remains.
@@ -177,4 +177,4 @@ It stays focused on inspecting and comparing whole-space field morphology over a
 - [Parameter Exposure Policy](../explanation/parameter_exposure_policy.md)
 - [Parameter Catalog](../reference/parameter_catalog.md)
 - [Project Overview](../explanation/project_overview.md)
-- [Base Field Foundation](../explanation/base_field_foundation.md)
+- [Reference-Path Cost Model Foundation](../explanation/base_field_foundation.md)

@@ -4,11 +4,11 @@ This document defines the public runtime contract for evaluating the field. It f
 
 ## Definition
 
-The runtime evaluates a progression-centered whole-space preference field over the visible local map. The sign convention is `higher is better`.
+The runtime evaluates a progression-centered local reference path cost surface over the visible local map. The sign convention is `higher is better`.
 
 ## Field semantics
 
-The field is a whole-space preference field, not a route selector. It exposes an ordering over states and trajectories. Downstream optimizers or evaluators can consume that ordering, but they should not assume the field has already selected a unique winner direction.
+The field is a local reference path cost surface, not a route selector. It exposes an ordering over states and trajectories. Downstream optimizers or evaluators can consume that ordering, but they should not assume the field has already selected a unique winner direction.
 
 ## Public runtime interface
 
@@ -21,7 +21,7 @@ The runtime evaluates the active progression field under the current `FieldConfi
 ## Properties that must hold
 
 - `higher is better`
-- the base field remains progression-centered
+- the reference-path cost model remains progression-centered
 - hard max envelope semantics remain part of the current implementation unless the docs and code move together
 - base-field meaning stays distinct from obstacle/rule/dynamic cost-like layers
 
@@ -47,7 +47,7 @@ Visualization is a sampled view of the continuous runtime field over the local m
 
 The runtime provides the field ordering. An optimizer or consumer decides how to turn that ordering into actual motion. Optimizer policy is therefore downstream of this contract.
 
-For one concrete downstream example, see [SSC Pure-Field Consumption](./ssc_pure_field_consumption.md). That page is consumer-specific and does not redefine the base DPF runtime contract.
+For one concrete downstream example, see [SSC Pure-Field Consumption](./ssc_pure_field_consumption.md). That page is consumer-specific and does not redefine the base LRPC runtime contract.
 
 ## Current baseline
 

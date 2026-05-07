@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from driving_preference_field.toy_loader import load_toy_snapshot, summarize_snapshot
+from local_reference_path_cost.toy_loader import load_toy_snapshot, summarize_snapshot
 
 
 ROOT = Path(__file__).resolve().parents[1]

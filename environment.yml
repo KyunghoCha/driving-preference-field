@@ -1,4 +1,4 @@
-name: driving-preference-field
+name: local-reference-path-cost
 channels:
   - conda-forge
 dependencies:
